@@ -1,3 +1,4 @@
+<meta charset="UTF-8">
 <title>Tabuada em Jogo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -686,9 +687,9 @@
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function isUnlocked(level, idx){
-    if(level === 2 && !level1Complete()) return false;
-    if(idx === 0) return true;
-    return progress[level][idx - 1];
+    // Free choice of stage within a level; level 2 as a whole needs level 1 fully done.
+    if(level === 2) return level1Complete();
+    return true;
   }
   function stageLabel(stage){ return stage === 'mixed' ? 'Mix' : String(stage); }
   function stageName(level, stage){
