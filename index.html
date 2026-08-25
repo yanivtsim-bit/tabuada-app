@@ -303,6 +303,15 @@
   .feedback-msg.bad{ color: var(--bad); }
 
   .fact-triangle{ display:flex; justify-content:center; min-height:0; }
+  .tri-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.35rem; }
+  .tri-wrap.pop{ animation: triangle-zoom .35s ease; }
+  @keyframes triangle-zoom{
+    0%{ transform:scale(0.4); opacity:0; }
+    60%{ transform:scale(1.08); opacity:1; }
+    100%{ transform:scale(1); opacity:1; }
+  }
+  .tri-captions{ display:flex; flex-direction:column; gap:0.15rem; font-size:0.85rem; color:var(--chalk-dim); font-variant-numeric:tabular-nums; direction:ltr; }
+  .tri-captions b{ color:var(--chalk); font-weight:600; }
 
   /* ---------- Keypad ---------- */
   .keypad-wrap{ display:flex; flex-direction:column; gap:0.6rem; align-items:center; }
@@ -546,6 +555,7 @@
         </div>
         <div class="fact-triangle" id="fact-triangle"></div>
         <div class="feedback-msg" id="feedback-msg">&nbsp;</div>
+        <button class="btn primary" id="btn-next-question" style="display:none;max-width:280px;width:100%;">Próxima</button>
 
         <div class="keypad-wrap">
           <div class="answer-display" id="answer-display">&nbsp;</div>
@@ -622,7 +632,7 @@
       scoreLineLabel: 'Sequência:', attemptsLineLabel: 'Tentativas totais:',
       finalPraises: ['Sensacional!','Já decoraste!','Mestre da tabuada!','100 seguidas, uau!'],
       continueNextPrefix: 'Próxima: ', continueToLevel2: 'Ir para o Nível 2',
-      btnReplay: 'Tentar de novo', btnMap: 'Ver trilha',
+      btnReplay: 'Tentar de novo', btnMap: 'Ver trilha', btnNext: 'Próxima',
       incompleteWarning: (s)=> 'Ainda não completaste esta tabuada (' + s + '/100). Podes continuar depois.',
       level2EarlyWarning: 'Ainda não terminaste a Base (Nível 1). Podes continuar mesmo assim.',
       adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
@@ -647,7 +657,7 @@
       scoreLineLabel: 'רצף:', attemptsLineLabel: 'ניסיונות בסך הכול:',
       finalPraises: ['מדהים!','כבר שיננת!','אלוף לוח הכפל!','100 ברצף, וואו!'],
       continueNextPrefix: 'הבא: ', continueToLevel2: 'עבור לשלב 2',
-      btnReplay: 'נסה שוב', btnMap: 'מסלול',
+      btnReplay: 'נסה שוב', btnMap: 'מסלול', btnNext: 'הבא',
       incompleteWarning: (s)=> 'עוד לא סיימת את הלוח הזה (' + s + '/100). אפשר להמשיך אחר כך.',
       level2EarlyWarning: 'עוד לא סיימת את הבסיס (שלב 1). אפשר להמשיך בכל זאת.',
       adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
@@ -682,6 +692,7 @@
     $('lvl2-lock-text').textContent = tt.lvl2Lock;
     $('btn-replay').textContent = tt.btnReplay;
     $('btn-map').textContent = tt.btnMap;
+    $('btn-next-question').textContent = tt.btnNext;
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
@@ -1099,7 +1110,7 @@
       arrow = '<line x1="90" y1="47" x2="125" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
               '<text x="106" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
     }
-    return '<svg viewBox="0 0 160 128" width="150" height="120">' +
+    const svg = '<svg viewBox="0 0 160 128" width="140" height="112">' +
       '<defs><marker id="tri-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="'+c+'"/></marker></defs>' +
       '<path d="M80 8 L18 112 L142 112 Z" fill="none" stroke="rgba(243,236,217,0.35)" stroke-width="2"/>' +
       arrow +
@@ -1107,6 +1118,13 @@
       '<text x="40" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
       '<text x="120" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
     '</svg>';
+    // Always show both paths: the multiplication and the division that connect the same three numbers.
+    const captions =
+      '<div class="tri-captions">' +
+        '<span>' + a + ' × ' + b + ' = <b>' + p + '</b></span>' +
+        '<span>' + p + ' ÷ ' + a + ' = <b>' + b + '</b></span>' +
+      '</div>';
+    return '<div class="tri-wrap pop">' + svg + captions + '</div>';
   }
 
   // ---------- game state ----------
@@ -1175,6 +1193,7 @@
     $('feedback-msg').className = 'feedback-msg';
     $('fact-card').className = 'fact-card';
     $('fact-triangle').innerHTML = '';
+    $('btn-next-question').style.display = 'none';
     $('answer-display').innerHTML = '&nbsp;';
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
@@ -1291,16 +1310,24 @@
     if(state.level === 2){
       const [ca, cb] = state.current;
       $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb, state.hiddenSlot);
-      delay = Math.max(delay, 1600);
+      delay = 6000; // fallback only — the child can also tap "Próxima" to move on sooner
     }
 
-    setTimeout(() => {
+    function advance(){
+      clearTimeout(state.advanceTimer);
+      $('btn-next-question').style.display = 'none';
       if(ok && state.streak >= STREAK_TARGET){
         finishRound();
       } else {
         renderQuestion();
       }
-    }, delay);
+    }
+    state.advanceTimer = setTimeout(advance, delay);
+    if(state.level === 2){
+      const nextBtn = $('btn-next-question');
+      nextBtn.style.display = 'block';
+      nextBtn.onclick = advance;
+    }
   }
 
   function finishRound(){
@@ -1351,6 +1378,7 @@
   // ---------- navigation ----------
   $('btn-back').addEventListener('click', () => {
     stopTimer();
+    if(state && state.advanceTimer) clearTimeout(state.advanceTimer);
     if(state && state.streak > 0 && state.streak < STREAK_TARGET){
       showToast(T[lang].incompleteWarning(state.streak));
     }
