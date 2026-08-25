@@ -423,6 +423,11 @@
   .admin-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:0.4rem 0.8rem; font-size:0.8rem; color:var(--chalk-dim); direction:ltr; }
   .admin-stats b{ color:var(--chalk); font-variant-numeric:tabular-nums; }
   .admin-progress{ font-size:0.72rem; color:var(--chalk-faint); margin-top:0.5rem; }
+  .admin-level{ margin-top:0.55rem; padding-top:0.5rem; border-top:1px dashed rgba(243,236,217,0.12); }
+  .admin-level-head{ font-size:0.76rem; color:var(--chalk-dim); margin-bottom:0.35rem; direction:ltr; }
+  .admin-tables{ display:flex; flex-wrap:wrap; gap:0.3rem; direction:ltr; }
+  .admin-table-chip{ font-size:0.68rem; padding:0.15rem 0.45rem; border-radius:999px; background:rgba(255,255,255,0.06); color:var(--chalk-dim); }
+  .admin-table-chip.hard{ background: var(--bad-dim); color: var(--bad); }
 
   /* ---------- Reference card + reference table screen ---------- */
   .ref-card{
@@ -668,7 +673,7 @@
 
 <script>
 (function(){
-  const STREAK_TARGET = 100;
+  const STREAK_TARGET = 40;
   const TABLES = [2,3,4,5,6,7,8,9,10];
   const STORAGE_KEY = 'tabuada-players-v1';
   const LANG_KEY = 'tabuada-lang';
@@ -708,7 +713,8 @@
       level2EarlyWarning: 'Ainda não terminaste a Base (Nível 1). Podes continuar mesmo assim.',
       adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
       pointsLabel: 'Pontos', correctLabel: 'Acertos', wrongLabel: 'Erros', noPlayersYet: 'Ainda não há jogadores.',
-      lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2'
+      lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2',
+      avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas'
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'לוח הכפל במשחק', loginSub: 'מי משחק היום?',
@@ -739,7 +745,8 @@
       level2EarlyWarning: 'עוד לא סיימת את הבסיס (שלב 1). אפשר להמשיך בכל זאת.',
       adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
       pointsLabel: 'נקודות', correctLabel: 'תשובות נכונות', wrongLabel: 'טעויות', noPlayersYet: 'עדיין אין שחקנים.',
-      lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2'
+      lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2',
+      avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות'
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -810,6 +817,7 @@
   let currentPlayer = null;
   let progress = null;
   let streaks = null;
+  let byTable = null;
   let lastTick = null;
 
   function defaultStreaks(){
@@ -828,10 +836,23 @@
     return p.progress;
   }
 
+  function ensureByTable(name){
+    const p = players[name];
+    if(!p.byTable) p.byTable = { 1:{}, 2:{}, 3:{} };
+    return p.byTable;
+  }
+  function ensureTableStat(level, stage){
+    if(!byTable[level]) byTable[level] = {};
+    const key = String(stage);
+    if(!byTable[level][key]) byTable[level][key] = { correct: 0, wrong: 0, timeMs: 0 };
+    return byTable[level][key];
+  }
+
   function persist(){
     if(!currentPlayer) return;
     players[currentPlayer].progress = progress;
     players[currentPlayer].streaks = streaks;
+    players[currentPlayer].byTable = byTable;
     savePlayers(players);
   }
 
@@ -1013,6 +1034,7 @@
     currentPlayer = name;
     progress = ensureProgress(name);
     streaks = ensureStreaks(name);
+    byTable = ensureByTable(name);
     lastTick = Date.now();
     ensureStats(name);
     $('player-chip').textContent = '👤 ' + name;
@@ -1024,6 +1046,7 @@
     currentPlayer = null;
     progress = null;
     streaks = null;
+    byTable = null;
     lastTick = null;
     show('login');
   });
@@ -1063,9 +1086,35 @@
           '<span>' + tt.pointsLabel + ' (' + tt.totalLabel + ')</span><b>' + stats.totalPoints + '</b>' +
           '<span>' + tt.correctLabel + ' / ' + tt.wrongLabel + '</span><b>' + today.correct + ' / ' + today.wrong + '</b>' +
         '</div>' +
-        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>';
+        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>' +
+        levelBreakdownHtml(name, 1, tt.lvl1ProgressLabel) +
+        levelBreakdownHtml(name, 2, tt.lvl2ProgressLabel) +
+        levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel);
       list.appendChild(card);
     });
+  }
+  function levelBreakdownHtml(name, level, levelName){
+    const tt = T[lang];
+    const bt = ensureByTable(name)[level] || {};
+    let totalCorrect = 0, totalWrong = 0, totalTime = 0;
+    const rows = Object.keys(bt).map(key => {
+      const s = bt[key];
+      totalCorrect += s.correct; totalWrong += s.wrong; totalTime += s.timeMs;
+      return { stage: key, correct: s.correct, wrong: s.wrong, attempts: s.correct + s.wrong, timeMs: s.timeMs };
+    }).filter(r => r.attempts > 0).sort((a,b) => (b.wrong - a.wrong) || (b.attempts - a.attempts));
+    const totalAttempts = totalCorrect + totalWrong;
+    const avgAll = totalAttempts ? (totalTime / totalAttempts / 1000).toFixed(1) : '—';
+    const head = levelName + ' — ' + totalCorrect + '✓ / ' + totalWrong + '✗ · ' + avgAll + 's ' + tt.avgTimeLabel;
+    if(!rows.length){
+      return '<div class="admin-level"><div class="admin-level-head">' + head + ' (' + tt.noAttemptsYet + ')</div></div>';
+    }
+    const chips = rows.map(r => {
+      const label = r.stage === 'mixed' ? tt.stageMixed : r.stage;
+      const hard = r.wrong > r.correct ? ' hard' : '';
+      const avg = (r.timeMs / r.attempts / 1000).toFixed(1);
+      return '<span class="admin-table-chip' + hard + '">' + label + ': ' + r.correct + '✓/' + r.wrong + '✗ · ' + avg + 's</span>';
+    }).join('');
+    return '<div class="admin-level"><div class="admin-level-head">' + head + '</div><div class="admin-tables">' + chips + '</div></div>';
   }
 
   // ---------- Tabela (free reference, no quiz) ----------
@@ -1431,12 +1480,16 @@
     const card = $('fact-card');
     const msg = $('feedback-msg');
     const blank = $('blank-slot');
-    let delay = 550;
     const tt = T[lang];
 
     tickTime();
     const stats = currentPlayer ? ensureStats(currentPlayer) : null;
     const todayStats = stats ? stats.days[todayKey()] : null;
+    const tableStat = currentPlayer ? ensureTableStat(state.level, state.stage) : null;
+    if(tableStat){
+      tableStat.timeMs += reactionMs;
+      if(ok) tableStat.correct++; else tableStat.wrong++;
+    }
 
     if(ok){
       state.streak++;
@@ -1453,7 +1506,6 @@
       }
       if(state.streak % 10 === 0 && state.streak < STREAK_TARGET){
         showMilestoneTrophy(state.streak / 10, state.streak);
-        delay = 1500;
       }
     } else {
       card.classList.add('bad');
@@ -1461,7 +1513,6 @@
       msg.textContent = tt.wrongMsg(state.correct);
       beep('bad');
       state.streak = 0;
-      delay = 1150;
       if(todayStats) todayStats.wrong++;
     }
     if(streaks) streaks[state.level][state.idx] = state.streak;
@@ -1478,7 +1529,6 @@
     }
 
     function advance(){
-      clearTimeout(state.advanceTimer);
       $('btn-next-question').style.display = 'none';
       if(ok && state.streak >= STREAK_TARGET){
         finishRound();
@@ -1486,14 +1536,11 @@
         renderQuestion();
       }
     }
-    if(revealCount > 0){
-      // Levels with a fact-family reveal never auto-advance — the child studies it and taps "Próxima".
-      const nextBtn = $('btn-next-question');
-      nextBtn.style.display = 'block';
-      nextBtn.onclick = advance;
-    } else {
-      state.advanceTimer = setTimeout(advance, delay);
-    }
+    // Every level waits for the child to tap "Próxima" — nothing auto-advances,
+    // so there's always time to read the correct answer.
+    const nextBtn = $('btn-next-question');
+    nextBtn.style.display = 'block';
+    nextBtn.onclick = advance;
   }
 
   function finishRound(){
@@ -1549,7 +1596,6 @@
   // ---------- navigation ----------
   $('btn-back').addEventListener('click', () => {
     stopTimer();
-    if(state && state.advanceTimer) clearTimeout(state.advanceTimer);
     if(state && state.streak > 0 && state.streak < STREAK_TARGET){
       showToast(T[lang].incompleteWarning(state.streak));
     }
