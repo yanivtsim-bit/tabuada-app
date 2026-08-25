@@ -42,6 +42,7 @@
 
   h1,h2,h3{ font-family:'Architects Daughter', 'Segoe Print', cursive; font-weight:400; text-wrap:balance; margin:0; }
   button{ font-family:inherit; }
+  input{ font-family:inherit; }
 
   .frame{
     position:relative;
@@ -136,6 +137,60 @@
     transition: width .35s ease;
   }
 
+  /* ---------- Login / players ---------- */
+  .center-stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem; text-align:center; }
+  .player-grid{ display:flex; flex-wrap:wrap; gap:0.7rem; justify-content:center; width:100%; max-width:340px; }
+  .player-card{
+    display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+    width:96px;
+    padding:0.8rem 0.5rem;
+    border-radius:14px;
+    border:1.5px solid rgba(243,236,217,0.16);
+    background: rgba(255,255,255,0.04);
+    cursor:pointer; color:inherit;
+    transition: background .15s, transform .1s;
+  }
+  .player-card:hover{ background: rgba(255,255,255,0.09); }
+  .player-card:active{ transform: scale(0.96); }
+  .player-avatar{
+    width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Architects Daughter', cursive; font-size:1.3rem;
+    background: var(--chalk-yellow); color: var(--board-dark);
+  }
+  .player-card.new .player-avatar{ background: rgba(255,255,255,0.08); color: var(--chalk); font-size:1.6rem; }
+  .player-name{ font-size:0.82rem; font-weight:600; word-break:break-word; }
+
+  .text-field{
+    width:100%; max-width:280px;
+    background: rgba(255,255,255,0.06);
+    border:1.5px solid rgba(243,236,217,0.22);
+    border-radius:12px;
+    padding:0.7rem 0.9rem;
+    font-size:1.1rem; color:var(--chalk);
+    text-align:center;
+  }
+  .text-field:focus{ outline:none; border-color: var(--chalk-yellow); }
+  .field-error{ min-height:1.2rem; font-size:0.8rem; color:var(--bad); }
+
+  .pin-dots{ display:flex; gap:0.7rem; }
+  .pin-dots .dot{
+    width:16px; height:16px; border-radius:50%;
+    border:2px solid rgba(243,236,217,0.35);
+    background: transparent;
+    transition: background .1s, transform .1s;
+  }
+  .pin-dots .dot.filled{ background: var(--chalk-yellow); border-color: var(--chalk-yellow); }
+  .pin-dots.shake{ animation: shake .4s; }
+  .pin-dots.shake .dot.filled{ background: var(--bad); border-color: var(--bad); }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px); }
+    40%{ transform:translateX(8px); }
+    60%{ transform:translateX(-6px); }
+    80%{ transform:translateX(6px); }
+  }
+
   /* ---------- Trilha (stage map) ---------- */
   .trail-scroll{ flex:1; overflow-y:auto; padding-right:2px; }
   .level-block{ margin-bottom:1.3rem; }
@@ -224,6 +279,8 @@
     color: var(--chalk-yellow);
   }
 
+  .fact-triangle{ display:flex; justify-content:center; min-height:0; }
+
   .feedback-msg{ min-height: 1.4rem; font-size:0.95rem; font-weight:600; color: var(--chalk-dim); }
   .feedback-msg.good{ color: var(--good); }
   .feedback-msg.bad{ color: var(--bad); }
@@ -257,9 +314,11 @@
   .key:active{ transform: scale(0.94); }
   .key.confirm{ background: var(--chalk-yellow); color: var(--board-dark); border-color: transparent; }
   .key.confirm:hover{ filter: brightness(1.05); }
+  .key[disabled]{ visibility:hidden; cursor:default; }
 
   /* ---------- Results ---------- */
-  .results{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.85rem; text-align:center; }
+  .results{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.7rem; text-align:center; }
+  .grand-trophy{ display:flex; align-items:center; justify-content:center; min-height:0; }
   .stars{ display:flex; gap:0.4rem; }
   .stars svg{ width:44px; height:44px; }
   .score-line{ font-size:1.05rem; color:var(--chalk-dim); }
@@ -282,19 +341,104 @@
   .btn:active{ transform: scale(0.98); }
   .btn.primary{ background: var(--chalk-pink); border-color:transparent; color:#2c1710; }
   .btn.primary:hover{ filter:brightness(1.05); }
+  .btn.ghost{ background:transparent; }
+
+  /* ---------- Confetti + milestone trophy overlays ---------- */
+  .confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:5; }
+  .confetti-piece{
+    position:absolute; top:0; width:7px; height:12px; opacity:0.95;
+    animation: confetti-fall var(--dur,900ms) ease-in forwards;
+  }
+  @keyframes confetti-fall{
+    0%{ transform: translate(0,0) rotate(0deg); opacity:1; }
+    100%{ transform: translate(var(--dx,0px), var(--dy,220px)) rotate(var(--rot,420deg)); opacity:0; }
+  }
+
+  .milestone-trophy{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:6; }
+  .milestone-trophy .badge{
+    display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+    opacity:0; animation: trophy-pop 1.3s ease forwards;
+  }
+  .milestone-trophy .badge .count{
+    font-family:'Architects Daughter',cursive; font-size:1.05rem; color:var(--chalk);
+    background:rgba(15,29,21,0.55); padding:0.15rem 0.65rem; border-radius:999px;
+  }
+  @keyframes trophy-pop{
+    0%{ opacity:0; transform:scale(0.3) translateY(10px); }
+    15%{ opacity:1; transform:scale(1.15) translateY(0); }
+    25%{ transform:scale(1); }
+    78%{ opacity:1; transform:scale(1); }
+    100%{ opacity:0; transform:scale(0.9) translateY(-8px); }
+  }
 
   @media (prefers-reduced-motion: reduce){
-    .progress-fill, .fact-card, .key, .icon-btn, .node, .btn{ transition:none !important; }
+    .progress-fill, .fact-card, .key, .icon-btn, .node, .btn, .player-card{ transition:none !important; }
   }
 </style>
 
 <div class="frame">
   <div class="board">
 
-    <!-- ============ TRILHA (mapa de etapas) ============ -->
-    <section class="screen" id="screen-map">
+    <!-- ============ LOGIN (quem vai jogar) ============ -->
+    <section class="screen" id="screen-login">
       <header class="home-head">
         <div class="eyebrow">Sala de Matemática</div>
+        <h1>Tabuada em Jogo</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub">Quem vai jogar hoje?</p>
+      </header>
+      <div class="center-stage">
+        <div class="player-grid" id="player-grid"></div>
+      </div>
+    </section>
+
+    <!-- ============ NOVO JOGADOR: nome ============ -->
+    <section class="screen" id="screen-newplayer" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-newplayer" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill">Novo jogador</span>
+        <span style="width:36px"></span>
+      </div>
+      <div class="center-stage">
+        <h1 style="font-size:1.6rem;">Como te chamas?</h1>
+        <input class="text-field" id="new-player-name" type="text" maxlength="20" placeholder="Teu nome" autocomplete="off">
+        <div class="field-error" id="name-error">&nbsp;</div>
+        <button class="btn primary" id="btn-name-continue" style="max-width:280px;width:100%;">Continuar</button>
+      </div>
+    </section>
+
+    <!-- ============ PIN (criar ou entrar) ============ -->
+    <section class="screen" id="screen-pin" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-pin" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="pin-title">Senha</span>
+        <span style="width:36px"></span>
+      </div>
+      <div class="center-stage">
+        <h1 id="pin-heading" style="font-size:1.4rem;">Cria uma senha</h1>
+        <p class="sub" id="pin-sub">4 números, só para ti</p>
+        <div class="pin-dots" id="pin-dots">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <div class="keypad" id="pin-keypad" style="margin-top:0.6rem;"></div>
+      </div>
+    </section>
+
+    <!-- ============ TRILHA (mapa de etapas) ============ -->
+    <section class="screen" id="screen-map" hidden>
+      <div class="topbar">
+        <span class="stat-pill" id="player-chip">👤 Jogador</span>
+        <button class="icon-btn" id="btn-switch-player" aria-label="Trocar jogador">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4H4v12h3"/><path d="M8 10h9m0 0-3-3m3 3-3 3"/></svg>
+        </button>
+      </div>
+      <header class="home-head">
         <h1>Tabuada em Jogo</h1>
         <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
           <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
@@ -344,6 +488,7 @@
         <div class="fact-card" id="fact-card">
           <div class="equation" id="equation"></div>
         </div>
+        <div class="fact-triangle" id="fact-triangle"></div>
         <div class="feedback-msg" id="feedback-msg">&nbsp;</div>
 
         <div class="keypad-wrap">
@@ -357,6 +502,7 @@
     <section class="screen" id="screen-results" hidden>
       <div class="results">
         <div class="eyebrow" id="results-eyebrow">Resultado</div>
+        <div class="grand-trophy" id="grand-trophy"></div>
         <div class="stars" id="stars"></div>
         <div class="praise" id="praise"></div>
         <span class="pass-tag" id="pass-tag">Passou</span>
@@ -370,6 +516,9 @@
       </div>
     </section>
 
+    <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
+    <div class="milestone-trophy" id="milestone-trophy" aria-hidden="true"></div>
+
   </div>
 </div>
 
@@ -377,22 +526,163 @@
 (function(){
   const STREAK_TARGET = 100;
   const TABLES = [2,3,4,5,6,7,8,9,10];
+  const STORAGE_KEY = 'tabuada-players-v1';
   const $ = (id) => document.getElementById(id);
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // stage list shared shape by both levels: numbers 2..10 then 'mixed'
   const STAGES = [...TABLES, 'mixed'];
+  function defaultProgress(){
+    return { 1: new Array(STAGES.length).fill(false), 2: new Array(STAGES.length).fill(false) };
+  }
 
-  const progress = {
-    1: new Array(STAGES.length).fill(false),
-    2: new Array(STAGES.length).fill(false)
+  // ---------- players (persisted in localStorage) ----------
+  function loadPlayers(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function savePlayers(players){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(players)); }catch(e){}
+  }
+  let players = loadPlayers();
+  let currentPlayer = null;
+  let progress = null;
+
+  function persist(){
+    if(!currentPlayer) return;
+    players[currentPlayer].progress = progress;
+    savePlayers(players);
+  }
+
+  const screens = {
+    login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
+    map: $('screen-map'), game: $('screen-game'), results: $('screen-results')
   };
-
-  const screens = { map: $('screen-map'), game: $('screen-game'), results: $('screen-results') };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
     screens[name].hidden = false;
+    if(name === 'login') renderPlayerGrid();
     if(name === 'map') renderMap();
   }
+
+  // ---------- login screen ----------
+  function renderPlayerGrid(){
+    const grid = $('player-grid');
+    grid.innerHTML = '';
+    Object.keys(players).forEach(name => {
+      const card = document.createElement('button');
+      card.className = 'player-card';
+      card.innerHTML = '<span class="player-avatar">' + name.charAt(0).toUpperCase() + '</span><span class="player-name">' + escapeHtml(name) + '</span>';
+      card.addEventListener('click', () => startPinFlow('enter', name));
+      grid.appendChild(card);
+    });
+    const addCard = document.createElement('button');
+    addCard.className = 'player-card new';
+    addCard.innerHTML = '<span class="player-avatar">+</span><span class="player-name">Novo jogador</span>';
+    addCard.addEventListener('click', () => {
+      $('new-player-name').value = '';
+      $('name-error').textContent = ' ';
+      show('newplayer');
+      setTimeout(() => $('new-player-name').focus(), 50);
+    });
+    grid.appendChild(addCard);
+  }
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  $('btn-back-newplayer').addEventListener('click', () => show('login'));
+  function submitNewName(){
+    const name = $('new-player-name').value.trim();
+    if(!name){ $('name-error').textContent = 'Escreve um nome.'; return; }
+    const exists = Object.keys(players).some(n => n.toLowerCase() === name.toLowerCase());
+    if(exists){ $('name-error').textContent = 'Esse nome já existe. Escolhe outro.'; return; }
+    startPinFlow('create', name);
+  }
+  $('btn-name-continue').addEventListener('click', submitNewName);
+  $('new-player-name').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitNewName(); });
+
+  // ---------- pin screen ----------
+  let pinState = { mode: 'create', name: '', pin: '' };
+  function startPinFlow(mode, name){
+    pinState = { mode, name, pin: '' };
+    $('pin-title').textContent = name;
+    if(mode === 'create'){
+      $('pin-heading').textContent = 'Cria uma senha';
+      $('pin-sub').textContent = '4 números, só para ti';
+    } else {
+      $('pin-heading').textContent = 'Qual é a tua senha?';
+      $('pin-sub').textContent = '4 números';
+    }
+    renderPinDots();
+    renderPinKeypad();
+    show('pin');
+  }
+  $('btn-back-pin').addEventListener('click', () => show('login'));
+
+  function renderPinDots(){
+    const dotsWrap = $('pin-dots');
+    dotsWrap.className = 'pin-dots';
+    const dots = dotsWrap.querySelectorAll('.dot');
+    dots.forEach((d,i) => d.classList.toggle('filled', i < pinState.pin.length));
+  }
+  function renderPinKeypad(){
+    const kp = $('pin-keypad');
+    kp.innerHTML = '';
+    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0',''];
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key';
+      if(label === ''){ b.disabled = true; kp.appendChild(b); return; }
+      b.textContent = label;
+      b.addEventListener('click', () => onPinKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function onPinKey(label){
+    if(label === '⌫'){
+      pinState.pin = pinState.pin.slice(0, -1);
+      renderPinDots();
+      return;
+    }
+    if(pinState.pin.length >= 4) return;
+    pinState.pin += label;
+    renderPinDots();
+    if(pinState.pin.length === 4){
+      setTimeout(resolvePin, 150);
+    }
+  }
+  function resolvePin(){
+    if(pinState.mode === 'create'){
+      players[pinState.name] = { pin: pinState.pin, progress: defaultProgress() };
+      savePlayers(players);
+      loginAs(pinState.name);
+    } else {
+      if(players[pinState.name] && players[pinState.name].pin === pinState.pin){
+        loginAs(pinState.name);
+      } else {
+        const dotsWrap = $('pin-dots');
+        dotsWrap.className = 'pin-dots shake';
+        setTimeout(() => {
+          pinState.pin = '';
+          renderPinDots();
+        }, 400);
+      }
+    }
+  }
+  function loginAs(name){
+    currentPlayer = name;
+    progress = players[name].progress;
+    $('player-chip').textContent = '👤 ' + name;
+    show('map');
+  }
+  $('btn-switch-player').addEventListener('click', () => {
+    currentPlayer = null;
+    progress = null;
+    show('login');
+  });
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function isUnlocked(level, idx){
@@ -478,6 +768,80 @@
     $('icon-sound').style.opacity = muted ? 0.35 : 1;
   });
 
+  // ---------- confetti + milestone trophies ----------
+  function burstConfetti(big){
+    if(reducedMotion) return;
+    const layer = $('confetti-layer');
+    const colors = ['#f2c14e','#e88b74','#8fc7d9','#8bc98f'];
+    const n = big ? 46 : 22;
+    for(let i=0;i<n;i++){
+      const p = document.createElement('span');
+      p.className = 'confetti-piece';
+      const dx = Math.round(Math.random()*260-130);
+      const dy = Math.round((big?220:180) + Math.random()*160);
+      const rot = Math.round(280+Math.random()*420);
+      p.style.setProperty('--dx', dx+'px');
+      p.style.setProperty('--dy', dy+'px');
+      p.style.setProperty('--rot', rot+'deg');
+      p.style.setProperty('--dur', (700+Math.random()*450)+'ms');
+      p.style.left = (44 + Math.random()*12) + '%';
+      p.style.top = (big ? '30%' : '38%');
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.borderRadius = Math.random()<0.5 ? '50%' : '2px';
+      layer.appendChild(p);
+      setTimeout(() => p.remove(), 1200);
+    }
+  }
+  function trophySVG(color, size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 64 64">' +
+      '<path d="M20 8h24v6c0 9-5 15-12 15S20 23 20 14V8z" fill="'+color+'"/>' +
+      '<path d="M20 10h-8v4a10 10 0 0 0 8 9.8" fill="none" stroke="'+color+'" stroke-width="3"/>' +
+      '<path d="M44 10h8v4a10 10 0 0 1-8 9.8" fill="none" stroke="'+color+'" stroke-width="3"/>' +
+      '<rect x="28" y="29" width="8" height="10" fill="'+color+'"/>' +
+      '<path d="M18 46h28l-3 6H21z" fill="'+color+'"/>' +
+      '<rect x="24" y="39" width="16" height="7" rx="2" fill="'+color+'"/>' +
+    '</svg>';
+  }
+  function renderFactTriangle(a, b, p, hiddenSlot){
+    const c = '#f2c14e';
+    let arrow;
+    if(hiddenSlot === 2){
+      arrow = '<line x1="80" y1="103" x2="80" y2="48" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
+              '<text x="94" y="80" fill="'+c+'" font-size="17" font-weight="700">×</text>';
+    } else if(hiddenSlot === 0){
+      arrow = '<line x1="70" y1="47" x2="35" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
+              '<text x="40" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
+    } else {
+      arrow = '<line x1="90" y1="47" x2="125" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
+              '<text x="106" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
+    }
+    return '<svg viewBox="0 0 160 128" width="150" height="120">' +
+      '<defs><marker id="tri-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="'+c+'"/></marker></defs>' +
+      '<path d="M80 8 L18 112 L142 112 Z" fill="none" stroke="rgba(243,236,217,0.35)" stroke-width="2"/>' +
+      arrow +
+      '<text x="80" y="34" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+p+'</text>' +
+      '<text x="40" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
+      '<text x="120" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
+    '</svg>';
+  }
+
+  function trophyColor(tier){
+    if(tier<=3) return '#cd7f32';
+    if(tier<=6) return '#cfd8de';
+    return '#f2c14e';
+  }
+  function showMilestoneTrophy(tier, streakVal){
+    if(reducedMotion) return;
+    const host = $('milestone-trophy');
+    host.innerHTML = '';
+    const size = 38 + tier*7;
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.innerHTML = trophySVG(trophyColor(tier), size) + '<span class="count">' + streakVal + ' seguidas!</span>';
+    host.appendChild(badge);
+    setTimeout(() => { host.innerHTML = ''; }, 1300);
+  }
+
   // ---------- game state ----------
   let state = null;
 
@@ -522,6 +886,7 @@
     $('feedback-msg').textContent = ' ';
     $('feedback-msg').className = 'feedback-msg';
     $('fact-card').className = 'fact-card';
+    $('fact-triangle').innerHTML = '';
     $('answer-display').innerHTML = '&nbsp;';
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
@@ -592,6 +957,7 @@
     const card = $('fact-card');
     const msg = $('feedback-msg');
     const blank = $('blank-slot');
+    let delay = 550;
 
     if(ok){
       state.streak++;
@@ -600,16 +966,28 @@
       const praises = ['Boa!','Isso aí!','Show!','Mandou bem!','Rápido assim!'];
       msg.textContent = praises[Math.floor(Math.random()*praises.length)] + ' (' + state.streak + '/' + STREAK_TARGET + ')';
       beep('good');
+      burstConfetti(false);
+      if(state.streak % 10 === 0 && state.streak < STREAK_TARGET){
+        showMilestoneTrophy(state.streak / 10, state.streak);
+        delay = 1500;
+      }
     } else {
       card.classList.add('bad');
       msg.classList.add('bad');
       msg.textContent = 'Era ' + state.correct + ' — sequência voltou a 0';
       beep('bad');
       state.streak = 0;
+      delay = 1150;
     }
     if(blank) blank.textContent = state.correct;
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
+
+    if(state.level === 2){
+      const [ca, cb] = state.current;
+      $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb, state.hiddenSlot);
+      delay = Math.max(delay, 1600);
+    }
 
     setTimeout(() => {
       if(ok && state.streak >= STREAK_TARGET){
@@ -617,15 +995,20 @@
       } else {
         renderQuestion();
       }
-    }, ok ? 550 : 1150);
+    }, delay);
   }
 
   function finishRound(){
     progress[state.level][state.idx] = true;
+    persist();
 
     $('results-eyebrow').textContent = stageName(state.level, state.stage);
     $('score-final').textContent = STREAK_TARGET + '/' + STREAK_TARGET;
     $('attempts-final').textContent = state.attempts;
+
+    $('grand-trophy').innerHTML = trophySVG('#f2c14e', 120);
+    burstConfetti(true);
+    beep('good');
 
     const tag = $('pass-tag');
     tag.textContent = 'Passou de etapa';
@@ -665,6 +1048,6 @@
   $('btn-map').addEventListener('click', () => show('map'));
   $('btn-replay').addEventListener('click', () => startStage(state.level, state.idx));
 
-  show('map');
+  show('login');
 })();
 </script>
