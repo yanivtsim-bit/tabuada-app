@@ -1005,10 +1005,9 @@
       avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas',
       milestonePraises: ['Continua assim!','Estás voando!','Isso mesmo!','Fantástico!','Não para agora!','Arrasando!'],
       nlMapSub: 'Escolhe um nível',
-      nlLevel1Name: 'Localizar', nlLevel1Desc: 'que número é este ponto?',
-      nlLevel2Name: 'Marcar', nlLevel2Desc: 'toca no lugar certo da reta',
-      nlLevel3Name: 'Comparar', nlLevel3Desc: 'qual número é maior ou menor?',
-      nlLevel4Name: 'Saltos', nlLevel4Desc: 'conta os saltos na reta',
+      nlLevel1Name: 'Localizar', nlLevel1Desc: 'descobre e marca números na reta, sem contar tudo',
+      nlLevel2Name: 'Comparar', nlLevel2Desc: 'qual número é maior ou menor?',
+      nlLevel3Name: 'Saltos', nlLevel3Desc: 'conta os saltos na reta',
       nlAskPoint: 'Que número é este ponto?',
       nlAskPlace: (n)=> 'Onde fica o número ' + n + '?',
       nlAskBigger: 'Qual número é maior?', nlAskSmaller: 'Qual número é menor?',
@@ -1085,10 +1084,9 @@
       avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות',
       milestonePraises: ['תמשיך ככה!','אתה טס!','בדיוק ככה!','פנטסטי!','אל תעצור עכשיו!','אלוף!'],
       nlMapSub: 'בחר שלב',
-      nlLevel1Name: 'איתור', nlLevel1Desc: 'איזה מספר זו הנקודה הזו?',
-      nlLevel2Name: 'סימון', nlLevel2Desc: 'גע במקום הנכון על הציר',
-      nlLevel3Name: 'השוואה', nlLevel3Desc: 'איזה מספר גדול או קטן יותר?',
-      nlLevel4Name: 'קפיצות', nlLevel4Desc: 'ספור את הקפיצות על הציר',
+      nlLevel1Name: 'איתור', nlLevel1Desc: 'מצא וסמן מספרים על הציר, בלי לספור הכול',
+      nlLevel2Name: 'השוואה', nlLevel2Desc: 'איזה מספר גדול או קטן יותר?',
+      nlLevel3Name: 'קפיצות', nlLevel3Desc: 'ספור את הקפיצות על הציר',
       nlAskPoint: 'איזה מספר זו הנקודה הזו?',
       nlAskPlace: (n)=> 'איפה נמצא המספר ' + n + '?',
       nlAskBigger: 'איזה מספר גדול יותר?', nlAskSmaller: 'איזה מספר קטן יותר?',
@@ -1618,12 +1616,13 @@
   // LINHA DOS NÚMEROS (assunto 2) — self-contained, own state/data.
   // ============================================================
   const NL_TARGET = 40;
-  const NL_LEVEL_KEYS = [1,2,3,4];
+  const NL_LEVEL_KEYS = [1,2,3];
+  const NL_ANCHORS = [5,15]; // the only two numbers ever printed on the Localizar line (0-20)
   function defaultNL(){
     return {
-      progress: {1:false, 2:false, 3:false, 4:false},
-      streaks:  {1:0, 2:0, 3:0, 4:0},
-      byLevel:  {1:{correct:0,wrong:0,timeMs:0}, 2:{correct:0,wrong:0,timeMs:0}, 3:{correct:0,wrong:0,timeMs:0}, 4:{correct:0,wrong:0,timeMs:0}}
+      progress: {1:false, 2:false, 3:false},
+      streaks:  {1:0, 2:0, 3:0},
+      byLevel:  {1:{correct:0,wrong:0,timeMs:0}, 2:{correct:0,wrong:0,timeMs:0}, 3:{correct:0,wrong:0,timeMs:0}}
     };
   }
   function ensureNL(name){
@@ -1654,14 +1653,18 @@
     base.setAttribute('x1', padX); base.setAttribute('y1', y); base.setAttribute('x2', width-padX); base.setAttribute('y2', y);
     base.setAttribute('stroke', 'rgba(243,236,217,0.4)'); base.setAttribute('stroke-width', '2');
     svg.appendChild(base);
-    const labelEvery = max > 10 ? 2 : 1;
-    for(let v=0; v<=max; v++){
+    // labelSet: only these values get a printed number: every other tick is just a dash,
+    // so the child has to count/estimate instead of reading the answer straight off the line.
+    const labelSet = opts.labelSet || null;
+    const tickStep = opts.tickStep || 1;
+    for(let v=0; v<=max; v += tickStep){
       const x = xFor(v);
+      const labelled = labelSet ? labelSet.includes(v) : true;
       const tick = document.createElementNS(ns, 'line');
-      tick.setAttribute('x1', x); tick.setAttribute('y1', y-6); tick.setAttribute('x2', x); tick.setAttribute('y2', y+6);
-      tick.setAttribute('stroke', 'rgba(243,236,217,0.3)'); tick.setAttribute('stroke-width', '1.5');
+      tick.setAttribute('x1', x); tick.setAttribute('y1', y-(labelled?7:5)); tick.setAttribute('x2', x); tick.setAttribute('y2', y+(labelled?7:5));
+      tick.setAttribute('stroke', 'rgba(243,236,217,' + (labelled?0.45:0.25) + ')'); tick.setAttribute('stroke-width', '1.5');
       svg.appendChild(tick);
-      if(v % labelEvery === 0){
+      if(labelled){
         const lbl = document.createElementNS(ns, 'text');
         lbl.setAttribute('x', x); lbl.setAttribute('y', y+22); lbl.setAttribute('text-anchor', 'middle');
         lbl.setAttribute('fill', '#b9c4b4'); lbl.setAttribute('font-size', '10'); lbl.setAttribute('font-family', 'Fredoka, sans-serif');
@@ -1686,12 +1689,14 @@
       dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 7);
       dot.setAttribute('fill', mp.color || '#f2c14e');
       svg.appendChild(dot);
-      const lbl = document.createElementNS(ns, 'text');
-      lbl.setAttribute('x', x); lbl.setAttribute('y', y-14); lbl.setAttribute('text-anchor', 'middle');
-      lbl.setAttribute('fill', mp.color || '#f2c14e'); lbl.setAttribute('font-size', '16'); lbl.setAttribute('font-weight', '700');
-      lbl.setAttribute('font-family', 'Fredoka, sans-serif');
-      lbl.textContent = mp.value;
-      svg.appendChild(lbl);
+      if(mp.showLabel !== false){
+        const lbl = document.createElementNS(ns, 'text');
+        lbl.setAttribute('x', x); lbl.setAttribute('y', y-14); lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('fill', mp.color || '#f2c14e'); lbl.setAttribute('font-size', '16'); lbl.setAttribute('font-weight', '700');
+        lbl.setAttribute('font-family', 'Fredoka, sans-serif');
+        lbl.textContent = mp.value;
+        svg.appendChild(lbl);
+      }
     });
     return svg;
   }
@@ -1722,27 +1727,28 @@
   let nlState = null;
   function nlNewQuestion(level){
     if(level === 1){
-      const max = 10;
-      const point = Math.floor(Math.random()*(max+1));
-      return { max, point, correct: point };
+      // Localizar: the line only ever prints two numbers (NL_ANCHORS); every other tick
+      // is an unlabeled dash, so the child has to count from an anchor, not read the line.
+      const max = 20;
+      const pool = [];
+      for(let v=1; v<max; v++) if(!NL_ANCHORS.includes(v)) pool.push(v);
+      const value = pool[Math.floor(Math.random()*pool.length)];
+      const subtype = Math.random() < 0.5 ? 'read' : 'place';
+      return { max, value, subtype, correct: value };
     }
     if(level === 2){
-      const max = 10;
-      const target = Math.floor(Math.random()*(max+1));
-      return { max, target, correct: target };
-    }
-    if(level === 3){
-      const max = 10;
+      // Comparar: bigger numbers than a 4th-6th grader would find trivial.
+      const max = [50, 100, 1000][Math.floor(Math.random()*3)];
       let a = Math.floor(Math.random()*(max+1));
       let b = Math.floor(Math.random()*(max+1));
       while(b === a) b = Math.floor(Math.random()*(max+1));
       const askBigger = Math.random() < 0.5;
       return { a, b, askBigger, correct: askBigger ? Math.max(a,b) : Math.min(a,b) };
     }
-    // level 4
-    const start = Math.floor(Math.random()*9);
-    const step = 1 + Math.floor(Math.random()*3);
-    const jumps = 1 + Math.floor(Math.random()*3);
+    // level 3: Saltos
+    const start = Math.floor(Math.random()*21);
+    const step = 2 + Math.floor(Math.random()*9);
+    const jumps = 2 + Math.floor(Math.random()*4);
     return { start, step, jumps, correct: start + step*jumps };
   }
 
@@ -1798,13 +1804,15 @@
 
     const c = nlState.current;
     if(nlState.level === 1){
-      qText.textContent = tt.nlAskPoint;
-      lineHost.appendChild(buildNumberLineSVG(c.max, { markPoints: [{ value: c.point }] }));
+      if(c.subtype === 'read'){
+        qText.textContent = tt.nlAskPoint;
+        lineHost.appendChild(buildNumberLineSVG(c.max, { labelSet: NL_ANCHORS, markPoints: [{ value: c.value, showLabel: false }] }));
+      } else {
+        qText.textContent = tt.nlAskPlace(c.value);
+        lineHost.appendChild(buildNumberLineSVG(c.max, { labelSet: NL_ANCHORS, clickable: true, onPick: (v) => nlSubmitAnswer(v) }));
+        keypadWrap.style.display = 'none';
+      }
     } else if(nlState.level === 2){
-      qText.textContent = tt.nlAskPlace(c.target);
-      lineHost.appendChild(buildNumberLineSVG(c.max, { clickable: true, onPick: (v) => nlSubmitAnswer(v) }));
-      keypadWrap.style.display = 'none';
-    } else if(nlState.level === 3){
       qText.textContent = c.askBigger ? tt.nlAskBigger : tt.nlAskSmaller;
       keypadWrap.style.display = 'none';
       choiceWrap.style.display = 'flex';
@@ -1907,13 +1915,11 @@
     const c = nlState.current;
     const host = $('nl-explain');
     if(nlState.level === 1){
-      host.innerHTML = '<b>' + tt.nlExplainPoint(c.point) + '</b>';
-    } else if(nlState.level === 2){
       const lineHost = $('nl-line-host');
       lineHost.innerHTML = '';
-      lineHost.appendChild(buildNumberLineSVG(c.max, { markPoints: [{ value: c.target }] }));
-      host.innerHTML = '<b>' + tt.nlExplainPoint(c.target) + '</b>';
-    } else if(nlState.level === 3){
+      lineHost.appendChild(buildNumberLineSVG(c.max, { labelSet: NL_ANCHORS, markPoints: [{ value: c.value }] }));
+      host.innerHTML = '<b>' + tt.nlExplainPoint(c.value) + '</b>';
+    } else if(nlState.level === 2){
       host.innerHTML = '<b>' + (c.askBigger ? tt.nlExplainBigger(c.correct, c.a===c.correct?c.b:c.a) : tt.nlExplainSmaller(c.correct, c.a===c.correct?c.b:c.a)) + '</b>';
     } else {
       const trail = [c.start];
