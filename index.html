@@ -158,6 +158,7 @@
 
   /* ---------- Login / players ---------- */
   .center-stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.2rem; text-align:center; }
+  .center-stage[hidden]{ display:none; }
   .player-grid{ display:flex; flex-wrap:wrap; gap:0.7rem; justify-content:center; width:100%; max-width:340px; }
   .player-card{
     display:flex; flex-direction:column; align-items:center; gap:0.4rem;
@@ -258,6 +259,7 @@
     background: var(--chalk-yellow);
   }
   .lvl2 .node.unlocked{ background: var(--chalk-pink); }
+  .lvl3 .node.unlocked{ background: var(--chalk-blue); }
   .node.unlocked:hover{ filter:brightness(1.08); }
   .node.unlocked:active{ transform: scale(0.92); }
 
@@ -422,6 +424,34 @@
   .admin-stats b{ color:var(--chalk); font-variant-numeric:tabular-nums; }
   .admin-progress{ font-size:0.72rem; color:var(--chalk-faint); margin-top:0.5rem; }
 
+  /* ---------- Reference card + reference table screen ---------- */
+  .ref-card{
+    display:flex; align-items:center; gap:0.7rem;
+    width:100%; border-radius:14px; border:1px solid rgba(243,236,217,0.16);
+    background: rgba(255,255,255,0.045); padding:0.8rem 0.9rem; margin-bottom:1rem;
+    cursor:pointer; color:inherit; text-align:start;
+    transition: background .15s, transform .1s;
+  }
+  .ref-card:hover{ background: rgba(255,255,255,0.08); }
+  .ref-card:active{ transform: scale(0.98); }
+  .ref-card .ref-icon{
+    flex:none; width:40px; height:40px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+    background: var(--chalk-blue); color: var(--board-dark);
+  }
+  .ref-card .name{ font-size:0.95rem; font-weight:600; }
+  .ref-card .desc{ font-size:0.75rem; color:var(--chalk-dim); }
+
+  .ref-list{ display:flex; flex-direction:column; gap:0.35rem; width:100%; max-width:280px; }
+  .ref-row{
+    display:flex; align-items:center; justify-content:center; gap:0.5rem;
+    font-size:1.35rem; font-weight:600; padding:0.4rem 0;
+    border-bottom:1px dashed rgba(243,236,217,0.15);
+    font-variant-numeric: tabular-nums; direction:ltr;
+  }
+  .ref-row .op{ color:var(--chalk-dim); font-weight:500; font-size:1rem; }
+  .ref-row .res{ color:var(--chalk-yellow); }
+
   @media (prefers-reduced-motion: reduce){
     .progress-fill, .fact-card, .key, .icon-btn, .node, .btn, .player-card{ transition:none !important; }
   }
@@ -506,6 +536,14 @@
       </header>
 
       <div class="trail-scroll">
+        <button class="ref-card" id="btn-open-reference">
+          <span class="ref-icon">📖</span>
+          <span>
+            <span class="name" id="reference-card-name" style="display:block;">Tabela completa</span>
+            <span class="desc" id="reference-card-desc">Consulta livre, sem prova</span>
+          </span>
+        </button>
+
         <div class="level-block lvl1">
           <div class="level-head">
             <span class="name" id="level1-label">Nível 1 · Lembrar<br><small id="level1-desc">quanto dá a tabuada</small></span>
@@ -525,6 +563,34 @@
           </div>
           <div class="node-grid" id="nodes-lvl2"></div>
         </div>
+
+        <div class="level-block lvl3">
+          <div class="level-head">
+            <span class="name" id="level3-label">Nível 3 · Família<br><small id="level3-desc">os dois caminhos, × e ÷</small></span>
+            <span class="level-count" id="count-lvl3">0/10</span>
+          </div>
+          <div class="node-grid" id="nodes-lvl3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TABELA (consulta livre) ============ -->
+    <section class="screen" id="screen-reference" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-reference" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="reference-title">Tabela completa</span>
+        <span style="width:36px"></span>
+      </div>
+      <div class="center-stage" id="reference-picker">
+        <p class="sub" id="reference-sub">Toca num número para veres a tabuada dele bem grande.</p>
+        <div class="node-grid" id="reference-grid" style="max-width:340px;"></div>
+      </div>
+      <div class="center-stage" id="reference-detail" hidden>
+        <h1 id="reference-detail-title" style="font-size:1.8rem;">Tabuada do 5</h1>
+        <div class="ref-list" id="reference-list"></div>
+        <button class="btn primary" id="btn-reference-back-picker" style="max-width:280px;width:100%;">Ver outra tabuada</button>
       </div>
     </section>
 
@@ -622,8 +688,14 @@
       mapTitle: 'Tabuada em Jogo', mapSub: 'Escolhe uma tabuada e treina até decorar.',
       level1Name: 'Nível 1 · Base', level1Desc: 'quanto dá a tabuada',
       level2Name: 'Nível 2 · Avanço', level2Desc: 'descobre o número que falta',
+      level3Name: 'Nível 3 · Família', level3Desc: 'os dois caminhos, × e ÷',
       lvl2Lock: 'Termina o Nível 1 para desbloquear', mixLabel: 'Mix',
-      stageTablePrefix: 'Tabuada do', stageMixed: 'Misturado', levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ',
+      stageTablePrefix: 'Tabuada do', stageMixed: 'Misturado',
+      levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ', levelPrefix3: 'Nível 3 · ',
+      referenceCardName: 'Tabela completa', referenceCardDesc: 'Consulta livre, sem prova',
+      referenceTitle: 'Tabela completa', referenceSub: 'Toca num número para veres a tabuada dele bem grande.',
+      referenceBackToPicker: 'Ver outra tabuada', continueToLevel3: 'Ir para o Nível 3',
+      lvl3ProgressLabel: 'Nível 3', level3EarlyWarning: 'Ainda não terminaste o Avanço (Nível 2). Podes continuar mesmo assim.',
       backAria: 'Voltar', soundAria: 'Som', switchAria: 'Trocar jogador',
       praises: ['Boa!','Isso aí!','Show!','Mandou bem!','Rápido assim!'],
       wrongMsg: (x)=> 'Era ' + x + ' — sequência voltou a 0',
@@ -647,8 +719,14 @@
       mapTitle: 'לוח הכפל במשחק', mapSub: 'בחר לוח כפל והתאמן עד שתשנן אותו.',
       level1Name: 'שלב 1 · בסיס', level1Desc: 'כמה יוצא בלוח הכפל',
       level2Name: 'שלב 2 · התקדמות', level2Desc: 'גלה את המספר החסר',
+      level3Name: 'שלב 3 · משפחה', level3Desc: 'שני הכיוונים, × ו-÷',
       lvl2Lock: 'סיים את שלב 1 כדי לפתוח', mixLabel: 'מיקס',
-      stageTablePrefix: 'לוח הכפל של', stageMixed: 'מעורב', levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ',
+      stageTablePrefix: 'לוח הכפל של', stageMixed: 'מעורב',
+      levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ', levelPrefix3: 'שלב 3 · ',
+      referenceCardName: 'לוח כפל מלא', referenceCardDesc: 'עיון חופשי, בלי מבחן',
+      referenceTitle: 'לוח כפל מלא', referenceSub: 'גע במספר כדי לראות את הלוח שלו גדול וברור.',
+      referenceBackToPicker: 'לוח אחר', continueToLevel3: 'עבור לשלב 3',
+      lvl3ProgressLabel: 'שלב 3', level3EarlyWarning: 'עוד לא סיימת את ההתקדמות (שלב 2). אפשר להמשיך בכל זאת.',
       backAria: 'חזור', soundAria: 'צליל', switchAria: 'החלף שחקן',
       praises: ['יופי!','כל הכבוד!','מעולה!','ישר על המטרה!','כזה מהיר!'],
       wrongMsg: (x)=> 'התשובה הייתה ' + x + ' — הרצף התחיל מחדש',
@@ -688,27 +766,36 @@
     $('level1-desc').textContent = tt.level1Desc;
     $('level2-label').childNodes[0].textContent = tt.level2Name;
     $('level2-desc').textContent = tt.level2Desc;
+    $('level3-label').childNodes[0].textContent = tt.level3Name;
+    $('level3-desc').textContent = tt.level3Desc;
     $('lvl2-lock-text').textContent = tt.lvl2Lock;
+    $('reference-card-name').textContent = tt.referenceCardName;
+    $('reference-card-desc').textContent = tt.referenceCardDesc;
+    $('reference-title').textContent = tt.referenceTitle;
+    $('reference-sub').textContent = tt.referenceSub;
+    $('btn-reference-back-picker').textContent = tt.referenceBackToPicker;
     $('btn-replay').textContent = tt.btnReplay;
     $('btn-map').textContent = tt.btnMap;
     $('btn-next-question').textContent = tt.btnNext;
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-switch-player').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
     if(!screens.game.hidden && state) $('game-title').textContent = stageName(state.level, state.stage);
+    if(!screens.reference.hidden && refState.current) showReferenceDetail(refState.current);
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
 
   // stage list shared shape by both levels: numbers 2..10 then 'mixed'
   const STAGES = [...TABLES, 'mixed'];
+  const REF_TABLES = [1,2,3,4,5,6,7,8,9,10];
   function defaultProgress(){
-    return { 1: new Array(STAGES.length).fill(false), 2: new Array(STAGES.length).fill(false) };
+    return { 1: new Array(STAGES.length).fill(false), 2: new Array(STAGES.length).fill(false), 3: new Array(STAGES.length).fill(false) };
   }
 
   // ---------- players (persisted in localStorage) ----------
@@ -726,12 +813,19 @@
   let lastTick = null;
 
   function defaultStreaks(){
-    return { 1: new Array(STAGES.length).fill(0), 2: new Array(STAGES.length).fill(0) };
+    return { 1: new Array(STAGES.length).fill(0), 2: new Array(STAGES.length).fill(0), 3: new Array(STAGES.length).fill(0) };
   }
   function ensureStreaks(name){
     const p = players[name];
     if(!p.streaks) p.streaks = defaultStreaks();
+    if(!p.streaks[3]) p.streaks[3] = new Array(STAGES.length).fill(0);
     return p.streaks;
+  }
+  function ensureProgress(name){
+    const p = players[name];
+    if(!p.progress) p.progress = defaultProgress();
+    if(!p.progress[3]) p.progress[3] = new Array(STAGES.length).fill(false);
+    return p.progress;
   }
 
   function persist(){
@@ -777,7 +871,8 @@
 
   const screens = {
     login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
-    map: $('screen-map'), game: $('screen-game'), results: $('screen-results'), admin: $('screen-admin')
+    map: $('screen-map'), game: $('screen-game'), results: $('screen-results'), admin: $('screen-admin'),
+    reference: $('screen-reference')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
@@ -785,6 +880,7 @@
     if(name === 'login') renderPlayerGrid();
     if(name === 'map') renderMap();
     if(name === 'admin') renderAdmin();
+    if(name === 'reference') showReferencePicker();
   }
 
   // ---------- login screen ----------
@@ -915,7 +1011,7 @@
   }
   function loginAs(name){
     currentPlayer = name;
-    progress = players[name].progress;
+    progress = ensureProgress(name);
     streaks = ensureStreaks(name);
     lastTick = Date.now();
     ensureStats(name);
@@ -955,8 +1051,10 @@
       const today = stats.days[todayKey()];
       const card = document.createElement('div');
       card.className = 'admin-card';
-      const lvl1Done = players[name].progress[1].filter(Boolean).length;
-      const lvl2Done = players[name].progress[2].filter(Boolean).length;
+      const pr = ensureProgress(name);
+      const lvl1Done = pr[1].filter(Boolean).length;
+      const lvl2Done = pr[2].filter(Boolean).length;
+      const lvl3Done = pr[3].filter(Boolean).length;
       card.innerHTML =
         '<div class="row1"><span class="name">' + escapeHtml(name) + '</span></div>' +
         '<div class="admin-stats">' +
@@ -965,21 +1063,57 @@
           '<span>' + tt.pointsLabel + ' (' + tt.totalLabel + ')</span><b>' + stats.totalPoints + '</b>' +
           '<span>' + tt.correctLabel + ' / ' + tt.wrongLabel + '</span><b>' + today.correct + ' / ' + today.wrong + '</b>' +
         '</div>' +
-        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10</div>';
+        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>';
       list.appendChild(card);
     });
   }
 
+  // ---------- Tabela (free reference, no quiz) ----------
+  let refState = { current: null };
+  $('btn-open-reference').addEventListener('click', () => show('reference'));
+  $('btn-back-reference').addEventListener('click', () => show('map'));
+  $('btn-reference-back-picker').addEventListener('click', () => showReferencePicker());
+  function showReferencePicker(){
+    refState.current = null;
+    $('reference-picker').hidden = false;
+    $('reference-detail').hidden = true;
+    const grid = $('reference-grid');
+    grid.innerHTML = '';
+    REF_TABLES.forEach(n => {
+      const btn = document.createElement('button');
+      btn.className = 'node unlocked';
+      btn.textContent = n;
+      btn.addEventListener('click', () => showReferenceDetail(n));
+      grid.appendChild(btn);
+    });
+  }
+  function showReferenceDetail(n){
+    refState.current = n;
+    $('reference-picker').hidden = true;
+    $('reference-detail').hidden = false;
+    $('reference-detail-title').textContent = T[lang].stageTablePrefix + ' ' + n;
+    const list = $('reference-list');
+    list.innerHTML = '';
+    for(let k=1;k<=10;k++){
+      const row = document.createElement('div');
+      row.className = 'ref-row';
+      row.innerHTML = '<span>' + n + '</span><span class="op">×</span><span>' + k + '</span><span class="op">=</span><span class="res">' + (n*k) + '</span>';
+      list.appendChild(row);
+    }
+  }
+
   function level1Complete(){ return progress[1].every(Boolean); }
+  function level2Complete(){ return progress[2].every(Boolean); }
   function isUnlocked(){
-    // Every stage in both levels is freely selectable; incomplete stages just get a warning toast.
+    // Every stage in every level is freely selectable; incomplete stages just get a warning toast.
     return true;
   }
   function stageLabel(stage){ return stage === 'mixed' ? T[lang].mixLabel : String(stage); }
+  const LEVEL_PREFIX_KEYS = { 1: 'levelPrefix1', 2: 'levelPrefix2', 3: 'levelPrefix3' };
   function stageName(level, stage){
     const tt = T[lang];
     const base = stage === 'mixed' ? tt.stageMixed : (tt.stageTablePrefix + ' ' + stage);
-    return (level === 1 ? tt.levelPrefix1 : tt.levelPrefix2) + base;
+    return tt[LEVEL_PREFIX_KEYS[level]] + base;
   }
 
   // ---------- shuffle helper ----------
@@ -1000,8 +1134,10 @@
     }
     renderNodes(1);
     renderNodes(2);
+    renderNodes(3);
     $('count-lvl1').textContent = progress[1].filter(Boolean).length + '/' + STAGES.length;
     $('count-lvl2').textContent = progress[2].filter(Boolean).length + '/' + STAGES.length;
+    $('count-lvl3').textContent = progress[3].filter(Boolean).length + '/' + STAGES.length;
     $('lvl2-lock').style.display = 'none';
   }
   function renderNodes(level){
@@ -1140,11 +1276,16 @@
       '<text x="118" y="115" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
     '</svg>';
   }
-  function renderFactTriangle(a, b, p){
-    // Two triangles side by side: the big one is the multiplication fact, the small one shows it reversed as a division.
-    const big = renderSingleTriangle(a, b, p, 'times', 'tri-arrow-big', 128);
-    const small = renderSingleTriangle(a, b, p, 'divide', 'tri-arrow-small', 82);
-    return '<div class="tri-pair pop"><div class="tri-big">' + big + '</div><div class="tri-small">' + small + '</div></div>';
+  function renderFactTriangle(a, b, p, count){
+    // The big triangle is always the multiplication fact; count-1 small triangles show it
+    // reversed as division(s) — divided by a, and (for the "Família" level) divided by b too.
+    let html = '<div class="tri-big">' + renderSingleTriangle(a, b, p, 'times', 'tri-arrow-big', 128) + '</div>';
+    if(count >= 2) html += '<div class="tri-small">' + renderSingleTriangle(a, b, p, 'divide', 'tri-arrow-small', 82) + '</div>';
+    if(count >= 3) html += '<div class="tri-small">' + renderSingleTriangle(b, a, p, 'divide', 'tri-arrow-small2', 82) + '</div>';
+    return '<div class="tri-pair pop">' + html + '</div>';
+  }
+  function factRevealCount(level){
+    return level === 1 ? 0 : level === 2 ? 2 : 3;
   }
 
   // ---------- game state ----------
@@ -1165,6 +1306,8 @@
     const stage = STAGES[idx];
     if(level === 2 && !level1Complete()){
       showToast(T[lang].level2EarlyWarning);
+    } else if(level === 3 && !level2Complete()){
+      showToast(T[lang].level3EarlyWarning);
     }
     state = {
       level, idx, stage,
@@ -1328,9 +1471,10 @@
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
 
-    if(state.level === 2){
+    const revealCount = factRevealCount(state.level);
+    if(revealCount > 0){
       const [ca, cb] = state.current;
-      $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb);
+      $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb, revealCount);
     }
 
     function advance(){
@@ -1342,8 +1486,8 @@
         renderQuestion();
       }
     }
-    if(state.level === 2){
-      // Level 2 never auto-advances — the child studies the triangles and taps "Próxima" when ready.
+    if(revealCount > 0){
+      // Levels with a fact-family reveal never auto-advance — the child studies it and taps "Próxima".
       const nextBtn = $('btn-next-question');
       nextBtn.style.display = 'block';
       nextBtn.onclick = advance;
@@ -1391,6 +1535,10 @@
       continueBtn.style.display = 'block';
       continueBtn.textContent = tt.continueToLevel2;
       continueBtn.onclick = () => startStage(2, 0);
+    } else if(state.level === 2){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueToLevel3;
+      continueBtn.onclick = () => startStage(3, 0);
     } else {
       continueBtn.style.display = 'none';
     }
