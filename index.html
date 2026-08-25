@@ -431,6 +431,10 @@
   .admin-tables{ display:flex; flex-wrap:wrap; gap:0.3rem; direction:ltr; }
   .admin-table-chip{ font-size:0.68rem; padding:0.15rem 0.45rem; border-radius:999px; background:rgba(255,255,255,0.06); color:var(--chalk-dim); }
   .admin-table-chip.hard{ background: var(--bad-dim); color: var(--bad); }
+  .admin-line{ font-size:0.82rem; color:var(--chalk-dim); padding:0.12rem 0; text-align:start; }
+  .admin-line b{ color:var(--chalk); font-variant-numeric:tabular-nums; }
+  .admin-line.weak{ color:var(--bad); }
+  .admin-line.weak b{ color:var(--bad); }
 
   /* ---------- Reference card + reference table screen ---------- */
   .ref-card{
@@ -616,6 +620,14 @@
       </header>
       <div class="center-stage">
         <div class="subject-grid">
+          <button class="subject-card" id="btn-open-addsub">
+            <span class="ref-icon">➕</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-addsub-name">Adição e Subtração</span>
+              <span class="desc" id="subject-addsub-desc">Simples e com reagrupamento</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
           <button class="subject-card" id="btn-open-tabuada">
             <span class="ref-icon">✖️</span>
             <span class="ref-copy">
@@ -637,6 +649,22 @@
             <span class="ref-copy">
               <span class="name" id="subject-fractions-name">Frações</span>
               <span class="desc" id="subject-fractions-desc">Somar, subtrair, multiplicar, dividir</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <button class="subject-card" id="btn-open-decfr">
+            <span class="ref-icon">🔟</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-decfr-name">Frações Decimais</span>
+              <span class="desc" id="subject-decfr-desc">Ler, escrever e operar</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <button class="subject-card" id="btn-open-geo">
+            <span class="ref-icon">📐</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-geo-name">Geometria Simples</span>
+              <span class="desc" id="subject-geo-desc">Perímetro e área das formas comuns</span>
             </span>
             <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
           </button>
@@ -950,6 +978,78 @@
       </div>
     </section>
 
+    <!-- ============ MINI ASSUNTOS (Adição/Subtração, Frações Decimais, Geometria): mapa ============ -->
+    <section class="screen" id="screen-mini-map" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-mini-hub" aria-label="Voltar aos assuntos">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="mini-player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-mini-map">עב</button>
+      </div>
+      <header class="home-head">
+        <h1 id="mini-map-title">Assunto</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub" id="mini-map-sub">Escolhe um nível</p>
+      </header>
+      <div class="trail-scroll">
+        <div class="nl-level-list" id="mini-level-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ MINI ASSUNTOS: jogo ============ -->
+    <section class="screen" id="screen-mini-game" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-mini" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="mini-game-title">Nível</span>
+        <button class="icon-btn" id="btn-mini-mute" aria-label="Som">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M13 7c1 .9 1 5 0 6"/></svg>
+        </button>
+      </div>
+      <div class="stats-row">
+        <span class="stat-pill" id="mini-score-pill">🔥 0/40</span>
+        <span class="stat-pill" id="mini-timer-pill">⏱ 0.0s</span>
+        <span class="stat-pill" id="mini-points-pill">💎 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="mini-progress-fill"></div></div>
+      <div class="stage">
+        <div class="fact-card" id="mini-question-card">
+          <div class="fn-story" id="mini-story" style="display:none;"></div>
+          <div class="fn-question-text" id="mini-question-text"></div>
+        </div>
+        <div class="nl-explain" id="mini-explain"></div>
+        <div class="feedback-msg" id="mini-feedback">&nbsp;</div>
+        <button class="btn primary" id="mini-btn-next" style="display:none;max-width:280px;width:100%;">Próxima</button>
+        <div class="keypad-wrap" id="mini-keypad-wrap">
+          <div class="answer-display" id="mini-answer-display">&nbsp;</div>
+          <div class="keypad" id="mini-keypad"></div>
+        </div>
+        <div class="nl-choice-wrap" id="mini-choice-wrap" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- ============ MINI ASSUNTOS: resultado ============ -->
+    <section class="screen" id="screen-mini-results" hidden>
+      <div class="results">
+        <div class="eyebrow" id="mini-results-eyebrow">Resultado</div>
+        <div class="grand-trophy" id="mini-grand-trophy"></div>
+        <div class="stars" id="mini-stars"></div>
+        <div class="praise" id="mini-praise"></div>
+        <span class="pass-tag pass" id="mini-pass-tag">Passou</span>
+        <div class="score-line"><span id="mini-score-line-label">Sequência:</span> <b id="mini-score-final">40/40</b></div>
+        <div class="score-line"><span id="mini-attempts-line-label">Tentativas totais:</span> <b id="mini-attempts-final">0</b></div>
+        <div class="result-actions">
+          <button class="btn primary" id="mini-btn-continue">Continuar</button>
+          <button class="btn" id="mini-btn-replay">Tentar de novo</button>
+          <button class="btn" id="mini-btn-map">Ver níveis</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ TABELA (consulta livre) ============ -->
     <section class="screen" id="screen-reference" hidden>
       <div class="topbar">
@@ -1066,6 +1166,44 @@
       subjectNumberLineName: 'Linha dos Números', subjectNumberLineDesc: 'Reconhecer números na reta',
       subjectFractionsName: 'Frações', subjectFractionsDesc: 'Somar, subtrair, multiplicar, dividir',
       subjectFinalName: 'Final de Fundamental', subjectFinalDesc: 'Revisão geral antes da 7ª série',
+      subjectAddSubName: 'Adição e Subtração', subjectAddSubDesc: 'Simples e com reagrupamento',
+      subjectDecFrName: 'Frações Decimais', subjectDecFrDesc: 'Ler, escrever e operar',
+      subjectGeoName: 'Geometria Simples', subjectGeoDesc: 'Perímetro e área das formas comuns',
+      miniMapSub: 'Escolhe um nível', miniContinueToHub: 'Voltar aos assuntos',
+      miniIncompleteWarning: (s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
+      miniEarlyWarning: 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
+      addsubLevel1Name: 'Simples', addsubLevel1Desc: 'até 2 dígitos, sem armar conta',
+      addsubLevel2Name: 'Avançado', addsubLevel2Desc: 'conta armada, com reagrupamento',
+      addsubAsk: 'Quanto é?',
+      addsubExplainCarry: (steps)=> steps.join(' → '),
+      addsubRule1: 'Soma ou subtrai os dois números.',
+      addsubRule2: 'Regra: calcula as unidades, depois as dezenas, depois as centenas — reagrupa quando passar de 10.',
+      decfrLevel1Name: 'Ler e Escrever', decfrLevel1Desc: 'fração ↔ decimal',
+      decfrLevel2Name: 'Operações', decfrLevel2Desc: 'somar, subtrair, comparar',
+      decfrRule1: 'Regra: a casa depois da vírgula é décimos; a segunda casa é centésimos.',
+      decfrRule2: 'Regra: alinha a vírgula antes de somar ou subtrair.',
+      decfrAskToDecimal: (n,d)=> 'Escreve ' + n + '/' + d + ' como decimal.',
+      decfrAskToFraction: (dec,d)=> 'Escreve ' + dec + ' como fração: ?/' + d,
+      decfrExplainToDecimal: (n,d,dec)=> n + '/' + d + ' = ' + dec + '.',
+      decfrExplainToFraction: (dec,n,d)=> dec + ' = ' + n + '/' + d + '.',
+      geoLevel1Name: 'Perímetro', geoLevel1Desc: 'contorno das formas',
+      geoLevel2Name: 'Área', geoLevel2Desc: 'espaço dentro das formas',
+      geoRuleSquarePerim: 'Regra: perímetro do quadrado = lado × 4.',
+      geoRuleRectPerim: 'Regra: perímetro do retângulo = (base + altura) × 2.',
+      geoRuleTriPerim: 'Regra: perímetro do triângulo = soma dos 3 lados.',
+      geoRuleCircleCirc: 'Regra: circunferência do círculo = 2 × π × raio (usa π ≈ 3,14).',
+      geoRuleSquareArea: 'Regra: área do quadrado = lado × lado.',
+      geoRuleRectArea: 'Regra: área do retângulo = base × altura.',
+      geoRuleTriArea: 'Regra: área do triângulo = (base × altura) ÷ 2.',
+      geoRuleCircleArea: 'Regra: área do círculo = π × raio × raio (usa π ≈ 3,14).',
+      geoAskSquarePerim: (s)=> 'Quadrado de lado ' + s + '. Qual é o perímetro?',
+      geoAskRectPerim: (w,h)=> 'Retângulo de base ' + w + ' e altura ' + h + '. Qual é o perímetro?',
+      geoAskTriPerim: (a,b,c)=> 'Triângulo de lados ' + a + ', ' + b + ' e ' + c + '. Qual é o perímetro?',
+      geoAskCirclePerim: (r)=> 'Círculo de raio ' + r + '. Qual é a circunferência (usa π ≈ 3,14)?',
+      geoAskSquareArea: (s)=> 'Quadrado de lado ' + s + '. Qual é a área?',
+      geoAskRectArea: (w,h)=> 'Retângulo de base ' + w + ' e altura ' + h + '. Qual é a área?',
+      geoAskTriArea: (b,h)=> 'Triângulo de base ' + b + ' e altura ' + h + '. Qual é a área?',
+      geoAskCircleArea: (r)=> 'Círculo de raio ' + r + '. Qual é a área (usa π ≈ 3,14)?',
       newPlayerBadge: 'Novo jogador', newPlayerCard: 'Novo jogador', newPlayerHeading: 'Como te chamas?',
       namePlaceholder: 'Teu nome', nameErrorEmpty: 'Escreve um nome.', nameErrorExists: 'Esse nome já existe. Escolhe outro.',
       continueBtn: 'Continuar', pinCreateHeading: 'Cria uma senha', pinCreateSub: '4 números, só para ti',
@@ -1175,6 +1313,44 @@
       subjectNumberLineName: 'ציר המספרים', subjectNumberLineDesc: 'זיהוי מספרים על הציר',
       subjectFractionsName: 'שברים', subjectFractionsDesc: 'חיבור, חיסור, כפל וחילוק',
       subjectFinalName: 'סוף יסודי', subjectFinalDesc: 'סיכום כללי לקראת כיתה ז\'',
+      subjectAddSubName: 'חיבור וחיסור', subjectAddSubDesc: 'פשוט ועם פריקה/הלוואה',
+      subjectDecFrName: 'שברים עשרוניים', subjectDecFrDesc: 'קריאה, כתיבה ופעולות',
+      subjectGeoName: 'גיאומטריה פשוטה', subjectGeoDesc: 'היקף ושטח של הצורות הנפוצות',
+      miniMapSub: 'בחר שלב', miniContinueToHub: 'חזרה לנושאים',
+      miniIncompleteWarning: (s)=> 'עוד לא סיימת את השלב הזה (' + ltr(s+'/40') + '). אפשר להמשיך אחר כך.',
+      miniEarlyWarning: 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
+      addsubLevel1Name: 'פשוט', addsubLevel1Desc: 'עד 2 ספרות, בלי לסדר בטור',
+      addsubLevel2Name: 'מתקדם', addsubLevel2Desc: 'חישוב בטור, עם פריקה/הלוואה',
+      addsubAsk: 'כמה זה?',
+      addsubExplainCarry: (steps)=> steps.join(' ← '),
+      addsubRule1: 'חבר או חסר את שני המספרים.',
+      addsubRule2: 'כלל: חשב קודם יחידות, אחר כך עשרות, אחר כך מאות — פרוק כשעוברים את 10.',
+      decfrLevel1Name: 'קריאה וכתיבה', decfrLevel1Desc: 'שבר ↔ עשרוני',
+      decfrLevel2Name: 'פעולות', decfrLevel2Desc: 'חיבור, חיסור, השוואה',
+      decfrRule1: 'כלל: הספרה אחרי הנקודה היא עשיריות; השנייה היא מאיות.',
+      decfrRule2: 'כלל: מיישרים את הנקודה העשרונית לפני חיבור או חיסור.',
+      decfrAskToDecimal: (n,d)=> 'כתוב את ' + ltr(n+'/'+d) + ' כמספר עשרוני.',
+      decfrAskToFraction: (dec,d)=> 'כתוב את ' + ltr(dec) + ' כשבר: ?/' + d,
+      decfrExplainToDecimal: (n,d,dec)=> ltr(n+'/'+d+' = '+dec) + '.',
+      decfrExplainToFraction: (dec,n,d)=> ltr(dec+' = '+n+'/'+d) + '.',
+      geoLevel1Name: 'היקף', geoLevel1Desc: 'המתאר של הצורה',
+      geoLevel2Name: 'שטח', geoLevel2Desc: 'החלל בתוך הצורה',
+      geoRuleSquarePerim: 'כלל: היקף הריבוע = צלע × 4.',
+      geoRuleRectPerim: 'כלל: היקף המלבן = (בסיס + גובה) × 2.',
+      geoRuleTriPerim: 'כלל: היקף המשולש = סכום 3 הצלעות.',
+      geoRuleCircleCirc: 'כלל: היקף המעגל = 2 × π × רדיוס (π ≈ 3.14).',
+      geoRuleSquareArea: 'כלל: שטח הריבוע = צלע × צלע.',
+      geoRuleRectArea: 'כלל: שטח המלבן = בסיס × גובה.',
+      geoRuleTriArea: 'כלל: שטח המשולש = (בסיס × גובה) ÷ 2.',
+      geoRuleCircleArea: 'כלל: שטח המעגל = π × רדיוס × רדיוס (π ≈ 3.14).',
+      geoAskSquarePerim: (s)=> 'ריבוע בעל צלע ' + ltr(s) + '. מה ההיקף?',
+      geoAskRectPerim: (w,h)=> 'מלבן בעל בסיס ' + ltr(w) + ' וגובה ' + ltr(h) + '. מה ההיקף?',
+      geoAskTriPerim: (a,b,c)=> 'משולש בעל צלעות ' + ltr(a+', '+b+' ו-'+c) + '. מה ההיקף?',
+      geoAskCirclePerim: (r)=> 'מעגל בעל רדיוס ' + ltr(r) + '. מה ההיקף (π ≈ 3.14)?',
+      geoAskSquareArea: (s)=> 'ריבוע בעל צלע ' + ltr(s) + '. מה השטח?',
+      geoAskRectArea: (w,h)=> 'מלבן בעל בסיס ' + ltr(w) + ' וגובה ' + ltr(h) + '. מה השטח?',
+      geoAskTriArea: (b,h)=> 'משולש בעל בסיס ' + ltr(b) + ' וגובה ' + ltr(h) + '. מה השטח?',
+      geoAskCircleArea: (r)=> 'מעגל בעל רדיוס ' + ltr(r) + '. מה השטח (π ≈ 3.14)?',
       newPlayerBadge: 'שחקן חדש', newPlayerCard: 'שחקן חדש', newPlayerHeading: 'איך קוראים לך?',
       namePlaceholder: 'השם שלך', nameErrorEmpty: 'כתוב שם.', nameErrorExists: 'השם הזה כבר קיים. בחר שם אחר.',
       continueBtn: 'המשך', pinCreateHeading: 'צור סיסמה', pinCreateSub: '4 ספרות, רק בשבילך',
@@ -1312,6 +1488,12 @@
     $('subject-final-desc').textContent = tt.subjectFinalDesc;
     $('fn-map-title').textContent = tt.subjectFinalName;
     $('fn-map-sub').textContent = tt.fnMapSub;
+    $('subject-addsub-name').textContent = tt.subjectAddSubName;
+    $('subject-addsub-desc').textContent = tt.subjectAddSubDesc;
+    $('subject-decfr-name').textContent = tt.subjectDecFrName;
+    $('subject-decfr-desc').textContent = tt.subjectDecFrDesc;
+    $('subject-geo-name').textContent = tt.subjectGeoName;
+    $('subject-geo-desc').textContent = tt.subjectGeoDesc;
     $('map-title').textContent = tt.mapTitle;
     $('map-sub').textContent = tt.mapSub;
     $('level1-label').childNodes[0].textContent = tt.level1Name;
@@ -1334,11 +1516,12 @@
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl, #btn-back-fr-hub, #btn-back-fr, #btn-back-fn-hub, #btn-back-fn').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl, #btn-back-fr-hub, #btn-back-fr, #btn-back-fn-hub, #btn-back-fn, #btn-back-mini-hub, #btn-back-mini').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-nl-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-fr-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-fn-mute').setAttribute('aria-label', tt.soundAria);
+    $('btn-mini-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-switch-player-hub').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
@@ -1352,6 +1535,8 @@
     if(!screens['fr-game'].hidden && frState) $('fr-game-title').textContent = frLevelName(frState.level);
     if(!screens['fn-map'].hidden) renderFnMap();
     if(!screens['fn-game'].hidden && fnState) $('fn-game-title').textContent = fnLevelName(fnState.level);
+    if(!screens['mini-map'].hidden) renderMiniMap();
+    if(!screens['mini-game'].hidden && miniState) $('mini-game-title').textContent = miniLevelName(miniState.level);
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
@@ -1459,7 +1644,8 @@
     admin: $('screen-admin'), reference: $('screen-reference'),
     'nl-map': $('screen-nl-map'), 'nl-game': $('screen-nl-game'), 'nl-results': $('screen-nl-results'),
     'fr-map': $('screen-fr-map'), 'fr-game': $('screen-fr-game'), 'fr-results': $('screen-fr-results'),
-    'fn-map': $('screen-fn-map'), 'fn-game': $('screen-fn-game'), 'fn-results': $('screen-fn-results')
+    'fn-map': $('screen-fn-map'), 'fn-game': $('screen-fn-game'), 'fn-results': $('screen-fn-results'),
+    'mini-map': $('screen-mini-map'), 'mini-game': $('screen-mini-game'), 'mini-results': $('screen-mini-results')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
@@ -1472,6 +1658,7 @@
     if(name === 'nl-map') renderNlMap();
     if(name === 'fr-map') renderFrMap();
     if(name === 'fn-map') renderFnMap();
+    if(name === 'mini-map') renderMiniMap();
   }
   function updatePlayerChips(){
     if(!currentPlayer) return;
@@ -1629,6 +1816,9 @@
     nl = null;
     fr = null;
     finalData = null;
+    miniActive = null;
+    miniData = null;
+    miniState = null;
     lastTick = null;
     show('login');
   }
@@ -1656,98 +1846,47 @@
       return;
     }
     names.forEach(name => {
-      const stats = ensureStats(name);
-      const today = stats.days[todayKey()];
       const card = document.createElement('div');
       card.className = 'admin-card';
-      const pr = ensureProgress(name);
-      const lvl1Done = pr[1].filter(Boolean).length;
-      const lvl2Done = pr[2].filter(Boolean).length;
-      const lvl3Done = pr[3].filter(Boolean).length;
-      const lvl4Done = pr[4].filter(Boolean).length;
-      card.innerHTML =
-        '<div class="row1"><span class="name">' + escapeHtml(name) + '</span></div>' +
-        '<div class="admin-stats">' +
-          '<span>' + tt.timeLabel + ' (' + tt.todayLabel + ')</span><b>' + fmtTime(today.timeMs) + '</b>' +
-          '<span>' + tt.pointsLabel + ' (' + tt.todayLabel + ')</span><b>' + today.points + '</b>' +
-          '<span>' + tt.pointsLabel + ' (' + tt.totalLabel + ')</span><b>' + stats.totalPoints + '</b>' +
-          '<span>' + tt.correctLabel + ' / ' + tt.wrongLabel + '</span><b>' + today.correct + ' / ' + today.wrong + '</b>' +
-        '</div>' +
-        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl4ProgressLabel + ': ' + lvl4Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>' +
-        levelBreakdownHtml(name, 1, tt.lvl1ProgressLabel) +
-        levelBreakdownHtml(name, 2, tt.lvl2ProgressLabel) +
-        levelBreakdownHtml(name, 4, tt.lvl4ProgressLabel) +
-        levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel) +
-        nlBreakdownHtml(name) +
-        frBreakdownHtml(name) +
-        fnBreakdownHtml(name);
+      let body = '<div class="row1"><span class="name">' + escapeHtml(name) + '</span></div>';
+      body += adminSubjectBlock(tt.subjectAddSubName, subjectAdminLines(ensureMiniData(name,'addsub'), [1,2], 'addsubLevel'));
+      body += adminSubjectBlock(tt.subjectTabuadaName, tabuadaAdminLines(name));
+      body += adminSubjectBlock(tt.subjectNumberLineName, subjectAdminLines(ensureNL(name), NL_LEVEL_KEYS, 'nlLevel'));
+      body += adminSubjectBlock(tt.subjectFractionsName, subjectAdminLines(ensureFR(name), FR_LEVEL_KEYS, 'frLevel'));
+      body += adminSubjectBlock(tt.subjectDecFrName, subjectAdminLines(ensureMiniData(name,'decfr'), [1,2], 'decfrLevel'));
+      body += adminSubjectBlock(tt.subjectGeoName, subjectAdminLines(ensureMiniData(name,'geo'), [1,2], 'geoLevel'));
+      body += adminSubjectBlock(tt.subjectFinalName, subjectAdminLines(ensureFinal(name), FN_LEVEL_KEYS, 'fnLevel'));
+      card.innerHTML = body;
       list.appendChild(card);
     });
   }
-  function fnBreakdownHtml(name){
-    const tt = T[lang];
-    const fd = ensureFinal(name);
-    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectFinalName + '</div>';
-    const chips = FN_LEVEL_KEYS.map(level => {
-      const s = fd.byLevel[level];
-      const attempts = s.correct + s.wrong;
-      if(attempts === 0) return '';
-      const avg = (s.timeMs/attempts/1000).toFixed(1);
-      const hard = s.wrong > s.correct ? ' hard' : '';
-      return '<span class="admin-table-chip' + hard + '">' + T[lang]['fnLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
-    }).join('');
-    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
+  // One line per level actually attempted: "Nome do nível — X/Y · Zs médio".
+  // Lines under 60% accuracy are highlighted — that's where the parent needs to work with the child.
+  function adminLine(name, correct, wrong, timeMs){
+    const attempts = correct + wrong;
+    if(attempts === 0) return '';
+    const avg = (timeMs/attempts/1000).toFixed(1);
+    const weak = correct/attempts < 0.6;
+    return '<div class="admin-line' + (weak?' weak':'') + '">' + name + ' — <b>' + ltr(correct + '/' + attempts) + '</b> · ' + ltr(avg+'s') + '</div>';
   }
-  function frBreakdownHtml(name){
-    const tt = T[lang];
-    const frData = ensureFR(name);
-    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectFractionsName + '</div>';
-    const chips = FR_LEVEL_KEYS.map(level => {
-      const s = frData.byLevel[level];
-      const attempts = s.correct + s.wrong;
-      if(attempts === 0) return '';
-      const avg = (s.timeMs/attempts/1000).toFixed(1);
-      const hard = s.wrong > s.correct ? ' hard' : '';
-      return '<span class="admin-table-chip' + hard + '">' + T[lang]['frLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
-    }).join('');
-    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
+  function adminSubjectBlock(title, linesHtml){
+    if(!linesHtml) return '';
+    return '<div class="admin-level"><div class="admin-level-head">' + title + '</div>' + linesHtml + '</div>';
   }
-  function nlBreakdownHtml(name){
-    const tt = T[lang];
-    const nlData = ensureNL(name);
-    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectNumberLineName + '</div>';
-    const chips = NL_LEVEL_KEYS.map(level => {
-      const s = nlData.byLevel[level];
-      const attempts = s.correct + s.wrong;
-      if(attempts === 0) return '';
-      const avg = (s.timeMs/attempts/1000).toFixed(1);
-      const hard = s.wrong > s.correct ? ' hard' : '';
-      return '<span class="admin-table-chip' + hard + '">' + T[lang]['nlLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
+  function subjectAdminLines(data, levelKeys, nameKeyPrefix){
+    return levelKeys.map(level => {
+      const s = data.byLevel[level];
+      return adminLine(T[lang][nameKeyPrefix+level+'Name'], s.correct, s.wrong, s.timeMs);
     }).join('');
-    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
   }
-  function levelBreakdownHtml(name, level, levelName){
-    const tt = T[lang];
-    const bt = ensureByTable(name)[level] || {};
-    let totalCorrect = 0, totalWrong = 0, totalTime = 0;
-    const rows = Object.keys(bt).map(key => {
-      const s = bt[key];
-      totalCorrect += s.correct; totalWrong += s.wrong; totalTime += s.timeMs;
-      return { stage: key, correct: s.correct, wrong: s.wrong, attempts: s.correct + s.wrong, timeMs: s.timeMs };
-    }).filter(r => r.attempts > 0).sort((a,b) => (b.wrong - a.wrong) || (b.attempts - a.attempts));
-    const totalAttempts = totalCorrect + totalWrong;
-    const avgAll = totalAttempts ? (totalTime / totalAttempts / 1000).toFixed(1) : '—';
-    const head = levelName + ' — ' + totalCorrect + '✓ / ' + totalWrong + '✗ · ' + avgAll + 's ' + tt.avgTimeLabel;
-    if(!rows.length){
-      return '<div class="admin-level"><div class="admin-level-head">' + head + ' (' + tt.noAttemptsYet + ')</div></div>';
-    }
-    const chips = rows.map(r => {
-      const label = r.stage === 'mixed' ? tt.stageMixed : r.stage;
-      const hard = r.wrong > r.correct ? ' hard' : '';
-      const avg = (r.timeMs / r.attempts / 1000).toFixed(1);
-      return '<span class="admin-table-chip' + hard + '">' + label + ': ' + r.correct + '✓/' + r.wrong + '✗ · ' + avg + 's</span>';
+  function tabuadaAdminLines(name){
+    const bt = ensureByTable(name);
+    return [1,2,4,3].map(level => {
+      const perTable = bt[level] || {};
+      let correct=0, wrong=0, timeMs=0;
+      Object.keys(perTable).forEach(k => { correct+=perTable[k].correct; wrong+=perTable[k].wrong; timeMs+=perTable[k].timeMs; });
+      return adminLine(T[lang]['level'+level+'Name'], correct, wrong, timeMs);
     }).join('');
-    return '<div class="admin-level"><div class="admin-level-head">' + head + '</div><div class="admin-tables">' + chips + '</div></div>';
   }
 
   // ---------- Tabela (free reference, no quiz) ----------
@@ -3064,6 +3203,363 @@
   });
   $('fn-btn-replay').addEventListener('click', () => startFnLevel(fnState.level));
   $('fn-btn-map').addEventListener('click', () => show('fn-map'));
+
+  // ============================================================
+  // MINI ASSUNTOS — Adição/Subtração, Frações Decimais, Geometria Simples.
+  // One shared engine + shared screens for all three (never run at once).
+  // ============================================================
+  const MINI_LEVEL_COUNT = { addsub:2, decfr:2, geo:2 };
+  const MINI_TARGET = 40;
+  function defaultMini(levelCount){
+    const progress={}, streaks={}, byLevel={};
+    for(let i=1;i<=levelCount;i++){ progress[i]=false; streaks[i]=0; byLevel[i]={correct:0,wrong:0,timeMs:0}; }
+    return { progress, streaks, byLevel };
+  }
+  function ensureMiniData(name, subj){
+    const p = players[name];
+    if(!p.mini) p.mini = {};
+    if(!p.mini[subj]) p.mini[subj] = defaultMini(MINI_LEVEL_COUNT[subj]);
+    const lc = MINI_LEVEL_COUNT[subj];
+    for(let i=1;i<=lc;i++){
+      if(p.mini[subj].progress[i] === undefined) p.mini[subj].progress[i] = false;
+      if(p.mini[subj].streaks[i] === undefined) p.mini[subj].streaks[i] = 0;
+      if(!p.mini[subj].byLevel[i]) p.mini[subj].byLevel[i] = {correct:0,wrong:0,timeMs:0};
+    }
+    return p.mini[subj];
+  }
+  let miniActive = null, miniData = null, miniState = null;
+  function miniPrevComplete(level){ return level <= 1 || miniData.progress[level-1]; }
+  function miniLevelName(level){ return T[lang][miniActive+'Level'+level+'Name']; }
+  function miniSubjectTitle(){
+    return miniActive === 'addsub' ? T[lang].subjectAddSubName : miniActive === 'decfr' ? T[lang].subjectDecFrName : T[lang].subjectGeoName;
+  }
+
+  $('btn-open-addsub').addEventListener('click', () => openMiniSubject('addsub'));
+  $('btn-open-decfr').addEventListener('click', () => openMiniSubject('decfr'));
+  $('btn-open-geo').addEventListener('click', () => openMiniSubject('geo'));
+  $('btn-back-mini-hub').addEventListener('click', () => show('hub'));
+  $('btn-lang-mini-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
+  function openMiniSubject(subj){
+    miniActive = subj;
+    miniData = ensureMiniData(currentPlayer, subj);
+    show('mini-map');
+  }
+  function renderMiniMap(){
+    updatePlayerChips();
+    $('mini-player-chip').textContent = $('player-chip').textContent;
+    $('mini-map-title').textContent = miniSubjectTitle();
+    $('mini-map-sub').textContent = T[lang].miniMapSub;
+    const list = $('mini-level-list');
+    list.innerHTML = '';
+    const lc = MINI_LEVEL_COUNT[miniActive];
+    for(let level=1; level<=lc; level++){
+      const done = miniData.progress[level];
+      const btn = document.createElement('button');
+      btn.className = 'nl-level-btn' + (done ? ' done' : '');
+      btn.innerHTML =
+        '<span class="ref-icon">' + (done ? '✔' : level) + '</span>' +
+        '<span class="ref-copy"><span class="name">' + miniLevelName(level) + '</span><span class="desc">' + T[lang][miniActive+'Level'+level+'Desc'] + '</span></span>' +
+        '<span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>';
+      btn.addEventListener('click', () => startMiniLevel(level));
+      list.appendChild(btn);
+    }
+  }
+
+  // ---------- question generators ----------
+  function addsubGen1(){
+    const op = Math.random() < 0.5 ? '+' : '-';
+    let a = 1+fnRnd(89), b = 1+fnRnd(89);
+    if(op === '-' && a < b){ const t=a; a=b; b=t; }
+    const correct = op === '+' ? a+b : a-b;
+    return { kind:'keypad', question: a+' '+op+' '+b+' = ?', correct };
+  }
+  function buildVerticalCalc(a,b,op){
+    return '<div style="font-family:\'Courier New\',monospace; font-size:1.7rem; font-weight:700; text-align:end; direction:ltr; line-height:1.35;">' +
+      '<div>' + a + '</div>' +
+      '<div>' + op + ' ' + b + '</div>' +
+      '<div style="border-top:2px solid var(--chalk); margin-top:2px;">&nbsp;</div>' +
+    '</div>';
+  }
+  function addsubGen2(){
+    const op = Math.random() < 0.5 ? '+' : '-';
+    let a = 100+fnRnd(800), b = 100+fnRnd(800);
+    if(op === '-' && a < b){ const t=a; a=b; b=t; }
+    const correct = op === '+' ? a+b : a-b;
+    return { kind:'keypad', vertical:{a,b,op}, question: '', correct };
+  }
+  function decfrGen1(){
+    const tt = T[lang];
+    const dOpts = [10,100], d = dOpts[fnRnd(2)];
+    const n = 1+fnRnd(d-1);
+    const decVal = Math.round((n/d)*100)/100;
+    if(Math.random() < 0.5){
+      return { kind:'keypad', decimal:true, question: tt.decfrAskToDecimal(n,d), correct: decVal, explainKind:'toDecimal', n, d, decVal };
+    }
+    const decStr = d === 100 ? decVal.toFixed(2) : decVal.toFixed(1);
+    return { kind:'keypad', question: tt.decfrAskToFraction(decStr,d), correct: n, explainKind:'toFraction', n, d, decStr };
+  }
+  function decfrGen2(){
+    const t = fnRnd(3);
+    if(t === 0){
+      const opAdd = Math.random() < 0.5;
+      const a = (fnRnd(90)+10)/10, b = (fnRnd(50)+5)/10;
+      const correct = Math.round((opAdd ? a+b : a-b)*10)/10;
+      return { kind:'keypad', decimal:true, question: a.toFixed(1)+(opAdd?' + ':' - ')+b.toFixed(1)+' = ?', correct };
+    }
+    if(t === 1){
+      const a=(fnRnd(90)+10)/10, b=(fnRnd(90)+10)/10;
+      const correct = a>b?'>':(a<b?'<':'=');
+      return { kind:'choice', question: a.toFixed(1)+'  ?  '+b.toFixed(1),
+        choices:[{label:'<',value:'<'},{label:'>',value:'>'},{label:'=',value:'='}], correct };
+    }
+    const base = (fnRnd(90)+10)/10, mult = Math.random() < 0.5;
+    const correct = Math.round((mult ? base*10 : base/10)*100)/100;
+    return { kind:'keypad', decimal:true, question: base+' '+(mult?'×':'÷')+' 10 = ?', correct };
+  }
+  function geoGen1(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){ const s=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskSquarePerim(s), correct: s*4, rule: tt.geoRuleSquarePerim }; }
+    if(t === 1){ const w=2+fnRnd(10), h=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskRectPerim(w,h), correct: 2*(w+h), rule: tt.geoRuleRectPerim }; }
+    if(t === 2){ const a=2+fnRnd(10), b=2+fnRnd(10), c=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskTriPerim(a,b,c), correct: a+b+c, rule: tt.geoRuleTriPerim }; }
+    const r=1+fnRnd(10), correct=Math.round(2*3.14*r*100)/100;
+    return { kind:'keypad', decimal:true, question: tt.geoAskCirclePerim(r), correct, rule: tt.geoRuleCircleCirc };
+  }
+  function geoGen2(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){ const s=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskSquareArea(s), correct: s*s, rule: tt.geoRuleSquareArea }; }
+    if(t === 1){ const w=2+fnRnd(10), h=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskRectArea(w,h), correct: w*h, rule: tt.geoRuleRectArea }; }
+    if(t === 2){ const b=2+2*fnRnd(6), h=2+2*fnRnd(6); return { kind:'keypad', question: tt.geoAskTriArea(b,h), correct: (b*h)/2, rule: tt.geoRuleTriArea }; }
+    const r=1+fnRnd(8), correct=Math.round(3.14*r*r*100)/100;
+    return { kind:'keypad', decimal:true, question: tt.geoAskCircleArea(r), correct, rule: tt.geoRuleCircleArea };
+  }
+  function miniNewQuestion(level){
+    if(miniActive === 'addsub') return level === 1 ? addsubGen1() : addsubGen2();
+    if(miniActive === 'decfr') return level === 1 ? decfrGen1() : decfrGen2();
+    return level === 1 ? geoGen1() : geoGen2();
+  }
+
+  function startMiniLevel(level){
+    if(!miniPrevComplete(level)) showToast(T[lang].miniEarlyWarning);
+    miniState = { level, streak: miniData.streaks[level] || 0, attempts:0, answer:'', locked:false, current:null };
+    $('mini-game-title').textContent = miniLevelName(level);
+    show('mini-game');
+    miniRenderQuestion();
+  }
+
+  function miniStartTimer(){
+    miniStopTimer();
+    miniState.questionStartedAt = Date.now();
+    $('mini-timer-pill').textContent = '⏱ 0.0s';
+    miniState.timerHandle = setInterval(() => {
+      const elapsed = (Date.now() - miniState.questionStartedAt) / 1000;
+      $('mini-timer-pill').textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function miniStopTimer(){
+    if(miniState && miniState.timerHandle){ clearInterval(miniState.timerHandle); miniState.timerHandle = null; }
+  }
+  function miniUpdatePointsPill(){
+    if(!currentPlayer) return;
+    $('mini-points-pill').textContent = '💎 ' + ensureStats(currentPlayer).days[todayKey()].points;
+  }
+
+  function miniRenderQuestion(){
+    miniState.current = miniNewQuestion(miniState.level);
+    miniState.answer = '';
+    miniState.locked = false;
+    $('mini-feedback').textContent = ' ';
+    $('mini-feedback').className = 'feedback-msg';
+    $('mini-question-card').className = 'fact-card';
+    $('mini-explain').innerHTML = '';
+    $('mini-btn-next').style.display = 'none';
+    $('mini-answer-display').innerHTML = '&nbsp;';
+    $('mini-score-pill').textContent = '🔥 ' + miniState.streak + '/' + MINI_TARGET;
+    $('mini-progress-fill').style.width = (100*miniState.streak/MINI_TARGET) + '%';
+    miniUpdatePointsPill();
+    miniStartTimer();
+
+    const c = miniState.current;
+    $('mini-story').style.display = 'none';
+    const qText = $('mini-question-text');
+    if(c.vertical){
+      qText.innerHTML = buildVerticalCalc(c.vertical.a, c.vertical.b, c.vertical.op);
+    } else {
+      qText.textContent = c.question;
+    }
+
+    const keypadWrap = $('mini-keypad-wrap');
+    const choiceWrap = $('mini-choice-wrap');
+    if(c.kind === 'choice'){
+      keypadWrap.style.display = 'none';
+      choiceWrap.style.display = 'flex';
+      choiceWrap.innerHTML = '';
+      c.choices.forEach(ch => {
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.textContent = ch.label;
+        b.addEventListener('click', () => miniSubmitAnswer(ch.value));
+        choiceWrap.appendChild(b);
+      });
+    } else {
+      keypadWrap.style.display = 'flex';
+      choiceWrap.style.display = 'none';
+      miniRenderKeypad();
+    }
+  }
+
+  function miniRenderKeypad(){
+    const kp = $('mini-keypad');
+    kp.innerHTML = '';
+    const decimalMode = miniState.current && miniState.current.decimal;
+    const layout = ['1','2','3','4','5','6','7','8','9', decimalMode ? '.' : '⌫','0', decimalMode ? '⌫' : 'OK'];
+    if(decimalMode) layout.push('OK');
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key' + (label === 'OK' ? ' confirm' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => miniOnKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function miniOnKey(label){
+    if(miniState.locked) return;
+    if(label === '⌫'){ miniState.answer = miniState.answer.slice(0,-1); }
+    else if(label === 'OK'){ miniSubmitAnswer(); return; }
+    else if(label === '.'){ if(miniState.answer.indexOf('.') === -1 && miniState.answer.length) miniState.answer += '.'; }
+    else { if(miniState.answer.length < 6) miniState.answer += label; }
+    $('mini-answer-display').textContent = miniState.answer.length ? miniState.answer : ' ';
+  }
+  document.addEventListener('keydown', (e) => {
+    if(screens['mini-game'].hidden || !miniState || miniState.locked) return;
+    if(miniState.current && miniState.current.kind !== 'keypad') return;
+    if(/^[0-9]$/.test(e.key)) miniOnKey(e.key);
+    else if(e.key === 'Backspace') miniOnKey('⌫');
+    else if(e.key === 'Enter') miniOnKey('OK');
+  });
+
+  function miniSubmitAnswer(choiceValue){
+    const fromChoice = choiceValue !== undefined;
+    if(!fromChoice && miniState.answer === '') return;
+    miniStopTimer();
+    const reactionMs = Date.now() - miniState.questionStartedAt;
+    miniState.locked = true;
+    miniState.attempts++;
+    const given = fromChoice ? choiceValue : Number(miniState.answer);
+    const ok = fnCheckAnswer(given, miniState.current.correct);
+    const tt = T[lang];
+    const card = $('mini-question-card'); const msg = $('mini-feedback');
+
+    tickTime();
+    const stats = currentPlayer ? ensureStats(currentPlayer) : null;
+    const todayStats = stats ? stats.days[todayKey()] : null;
+    const lvlStat = miniData.byLevel[miniState.level];
+    lvlStat.timeMs += reactionMs;
+
+    if(ok){
+      miniState.streak++;
+      lvlStat.correct++;
+      card.classList.add('good'); msg.classList.add('good');
+      msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + miniState.streak + '/' + MINI_TARGET + ')';
+      beep('good'); burstConfetti(false);
+      if(todayStats){
+        const earned = reactionMs < FAST_ANSWER_MS ? 2 : 1;
+        todayStats.points += earned; todayStats.correct++; stats.totalPoints += earned;
+      }
+      if(miniState.streak % 10 === 0 && miniState.streak < MINI_TARGET) showMilestoneTrophy(miniState.streak/10, miniState.streak);
+      else if(miniState.streak % 5 === 0 && miniState.streak < MINI_TARGET) showMilestoneMedal(miniState.streak);
+    } else {
+      lvlStat.wrong++;
+      card.classList.add('bad'); msg.classList.add('bad');
+      msg.textContent = tt.wrongMsg(fnDisplayCorrect(miniState.current));
+      beep('bad');
+      miniState.streak = 0;
+      if(todayStats) todayStats.wrong++;
+    }
+    miniData.streaks[miniState.level] = miniState.streak;
+    persist();
+    miniUpdatePointsPill();
+    $('mini-score-pill').textContent = '🔥 ' + miniState.streak + '/' + MINI_TARGET;
+    $('mini-progress-fill').style.width = (100*miniState.streak/MINI_TARGET) + '%';
+
+    $('mini-explain').innerHTML = miniExplain();
+
+    $('mini-btn-next').style.display = 'block';
+    $('mini-btn-next').onclick = () => {
+      $('mini-btn-next').style.display = 'none';
+      if(ok && miniState.streak >= MINI_TARGET) miniFinishLevel(); else miniRenderQuestion();
+    };
+  }
+
+  function miniExplain(){
+    const tt = T[lang];
+    const c = miniState.current;
+    const resultText = tt.fnExplainResult(fnDisplayCorrect(c));
+    if(c.rule) return '<b>' + c.rule + ' ' + resultText + '</b>';
+    if(miniActive === 'addsub'){
+      const rule = miniState.level === 1 ? tt.addsubRule1 : tt.addsubRule2;
+      return '<b>' + rule + ' ' + resultText + '</b>';
+    }
+    if(miniActive === 'decfr'){
+      if(c.explainKind === 'toDecimal') return '<b>' + tt.decfrExplainToDecimal(c.n, c.d, c.decVal) + '</b>';
+      if(c.explainKind === 'toFraction') return '<b>' + tt.decfrExplainToFraction(c.decStr, c.n, c.d) + '</b>';
+      const rule = miniState.level === 1 ? tt.decfrRule1 : tt.decfrRule2;
+      return '<b>' + (rule||'') + ' ' + resultText + '</b>';
+    }
+    return '<b>' + resultText + '</b>';
+  }
+
+  function miniFinishLevel(){
+    const tt = T[lang];
+    miniData.progress[miniState.level] = true;
+    miniData.streaks[miniState.level] = 0;
+    persist();
+
+    $('mini-results-eyebrow').textContent = miniLevelName(miniState.level);
+    $('mini-score-final').textContent = MINI_TARGET + '/' + MINI_TARGET;
+    $('mini-attempts-final').textContent = miniState.attempts;
+    $('mini-grand-trophy').innerHTML = trophySVG('#f2c14e', 120);
+    burstConfetti(true); beep('good');
+    $('mini-pass-tag').textContent = tt.passTag;
+
+    const starsWrap = $('mini-stars');
+    starsWrap.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      s.setAttribute('viewBox','0 0 40 40');
+      s.innerHTML = '<path d="M20 3 L24 15 L37 15 L26.5 22.5 L30.5 35 L20 27 L9.5 35 L13.5 22.5 L3 15 L16 15 Z" fill="#f2c14e" stroke="#f2c14e" stroke-width="2" stroke-linejoin="round"/>';
+      starsWrap.appendChild(s);
+    }
+    $('mini-praise').textContent = tt.finalPraises[Math.floor(Math.random()*tt.finalPraises.length)];
+
+    const continueBtn = $('mini-btn-continue');
+    const lc = MINI_LEVEL_COUNT[miniActive];
+    if(miniState.level < lc){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueNextPrefix + miniLevelName(miniState.level+1);
+      continueBtn.onclick = () => startMiniLevel(miniState.level+1);
+    } else {
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.miniContinueToHub;
+      continueBtn.onclick = () => show('hub');
+    }
+    show('mini-results');
+  }
+
+  $('btn-back-mini').addEventListener('click', () => {
+    miniStopTimer();
+    if(miniState && miniState.streak > 0 && miniState.streak < MINI_TARGET){
+      showToast(T[lang].miniIncompleteWarning(miniState.streak));
+    }
+    show('mini-map');
+  });
+  $('btn-mini-mute').addEventListener('click', () => {
+    muted = !muted;
+    $('btn-mini-mute').style.opacity = muted ? 0.35 : 1;
+  });
+  $('mini-btn-replay').addEventListener('click', () => startMiniLevel(miniState.level));
+  $('mini-btn-map').addEventListener('click', () => show('mini-map'));
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function level2Complete(){ return progress[2].every(Boolean); }
