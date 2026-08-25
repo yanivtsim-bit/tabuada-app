@@ -83,8 +83,10 @@
     border-radius: 18px;
     background: radial-gradient(140% 120% at 18% 0%, var(--board-hi) 0%, var(--board) 45%, var(--board-dark) 100%);
     padding: 1.4rem 1.2rem 1.5rem;
-    overflow:hidden;
+    overflow-x:hidden;
+    overflow-y:auto;
     min-height: 600px;
+    max-height: calc(100vh - 3rem);
     display:flex;
     flex-direction:column;
   }
@@ -212,7 +214,7 @@
   }
 
   /* ---------- Trilha (stage map) ---------- */
-  .trail-scroll{ flex:1; overflow-y:auto; padding-right:2px; }
+  .trail-scroll{ padding-right:2px; }
   .level-block{ margin-bottom:1.3rem; }
   .level-block:last-child{ margin-bottom:0.4rem; }
   .level-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:0.55rem; }
@@ -412,7 +414,7 @@
 
   /* ---------- Stats row + admin ---------- */
   .stats-row{ display:flex; gap:0.4rem; justify-content:center; flex-wrap:wrap; direction:ltr; }
-  .admin-list{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:0.7rem; }
+  .admin-list{ display:flex; flex-direction:column; gap:0.7rem; }
   .admin-card{
     border-radius:14px; border:1px solid rgba(243,236,217,0.16);
     background: rgba(255,255,255,0.04);
@@ -431,21 +433,23 @@
 
   /* ---------- Reference card + reference table screen ---------- */
   .ref-card{
-    display:flex; align-items:center; gap:0.7rem;
-    width:100%; border-radius:14px; border:1px solid rgba(243,236,217,0.16);
-    background: rgba(255,255,255,0.045); padding:0.8rem 0.9rem; margin-bottom:1rem;
+    display:flex; align-items:center; gap:0.9rem;
+    width:100%; border-radius:16px; border:1.5px solid rgba(143,199,217,0.4);
+    background: rgba(143,199,217,0.1); padding:1rem 1.05rem; margin-bottom:0.9rem;
     cursor:pointer; color:inherit; text-align:start;
     transition: background .15s, transform .1s;
   }
-  .ref-card:hover{ background: rgba(255,255,255,0.08); }
+  .ref-card:hover{ background: rgba(143,199,217,0.18); }
   .ref-card:active{ transform: scale(0.98); }
   .ref-card .ref-icon{
-    flex:none; width:40px; height:40px; border-radius:10px;
-    display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+    flex:none; width:52px; height:52px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; font-size:1.7rem;
     background: var(--chalk-blue); color: var(--board-dark);
   }
-  .ref-card .name{ font-size:0.95rem; font-weight:600; }
-  .ref-card .desc{ font-size:0.75rem; color:var(--chalk-dim); }
+  .ref-card .ref-copy{ flex:1; }
+  .ref-card .name{ font-size:1.05rem; font-weight:700; display:block; }
+  .ref-card .desc{ font-size:0.78rem; color:var(--chalk-dim); }
+  .ref-card .ref-arrow{ flex:none; color: var(--chalk-blue); opacity:0.85; }
 
   .ref-list{ display:flex; flex-direction:column; gap:0.35rem; width:100%; max-width:280px; }
   .ref-row{
@@ -543,10 +547,11 @@
       <div class="trail-scroll">
         <button class="ref-card" id="btn-open-reference">
           <span class="ref-icon">📖</span>
-          <span>
-            <span class="name" id="reference-card-name" style="display:block;">Tabela completa</span>
+          <span class="ref-copy">
+            <span class="name" id="reference-card-name">Tabela completa</span>
             <span class="desc" id="reference-card-desc">Consulta livre, sem prova</span>
           </span>
+          <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
         </button>
 
         <div class="level-block lvl1">
@@ -568,6 +573,15 @@
           </div>
           <div class="node-grid" id="nodes-lvl2"></div>
         </div>
+
+        <button class="ref-card" id="btn-open-reference-div">
+          <span class="ref-icon">➗</span>
+          <span class="ref-copy">
+            <span class="name" id="reference-div-card-name">Tabela de divisão</span>
+            <span class="desc" id="reference-div-card-desc">Consulta livre, sem prova</span>
+          </span>
+          <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+        </button>
 
         <div class="level-block lvl3">
           <div class="level-head">
@@ -699,6 +713,8 @@
       levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ', levelPrefix3: 'Nível 3 · ',
       referenceCardName: 'Tabela completa', referenceCardDesc: 'Consulta livre, sem prova',
       referenceTitle: 'Tabela completa', referenceSub: 'Toca num número para veres a tabuada dele bem grande.',
+      referenceDivCardName: 'Tabela de divisão', referenceDivCardDesc: 'Consulta livre, sem prova',
+      referenceDivSub: 'Toca num número para veres a divisão dele bem grande.', divTablePrefix: 'Dividir por',
       referenceBackToPicker: 'Ver outra tabuada', continueToLevel3: 'Ir para o Nível 3',
       lvl3ProgressLabel: 'Nível 3', level3EarlyWarning: 'Ainda não terminaste o Avanço (Nível 2). Podes continuar mesmo assim.',
       backAria: 'Voltar', soundAria: 'Som', switchAria: 'Trocar jogador',
@@ -732,6 +748,8 @@
       levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ', levelPrefix3: 'שלב 3 · ',
       referenceCardName: 'לוח כפל מלא', referenceCardDesc: 'עיון חופשי, בלי מבחן',
       referenceTitle: 'לוח כפל מלא', referenceSub: 'גע במספר כדי לראות את הלוח שלו גדול וברור.',
+      referenceDivCardName: 'לוח חילוק', referenceDivCardDesc: 'עיון חופשי, בלי מבחן',
+      referenceDivSub: 'גע במספר כדי לראות את החילוק שלו גדול וברור.', divTablePrefix: 'לחלק ב',
       referenceBackToPicker: 'לוח אחר', continueToLevel3: 'עבור לשלב 3',
       lvl3ProgressLabel: 'שלב 3', level3EarlyWarning: 'עוד לא סיימת את ההתקדמות (שלב 2). אפשר להמשיך בכל זאת.',
       backAria: 'חזור', soundAria: 'צליל', switchAria: 'החלף שחקן',
@@ -780,8 +798,8 @@
     $('lvl2-lock-text').textContent = tt.lvl2Lock;
     $('reference-card-name').textContent = tt.referenceCardName;
     $('reference-card-desc').textContent = tt.referenceCardDesc;
-    $('reference-title').textContent = tt.referenceTitle;
-    $('reference-sub').textContent = tt.referenceSub;
+    $('reference-div-card-name').textContent = tt.referenceDivCardName;
+    $('reference-div-card-desc').textContent = tt.referenceDivCardDesc;
     $('btn-reference-back-picker').textContent = tt.referenceBackToPicker;
     $('btn-replay').textContent = tt.btnReplay;
     $('btn-map').textContent = tt.btnMap;
@@ -795,7 +813,9 @@
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
     if(!screens.game.hidden && state) $('game-title').textContent = stageName(state.level, state.stage);
-    if(!screens.reference.hidden && refState.current) showReferenceDetail(refState.current);
+    if(!screens.reference.hidden){
+      if(refState.current) showReferenceDetail(refState.current); else showReferencePicker();
+    }
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
@@ -1120,12 +1140,16 @@
   }
 
   // ---------- Tabela (free reference, no quiz) ----------
-  let refState = { current: null };
-  $('btn-open-reference').addEventListener('click', () => show('reference'));
+  let refState = { current: null, mode: 'mul' };
+  $('btn-open-reference').addEventListener('click', () => { refState.mode = 'mul'; show('reference'); });
+  $('btn-open-reference-div').addEventListener('click', () => { refState.mode = 'div'; show('reference'); });
   $('btn-back-reference').addEventListener('click', () => show('map'));
   $('btn-reference-back-picker').addEventListener('click', () => showReferencePicker());
   function showReferencePicker(){
+    const tt = T[lang];
     refState.current = null;
+    $('reference-title').textContent = refState.mode === 'div' ? tt.referenceDivCardName : tt.referenceCardName;
+    $('reference-sub').textContent = refState.mode === 'div' ? tt.referenceDivSub : tt.referenceSub;
     $('reference-picker').hidden = false;
     $('reference-detail').hidden = true;
     const grid = $('reference-grid');
@@ -1139,16 +1163,21 @@
     });
   }
   function showReferenceDetail(n){
+    const tt = T[lang];
     refState.current = n;
     $('reference-picker').hidden = true;
     $('reference-detail').hidden = false;
-    $('reference-detail-title').textContent = T[lang].stageTablePrefix + ' ' + n;
+    $('reference-detail-title').textContent = (refState.mode === 'div' ? tt.divTablePrefix : tt.stageTablePrefix) + ' ' + n;
     const list = $('reference-list');
     list.innerHTML = '';
     for(let k=1;k<=10;k++){
       const row = document.createElement('div');
       row.className = 'ref-row';
-      row.innerHTML = '<span>' + n + '</span><span class="op">×</span><span>' + k + '</span><span class="op">=</span><span class="res">' + (n*k) + '</span>';
+      if(refState.mode === 'div'){
+        row.innerHTML = '<span>' + (n*k) + '</span><span class="op">÷</span><span>' + n + '</span><span class="op">=</span><span class="res">' + k + '</span>';
+      } else {
+        row.innerHTML = '<span>' + n + '</span><span class="op">×</span><span>' + k + '</span><span class="op">=</span><span class="res">' + (n*k) + '</span>';
+      }
       list.appendChild(row);
     }
   }
@@ -1354,11 +1383,12 @@
     '</svg>';
   }
   function renderFactTriangle(a, b, p, count){
-    // The big triangle is always the multiplication fact; count-1 small triangles show it
-    // reversed as division(s) — divided by a, and (for the "Família" level) divided by b too.
-    let html = '<div class="tri-big">' + renderSingleTriangle(a, b, p, 'times', 'tri-arrow-big', 128) + '</div>';
-    if(count >= 2) html += '<div class="tri-small">' + renderSingleTriangle(a, b, p, 'divide', 'tri-arrow-small', 82) + '</div>';
-    if(count >= 3) html += '<div class="tri-small">' + renderSingleTriangle(b, a, p, 'divide', 'tri-arrow-small2', 82) + '</div>';
+    // The first triangle is always the multiplication fact; the rest show it reversed as
+    // division(s) — divided by a, and (for the "Família" level) divided by b too. All the same size.
+    const TRI_SIZE = 104;
+    let html = '<div class="tri-big">' + renderSingleTriangle(a, b, p, 'times', 'tri-arrow-big', TRI_SIZE) + '</div>';
+    if(count >= 2) html += '<div class="tri-small">' + renderSingleTriangle(a, b, p, 'divide', 'tri-arrow-small', TRI_SIZE) + '</div>';
+    if(count >= 3) html += '<div class="tri-small">' + renderSingleTriangle(b, a, p, 'divide', 'tri-arrow-small2', TRI_SIZE) + '</div>';
     return '<div class="tri-pair pop">' + html + '</div>';
   }
   function factRevealCount(level){
