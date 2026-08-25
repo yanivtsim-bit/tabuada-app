@@ -722,11 +722,22 @@
   let players = loadPlayers();
   let currentPlayer = null;
   let progress = null;
+  let streaks = null;
   let lastTick = null;
+
+  function defaultStreaks(){
+    return { 1: new Array(STAGES.length).fill(0), 2: new Array(STAGES.length).fill(0) };
+  }
+  function ensureStreaks(name){
+    const p = players[name];
+    if(!p.streaks) p.streaks = defaultStreaks();
+    return p.streaks;
+  }
 
   function persist(){
     if(!currentPlayer) return;
     players[currentPlayer].progress = progress;
+    players[currentPlayer].streaks = streaks;
     savePlayers(players);
   }
 
@@ -905,6 +916,7 @@
   function loginAs(name){
     currentPlayer = name;
     progress = players[name].progress;
+    streaks = ensureStreaks(name);
     lastTick = Date.now();
     ensureStats(name);
     $('player-chip').textContent = '👤 ' + name;
@@ -915,6 +927,7 @@
     persist();
     currentPlayer = null;
     progress = null;
+    streaks = null;
     lastTick = null;
     show('login');
   });
@@ -1097,27 +1110,34 @@
   }
 
   function renderSingleTriangle(a, b, p, mode, markerId, sizePx){
-    // mode 'times': horizontal arrow a->b labelled ×, then up to p.  mode 'divide': arrow p->b labelled ÷.
+    // Shared geometry for both triangles: apex (top, 80,18), base corners (20,120) and (140,120).
+    // Numbers sit near each vertex; the horizontal arrow lives in the gap between the two base
+    // numbers, and the vertical arrow lives in the gap between that and the top number — so
+    // neither arrow ever crosses a digit.
     const c = '#f2c14e';
-    let arrow;
+    let arrows;
     if(mode === 'times'){
-      arrow =
-        '<line x1="40" y1="104" x2="120" y2="104" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
-        '<text x="80" y="122" text-anchor="middle" fill="'+c+'" font-size="17" font-weight="700">×</text>' +
-        '<line x1="80" y1="98" x2="80" y2="46" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
-        '<text x="94" y="76" fill="'+c+'" font-size="17" font-weight="700">=</text>';
+      // a × b (base, left→right) then up to p (top).
+      arrows =
+        '<line x1="64" y1="107" x2="96" y2="107" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="80" y="99" text-anchor="middle" fill="'+c+'" font-size="16" font-weight="700">×</text>' +
+        '<line x1="80" y1="96" x2="80" y2="56" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="95" y="80" fill="'+c+'" font-size="16" font-weight="700">=</text>';
     } else {
-      arrow =
-        '<line x1="80" y1="47" x2="125" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
-        '<text x="108" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
+      // p (top) down to a, then across to b (base, left→right) — the reverse, division, path.
+      arrows =
+        '<line x1="80" y1="56" x2="80" y2="96" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="65" y="80" text-anchor="end" fill="'+c+'" font-size="16" font-weight="700">÷</text>' +
+        '<line x1="64" y1="107" x2="96" y2="107" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="80" y="99" text-anchor="middle" fill="'+c+'" font-size="16" font-weight="700">=</text>';
     }
-    return '<svg viewBox="0 0 160 128" width="'+sizePx+'" height="'+Math.round(sizePx*0.8)+'">' +
+    return '<svg viewBox="0 0 160 132" width="'+sizePx+'" height="'+Math.round(sizePx*0.82)+'">' +
       '<defs><marker id="'+markerId+'" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="'+c+'"/></marker></defs>' +
-      '<path d="M80 8 L18 112 L142 112 Z" fill="none" stroke="rgba(243,236,217,0.35)" stroke-width="2"/>' +
-      arrow +
-      '<text x="80" y="34" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+p+'</text>' +
-      '<text x="40" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
-      '<text x="120" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
+      '<path d="M80 12 L18 122 L142 122 Z" fill="none" stroke="rgba(243,236,217,0.35)" stroke-width="2"/>' +
+      arrows +
+      '<text x="80" y="42" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+p+'</text>' +
+      '<text x="42" y="115" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
+      '<text x="118" y="115" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
     '</svg>';
   }
   function renderFactTriangle(a, b, p){
@@ -1149,7 +1169,7 @@
     state = {
       level, idx, stage,
       pool: poolForStage(stage),
-      streak: 0, attempts: 0,
+      streak: (streaks && streaks[level][idx]) || 0, attempts: 0,
       current: null, answer: '', locked: false
     };
     $('game-title').textContent = stageName(level, stage);
@@ -1301,6 +1321,7 @@
       delay = 1150;
       if(todayStats) todayStats.wrong++;
     }
+    if(streaks) streaks[state.level][state.idx] = state.streak;
     persist();
     updatePointsPill();
     if(blank) blank.textContent = state.correct;
@@ -1334,6 +1355,7 @@
   function finishRound(){
     const tt = T[lang];
     progress[state.level][state.idx] = true;
+    if(streaks) streaks[state.level][state.idx] = 0;
     persist();
 
     $('results-eyebrow').textContent = stageName(state.level, state.stage);
