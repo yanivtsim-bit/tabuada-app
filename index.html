@@ -503,6 +503,24 @@
   .nl-level-btn .ref-icon{ background: var(--chalk-blue); font-size:1.4rem; width:44px; height:44px; }
   .nl-level-btn.done .ref-icon{ background: var(--good); }
 
+  /* ---------- Frações ---------- */
+  .fr-visual{ display:flex; justify-content:center; margin-top:0.5rem; direction:ltr; }
+  .fr-question-text{ font-size:1.1rem; font-weight:600; text-align:center; direction:ltr; }
+  .fr-slots{ display:flex; align-items:center; justify-content:center; gap:0.6rem; direction:ltr; }
+  .fr-whole-slot{ font-size:1.7rem; font-weight:700; }
+  .fr-frac-slot{ display:flex; flex-direction:column; align-items:center; gap:0.2rem; }
+  .fr-slot-box{
+    min-width:2.4rem; padding:0.3rem 0.5rem; border-radius:9px;
+    border:1.5px solid rgba(243,236,217,0.22); background:rgba(255,255,255,0.05);
+    font-size:1.35rem; font-weight:700; text-align:center; color:var(--chalk);
+    cursor:pointer; font-variant-numeric:tabular-nums;
+  }
+  .fr-slot-box.active{ border-color: var(--chalk-yellow); background:rgba(242,193,78,0.16); }
+  .fr-slot-line{ width:2.4rem; height:2px; background:rgba(243,236,217,0.5); }
+  .fr-explain{ font-size:0.88rem; color:var(--chalk-dim); text-align:center; direction:ltr; }
+  .fr-explain b{ color:var(--chalk); }
+  .fr-level-list{ display:flex; flex-direction:column; gap:0.7rem; width:100%; max-width:340px; }
+
   @media (prefers-reduced-motion: reduce){
     .progress-fill, .fact-card, .key, .icon-btn, .node, .btn, .player-card{ transition:none !important; }
   }
@@ -603,14 +621,14 @@
             </span>
             <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
           </button>
-          <div class="subject-card soon">
+          <button class="subject-card" id="btn-open-fractions">
             <span class="ref-icon">🍰</span>
             <span class="ref-copy">
               <span class="name" id="subject-fractions-name">Frações</span>
               <span class="desc" id="subject-fractions-desc">Somar, subtrair, multiplicar, dividir</span>
             </span>
-            <span class="soon-tag" id="soon-tag-2">Em breve</span>
-          </div>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
         </div>
       </div>
     </section>
@@ -752,6 +770,83 @@
           <button class="btn primary" id="nl-btn-continue">Continuar</button>
           <button class="btn" id="nl-btn-replay">Tentar de novo</button>
           <button class="btn" id="nl-btn-map">Ver níveis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FRAÇÕES: mapa de níveis ============ -->
+    <section class="screen" id="screen-fr-map" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-fr-hub" aria-label="Voltar aos assuntos">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="fr-player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-fr-map">עב</button>
+      </div>
+      <header class="home-head">
+        <h1 id="fr-map-title">Frações</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub" id="fr-map-sub">Escolhe um nível</p>
+      </header>
+      <div class="trail-scroll">
+        <div class="fr-level-list" id="fr-level-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ FRAÇÕES: jogo ============ -->
+    <section class="screen" id="screen-fr-game" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-fr" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="fr-game-title">Nível</span>
+        <button class="icon-btn" id="btn-fr-mute" aria-label="Som">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M13 7c1 .9 1 5 0 6"/></svg>
+        </button>
+      </div>
+      <div class="stats-row">
+        <span class="stat-pill" id="fr-score-pill">🔥 0/40</span>
+        <span class="stat-pill" id="fr-timer-pill">⏱ 0.0s</span>
+        <span class="stat-pill" id="fr-points-pill">💎 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="fr-progress-fill"></div></div>
+      <div class="stage">
+        <div class="fact-card" id="fr-question-card">
+          <div class="fr-question-text" id="fr-question-text"></div>
+          <div class="fr-visual" id="fr-visual"></div>
+        </div>
+        <div class="fr-explain" id="fr-explain"></div>
+        <div class="feedback-msg" id="fr-feedback">&nbsp;</div>
+        <button class="btn primary" id="fr-btn-next" style="display:none;max-width:280px;width:100%;">Próxima</button>
+
+        <div class="keypad-wrap" id="fr-keypad-wrap">
+          <div class="answer-display" id="fr-answer-display">&nbsp;</div>
+          <div class="keypad" id="fr-keypad"></div>
+        </div>
+
+        <div class="keypad-wrap" id="fr-slots-wrap" style="display:none;">
+          <div class="fr-slots" id="fr-slots"></div>
+          <div class="keypad" id="fr-slots-keypad"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FRAÇÕES: resultado ============ -->
+    <section class="screen" id="screen-fr-results" hidden>
+      <div class="results">
+        <div class="eyebrow" id="fr-results-eyebrow">Resultado</div>
+        <div class="grand-trophy" id="fr-grand-trophy"></div>
+        <div class="stars" id="fr-stars"></div>
+        <div class="praise" id="fr-praise"></div>
+        <span class="pass-tag pass" id="fr-pass-tag">Passou</span>
+        <div class="score-line"><span id="fr-score-line-label">Sequência:</span> <b id="fr-score-final">40/40</b></div>
+        <div class="score-line"><span id="fr-attempts-line-label">Tentativas totais:</span> <b id="fr-attempts-final">0</b></div>
+        <div class="result-actions">
+          <button class="btn primary" id="fr-btn-continue">Continuar</button>
+          <button class="btn" id="fr-btn-replay">Tentar de novo</button>
+          <button class="btn" id="fr-btn-map">Ver níveis</button>
         </div>
       </div>
     </section>
@@ -915,6 +1010,26 @@
       nlIncompleteWarning: (lvl,s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
       nlEarlyWarning: (prev)=> 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
       nlContinueToHub: 'Voltar aos assuntos',
+      frMapSub: 'Escolhe um nível',
+      frLevel1Name: 'Representar', frLevel1Desc: 'que fração está pintada?',
+      frLevel2Name: 'Equivalentes', frLevel2Desc: 'simplifica a fração',
+      frLevel3Name: 'Misto ↔ Impróprio', frLevel3Desc: 'converte entre os dois tipos',
+      frLevel4Name: 'Somar e Subtrair', frLevel4Desc: 'mesmo denominador',
+      frLevel5Name: 'Multiplicar e Dividir', frLevel5Desc: 'frações vezes frações',
+      frAskRepresent: 'Que fração está pintada?',
+      frAskEquivalent: 'Completa a fração equivalente.',
+      frAskToImproper: 'Escreve como fração imprópria.',
+      frAskToMixed: 'Escreve como número misto.',
+      frAskCalc: 'Calcula.',
+      frExplainRepresent: (n,d)=> n + ' em ' + d + ' partes iguais = ' + n + '/' + d + '.',
+      frExplainSimplify: (n0,d0)=> 'Forma mais simples: ' + n0 + '/' + d0 + '.',
+      frExplainToImproper: (w,d,n,res)=> w + ' × ' + d + ' + ' + n + ' = ' + res + ', por isso é ' + res + '/' + d + '.',
+      frExplainToMixed: (p,d,w,rem)=> p + ' ÷ ' + d + ' = ' + w + ' e sobra ' + rem + ', por isso é ' + w + ' e ' + rem + '/' + d + '.',
+      frExplainCalc: (result)=> 'Resultado: ' + result + '.',
+      frIncompleteWarning: (s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
+      frEarlyWarning: 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
+      frContinueToHub: 'Voltar aos assuntos',
+      frWholeLabel: 'inteiro',
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'כיתת חשבון', loginSub: 'מי משחק היום?',
@@ -970,6 +1085,26 @@
       nlIncompleteWarning: (lvl,s)=> 'עוד לא סיימת את השלב הזה (' + s + '/40). אפשר להמשיך אחר כך.',
       nlEarlyWarning: (prev)=> 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
       nlContinueToHub: 'חזרה לנושאים',
+      frMapSub: 'בחר שלב',
+      frLevel1Name: 'ייצוג', frLevel1Desc: 'איזה שבר צבוע?',
+      frLevel2Name: 'שברים שווי ערך', frLevel2Desc: 'צמצם את השבר',
+      frLevel3Name: 'שבר מעורב ↔ לא אמיתי', frLevel3Desc: 'המר בין שני הסוגים',
+      frLevel4Name: 'חיבור וחיסור', frLevel4Desc: 'אותו מכנה',
+      frLevel5Name: 'כפל וחילוק', frLevel5Desc: 'שבר כפול שבר',
+      frAskRepresent: 'איזה שבר צבוע?',
+      frAskEquivalent: 'השלם את השבר השווה ערך.',
+      frAskToImproper: 'כתוב כשבר לא אמיתי.',
+      frAskToMixed: 'כתוב כמספר מעורב.',
+      frAskCalc: 'חשב.',
+      frExplainRepresent: (n,d)=> n + ' מתוך ' + d + ' חלקים שווים = ' + n + '/' + d + '.',
+      frExplainSimplify: (n0,d0)=> 'הצורה הפשוטה ביותר: ' + n0 + '/' + d0 + '.',
+      frExplainToImproper: (w,d,n,res)=> w + ' × ' + d + ' + ' + n + ' = ' + res + ', לכן זה ' + res + '/' + d + '.',
+      frExplainToMixed: (p,d,w,rem)=> p + ' ÷ ' + d + ' = ' + w + ' ונשאר ' + rem + ', לכן זה ' + w + ' ו-' + rem + '/' + d + '.',
+      frExplainCalc: (result)=> 'התוצאה: ' + result + '.',
+      frIncompleteWarning: (s)=> 'עוד לא סיימת את השלב הזה (' + s + '/40). אפשר להמשיך אחר כך.',
+      frEarlyWarning: 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
+      frContinueToHub: 'חזרה לנושאים',
+      frWholeLabel: 'שלם',
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -998,9 +1133,10 @@
     $('subject-numberline-desc').textContent = tt.subjectNumberLineDesc;
     $('subject-fractions-name').textContent = tt.subjectFractionsName;
     $('subject-fractions-desc').textContent = tt.subjectFractionsDesc;
-    $('soon-tag-2').textContent = tt.comingSoonLabel;
     $('nl-map-title').textContent = tt.subjectNumberLineName;
     $('nl-map-sub').textContent = tt.nlMapSub;
+    $('fr-map-title').textContent = tt.subjectFractionsName;
+    $('fr-map-sub').textContent = tt.frMapSub;
     $('map-title').textContent = tt.mapTitle;
     $('map-sub').textContent = tt.mapSub;
     $('level1-label').childNodes[0].textContent = tt.level1Name;
@@ -1021,9 +1157,10 @@
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl, #btn-back-fr-hub, #btn-back-fr').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-nl-mute').setAttribute('aria-label', tt.soundAria);
+    $('btn-fr-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-switch-player-hub').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
@@ -1033,6 +1170,8 @@
     }
     if(!screens['nl-map'].hidden) renderNlMap();
     if(!screens['nl-game'].hidden && nlState) $('nl-game-title').textContent = nlLevelName(nlState.level);
+    if(!screens['fr-map'].hidden) renderFrMap();
+    if(!screens['fr-game'].hidden && frState) $('fr-game-title').textContent = frLevelName(frState.level);
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
@@ -1093,6 +1232,7 @@
     players[currentPlayer].streaks = streaks;
     players[currentPlayer].byTable = byTable;
     players[currentPlayer].nl = nl;
+    players[currentPlayer].fr = fr;
     savePlayers(players);
   }
 
@@ -1134,7 +1274,8 @@
     login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
     hub: $('screen-hub'), map: $('screen-map'), game: $('screen-game'), results: $('screen-results'),
     admin: $('screen-admin'), reference: $('screen-reference'),
-    'nl-map': $('screen-nl-map'), 'nl-game': $('screen-nl-game'), 'nl-results': $('screen-nl-results')
+    'nl-map': $('screen-nl-map'), 'nl-game': $('screen-nl-game'), 'nl-results': $('screen-nl-results'),
+    'fr-map': $('screen-fr-map'), 'fr-game': $('screen-fr-game'), 'fr-results': $('screen-fr-results')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
@@ -1145,6 +1286,7 @@
     if(name === 'admin') renderAdmin();
     if(name === 'reference') showReferencePicker();
     if(name === 'nl-map') renderNlMap();
+    if(name === 'fr-map') renderFrMap();
   }
   function updatePlayerChips(){
     if(!currentPlayer) return;
@@ -1286,6 +1428,7 @@
     streaks = ensureStreaks(name);
     byTable = ensureByTable(name);
     nl = ensureNL(name);
+    fr = ensureFR(name);
     lastTick = Date.now();
     ensureStats(name);
     show('hub');
@@ -1298,6 +1441,7 @@
     streaks = null;
     byTable = null;
     nl = null;
+    fr = null;
     lastTick = null;
     show('login');
   }
@@ -1345,9 +1489,24 @@
         levelBreakdownHtml(name, 1, tt.lvl1ProgressLabel) +
         levelBreakdownHtml(name, 2, tt.lvl2ProgressLabel) +
         levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel) +
-        nlBreakdownHtml(name);
+        nlBreakdownHtml(name) +
+        frBreakdownHtml(name);
       list.appendChild(card);
     });
+  }
+  function frBreakdownHtml(name){
+    const tt = T[lang];
+    const frData = ensureFR(name);
+    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectFractionsName + '</div>';
+    const chips = FR_LEVEL_KEYS.map(level => {
+      const s = frData.byLevel[level];
+      const attempts = s.correct + s.wrong;
+      if(attempts === 0) return '';
+      const avg = (s.timeMs/attempts/1000).toFixed(1);
+      const hard = s.wrong > s.correct ? ' hard' : '';
+      return '<span class="admin-table-chip' + hard + '">' + T[lang]['frLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
+    }).join('');
+    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
   }
   function nlBreakdownHtml(name){
     const tt = T[lang];
@@ -1792,6 +1951,436 @@
   });
   $('nl-btn-replay').addEventListener('click', () => startNlLevel(nlState.level));
   $('nl-btn-map').addEventListener('click', () => show('nl-map'));
+
+  // ============================================================
+  // FRAÇÕES (assunto 3) — self-contained, own state/data.
+  // ============================================================
+  const FR_TARGET = 40;
+  const FR_LEVEL_KEYS = [1,2,3,4,5];
+  function gcd(a,b){ return b === 0 ? a : gcd(b, a % b); }
+  function defaultFR(){
+    const progress = {}, streaks = {}, byLevel = {};
+    FR_LEVEL_KEYS.forEach(k => { progress[k]=false; streaks[k]=0; byLevel[k]={correct:0,wrong:0,timeMs:0}; });
+    return { progress, streaks, byLevel };
+  }
+  function ensureFR(name){
+    const p = players[name];
+    if(!p.fr) p.fr = defaultFR();
+    FR_LEVEL_KEYS.forEach(k => {
+      if(p.fr.progress[k] === undefined) p.fr.progress[k] = false;
+      if(p.fr.streaks[k] === undefined) p.fr.streaks[k] = 0;
+      if(!p.fr.byLevel[k]) p.fr.byLevel[k] = {correct:0,wrong:0,timeMs:0};
+    });
+    return p.fr;
+  }
+  let fr = null;
+  function frPrevComplete(level){ return level <= 1 || fr.progress[level-1]; }
+  function frLevelName(level){ return T[lang]['frLevel' + level + 'Name']; }
+
+  function buildFractionBar(filled, total, opts){
+    opts = opts || {};
+    const w = opts.width || 140, h = 28;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('width', w); svg.setAttribute('height', h);
+    const outline = document.createElementNS(ns, 'rect');
+    outline.setAttribute('x',1); outline.setAttribute('y',1); outline.setAttribute('width', w-2); outline.setAttribute('height', h-2);
+    outline.setAttribute('rx',4); outline.setAttribute('fill','none');
+    outline.setAttribute('stroke','rgba(243,236,217,0.4)'); outline.setAttribute('stroke-width','2');
+    svg.appendChild(outline);
+    const segW = (w-2)/total;
+    for(let i=0;i<total;i++){
+      if(i < filled){
+        const rect = document.createElementNS(ns, 'rect');
+        rect.setAttribute('x', 1+i*segW); rect.setAttribute('y',1);
+        rect.setAttribute('width', segW); rect.setAttribute('height', h-2);
+        rect.setAttribute('fill', '#f2c14e'); rect.setAttribute('opacity','0.85');
+        svg.appendChild(rect);
+      }
+      if(i > 0){
+        const div = document.createElementNS(ns, 'line');
+        const x = 1+i*segW;
+        div.setAttribute('x1',x); div.setAttribute('y1',1); div.setAttribute('x2',x); div.setAttribute('y2',h-1);
+        div.setAttribute('stroke','rgba(15,29,21,0.5)'); div.setAttribute('stroke-width','1.5');
+        svg.appendChild(div);
+      }
+    }
+    return svg;
+  }
+  function renderMixedVisual(container, num, den){
+    container.innerHTML = '';
+    const wholes = Math.floor(num/den), rem = num % den;
+    const wrap = document.createElement('div');
+    wrap.style.display = 'flex'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '4px'; wrap.style.justifyContent = 'center';
+    for(let i=0;i<wholes;i++) wrap.appendChild(buildFractionBar(den, den, {width:64}));
+    if(rem > 0 || wholes === 0) wrap.appendChild(buildFractionBar(rem, den, {width:64}));
+    container.appendChild(wrap);
+  }
+
+  $('btn-open-fractions').addEventListener('click', () => show('fr-map'));
+  $('btn-back-fr-hub').addEventListener('click', () => show('hub'));
+  $('btn-lang-fr-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
+  function renderFrMap(){
+    updatePlayerChips();
+    $('fr-player-chip').textContent = $('player-chip').textContent;
+    const list = $('fr-level-list');
+    list.innerHTML = '';
+    FR_LEVEL_KEYS.forEach(level => {
+      const done = fr.progress[level];
+      const btn = document.createElement('button');
+      btn.className = 'nl-level-btn' + (done ? ' done' : '');
+      btn.innerHTML =
+        '<span class="ref-icon">' + (done ? '✔' : level) + '</span>' +
+        '<span class="ref-copy"><span class="name">' + frLevelName(level) + '</span><span class="desc">' + T[lang]['frLevel'+level+'Desc'] + '</span></span>' +
+        '<span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>';
+      btn.addEventListener('click', () => startFrLevel(level));
+      list.appendChild(btn);
+    });
+  }
+
+  // ---------- FR game state ----------
+  let frState = null;
+  function frNewQuestion(level){
+    if(level === 1){
+      const dOpts = [2,3,4,5,6,8];
+      const d = dOpts[Math.floor(Math.random()*dOpts.length)];
+      const n = 1 + Math.floor(Math.random()*(d-1));
+      return { mode:'slots', slotOrder:['num','den'], n, d, correct:{num:n, den:d} };
+    }
+    if(level === 2){
+      const d0Opts = [2,3,4,5,6];
+      const d0 = d0Opts[Math.floor(Math.random()*d0Opts.length)];
+      let n0;
+      do{ n0 = 1 + Math.floor(Math.random()*(d0-1)); } while(gcd(n0,d0) !== 1);
+      const k = 2 + Math.floor(Math.random()*2);
+      return { mode:'single', shownN: n0*k, shownD: d0*k, targetD: d0, correct: n0 };
+    }
+    if(level === 3){
+      const direction = Math.random() < 0.5 ? 'toImproper' : 'toMixed';
+      const d = 2 + Math.floor(Math.random()*5);
+      const w = 1 + Math.floor(Math.random()*4);
+      const propN = 1 + Math.floor(Math.random()*(d-1));
+      const improperNum = w*d + propN;
+      if(direction === 'toImproper'){
+        return { mode:'slots', slotOrder:['num','den'], direction, w, d, propN, correct:{num:improperNum, den:d} };
+      }
+      return { mode:'slots', slotOrder:['whole','num','den'], direction, improperNum, d, correct:{whole:w, num:propN, den:d} };
+    }
+    if(level === 4){
+      const d = 2 + Math.floor(Math.random()*9);
+      let n1 = 1 + Math.floor(Math.random()*(d-1));
+      let n2 = 1 + Math.floor(Math.random()*(d-1));
+      const op = Math.random() < 0.5 ? '+' : '-';
+      if(op === '-' && n1 < n2){ const t=n1; n1=n2; n2=t; }
+      const correct = op === '+' ? n1+n2 : n1-n2;
+      return { mode:'single', n1, n2, d, op, correct };
+    }
+    // level 5
+    const a = 1+Math.floor(Math.random()*5), b = 2+Math.floor(Math.random()*5);
+    const c = 1+Math.floor(Math.random()*5), d = 2+Math.floor(Math.random()*5);
+    const op = Math.random() < 0.5 ? '×' : '÷';
+    const rn = op === '×' ? a*c : a*d;
+    const rd = op === '×' ? b*d : b*c;
+    return { mode:'slots', slotOrder:['num','den'], a, b, c, d, op, correct:{num:rn, den:rd} };
+  }
+
+  function startFrLevel(level){
+    if(!frPrevComplete(level)) showToast(T[lang].frEarlyWarning);
+    frState = { level, streak: fr.streaks[level] || 0, attempts:0, answer:'', locked:false, current:null,
+      slotValues:{whole:'',num:'',den:''}, activeSlot:null, slotOrder:[] };
+    $('fr-game-title').textContent = frLevelName(level);
+    show('fr-game');
+    frRenderQuestion();
+  }
+
+  function frStartTimer(){
+    frStopTimer();
+    frState.questionStartedAt = Date.now();
+    $('fr-timer-pill').textContent = '⏱ 0.0s';
+    frState.timerHandle = setInterval(() => {
+      const elapsed = (Date.now() - frState.questionStartedAt) / 1000;
+      $('fr-timer-pill').textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function frStopTimer(){
+    if(frState && frState.timerHandle){ clearInterval(frState.timerHandle); frState.timerHandle = null; }
+  }
+  function frUpdatePointsPill(){
+    if(!currentPlayer) return;
+    $('fr-points-pill').textContent = '💎 ' + ensureStats(currentPlayer).days[todayKey()].points;
+  }
+
+  function frRenderQuestion(){
+    const tt = T[lang];
+    frState.current = frNewQuestion(frState.level);
+    frState.answer = '';
+    frState.locked = false;
+    frState.slotValues = {whole:'', num:'', den:''};
+    $('fr-feedback').textContent = ' ';
+    $('fr-feedback').className = 'feedback-msg';
+    $('fr-question-card').className = 'fact-card';
+    $('fr-explain').innerHTML = '';
+    $('fr-btn-next').style.display = 'none';
+    $('fr-score-pill').textContent = '🔥 ' + frState.streak + '/' + FR_TARGET;
+    $('fr-progress-fill').style.width = (100*frState.streak/FR_TARGET) + '%';
+    frUpdatePointsPill();
+    frStartTimer();
+
+    const c = frState.current;
+    const qText = $('fr-question-text');
+    const visual = $('fr-visual');
+    visual.innerHTML = '';
+    const plainWrap = $('fr-keypad-wrap');
+    const slotsWrap = $('fr-slots-wrap');
+
+    if(c.mode === 'single'){
+      plainWrap.style.display = 'flex';
+      slotsWrap.style.display = 'none';
+      $('fr-answer-display').innerHTML = '&nbsp;';
+      frRenderKeypad();
+      if(frState.level === 2) qText.textContent = c.shownN + '/' + c.shownD + ' = ?/' + c.targetD;
+      else qText.textContent = c.n1 + '/' + c.d + ' ' + c.op + ' ' + c.n2 + '/' + c.d + ' = ?/' + c.d;
+    } else {
+      plainWrap.style.display = 'none';
+      slotsWrap.style.display = 'flex';
+      if(frState.level === 1){
+        qText.textContent = tt.frAskRepresent;
+        visual.appendChild(buildFractionBar(c.n, c.d, {width:180}));
+      } else if(frState.level === 3){
+        qText.textContent = c.direction === 'toImproper' ? tt.frAskToImproper : tt.frAskToMixed;
+        if(c.direction === 'toImproper') renderMixedVisual(visual, c.w*c.d + c.propN, c.d);
+        else renderMixedVisual(visual, c.improperNum, c.d);
+      } else {
+        qText.textContent = tt.frAskCalc + ' ' + c.a + '/' + c.b + ' ' + c.op + ' ' + c.c + '/' + c.d;
+      }
+      frState.slotOrder = c.slotOrder;
+      frState.activeSlot = c.slotOrder[0];
+      frRenderSlots();
+      frRenderSlotsKeypad();
+    }
+  }
+
+  function frRenderSlots(){
+    const host = $('fr-slots');
+    host.innerHTML = '';
+    if(frState.slotOrder.includes('whole')){
+      const wholeBox = document.createElement('div');
+      wholeBox.className = 'fr-slot-box fr-whole-slot' + (frState.activeSlot === 'whole' ? ' active' : '');
+      wholeBox.textContent = frState.slotValues.whole || '_';
+      wholeBox.addEventListener('click', () => { frState.activeSlot = 'whole'; frRenderSlots(); });
+      host.appendChild(wholeBox);
+    }
+    const fracWrap = document.createElement('div');
+    fracWrap.className = 'fr-frac-slot';
+    const numBox = document.createElement('div');
+    numBox.className = 'fr-slot-box' + (frState.activeSlot === 'num' ? ' active' : '');
+    numBox.textContent = frState.slotValues.num || '_';
+    numBox.addEventListener('click', () => { frState.activeSlot = 'num'; frRenderSlots(); });
+    const line = document.createElement('div'); line.className = 'fr-slot-line';
+    const denBox = document.createElement('div');
+    denBox.className = 'fr-slot-box' + (frState.activeSlot === 'den' ? ' active' : '');
+    denBox.textContent = frState.slotValues.den || '_';
+    denBox.addEventListener('click', () => { frState.activeSlot = 'den'; frRenderSlots(); });
+    fracWrap.appendChild(numBox); fracWrap.appendChild(line); fracWrap.appendChild(denBox);
+    host.appendChild(fracWrap);
+  }
+  function frRenderSlotsKeypad(){
+    const kp = $('fr-slots-keypad');
+    kp.innerHTML = '';
+    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0','OK'];
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key' + (label === 'OK' ? ' confirm' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => frOnSlotKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function frOnSlotKey(label){
+    if(frState.locked) return;
+    if(label === '⌫'){
+      if(frState.slotValues[frState.activeSlot]){
+        frState.slotValues[frState.activeSlot] = frState.slotValues[frState.activeSlot].slice(0,-1);
+      } else {
+        const idx = frState.slotOrder.indexOf(frState.activeSlot);
+        if(idx > 0) frState.activeSlot = frState.slotOrder[idx-1];
+      }
+      frRenderSlots();
+      return;
+    }
+    if(label === 'OK'){ frSubmitSlotAnswer(); return; }
+    if((frState.slotValues[frState.activeSlot] || '').length < 2){
+      frState.slotValues[frState.activeSlot] = (frState.slotValues[frState.activeSlot] || '') + label;
+    }
+    frRenderSlots();
+  }
+  function frSubmitSlotAnswer(){
+    if(frState.locked) return;
+    const need = frState.slotOrder;
+    for(const s of need){ if(frState.slotValues[s] === '') return; }
+    const given = {};
+    need.forEach(s => given[s] = Number(frState.slotValues[s]));
+    let ok = true;
+    for(const s of need){ if(given[s] !== frState.current.correct[s]) ok = false; }
+    frResolve(ok);
+  }
+
+  function frRenderKeypad(){
+    const kp = $('fr-keypad');
+    kp.innerHTML = '';
+    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0','OK'];
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key' + (label === 'OK' ? ' confirm' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => frOnKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function frOnKey(label){
+    if(frState.locked) return;
+    if(label === '⌫'){ frState.answer = frState.answer.slice(0,-1); }
+    else if(label === 'OK'){ frSubmitAnswer(); return; }
+    else { if(frState.answer.length < 3) frState.answer += label; }
+    $('fr-answer-display').textContent = frState.answer.length ? frState.answer : ' ';
+  }
+  function frSubmitAnswer(){
+    if(frState.answer === '') return;
+    const given = Number(frState.answer);
+    frResolve(given === frState.current.correct);
+  }
+  document.addEventListener('keydown', (e) => {
+    if(screens['fr-game'].hidden || !frState || frState.locked) return;
+    if(frState.current && frState.current.mode !== 'single') return;
+    if(/^[0-9]$/.test(e.key)) frOnKey(e.key);
+    else if(e.key === 'Backspace') frOnKey('⌫');
+    else if(e.key === 'Enter') frOnKey('OK');
+  });
+
+  function frWrongMessage(){
+    const tt = T[lang]; const c = frState.current;
+    if(c.mode === 'single') return tt.wrongMsg(c.correct);
+    if(c.correct.whole !== undefined) return tt.wrongMsg(c.correct.whole + ' e ' + c.correct.num + '/' + c.correct.den);
+    return tt.wrongMsg(c.correct.num + '/' + c.correct.den);
+  }
+
+  function frResolve(ok){
+    frStopTimer();
+    const reactionMs = Date.now() - frState.questionStartedAt;
+    frState.locked = true;
+    frState.attempts++;
+    const tt = T[lang];
+    const card = $('fr-question-card'); const msg = $('fr-feedback');
+
+    tickTime();
+    const stats = currentPlayer ? ensureStats(currentPlayer) : null;
+    const todayStats = stats ? stats.days[todayKey()] : null;
+    const lvlStat = fr.byLevel[frState.level];
+    lvlStat.timeMs += reactionMs;
+
+    if(ok){
+      frState.streak++;
+      lvlStat.correct++;
+      card.classList.add('good'); msg.classList.add('good');
+      msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + frState.streak + '/' + FR_TARGET + ')';
+      beep('good'); burstConfetti(false);
+      if(todayStats){
+        const earned = reactionMs < FAST_ANSWER_MS ? 2 : 1;
+        todayStats.points += earned; todayStats.correct++; stats.totalPoints += earned;
+      }
+      if(frState.streak % 10 === 0 && frState.streak < FR_TARGET) showMilestoneTrophy(frState.streak/10, frState.streak);
+      else if(frState.streak % 5 === 0 && frState.streak < FR_TARGET) showMilestoneMedal(frState.streak);
+    } else {
+      lvlStat.wrong++;
+      card.classList.add('bad'); msg.classList.add('bad');
+      msg.textContent = frWrongMessage();
+      beep('bad');
+      frState.streak = 0;
+      if(todayStats) todayStats.wrong++;
+    }
+    fr.streaks[frState.level] = frState.streak;
+    persist();
+    frUpdatePointsPill();
+    $('fr-score-pill').textContent = '🔥 ' + frState.streak + '/' + FR_TARGET;
+    $('fr-progress-fill').style.width = (100*frState.streak/FR_TARGET) + '%';
+
+    frRenderExplanation();
+
+    $('fr-btn-next').style.display = 'block';
+    $('fr-btn-next').onclick = () => {
+      $('fr-btn-next').style.display = 'none';
+      if(ok && frState.streak >= FR_TARGET) frFinishLevel(); else frRenderQuestion();
+    };
+  }
+
+  function frRenderExplanation(){
+    const tt = T[lang]; const c = frState.current; const host = $('fr-explain');
+    if(c.mode === 'single'){
+      if(frState.level === 2) host.innerHTML = '<b>' + tt.frExplainSimplify(c.correct, c.targetD) + '</b>';
+      else host.innerHTML = '<b>' + tt.frExplainCalc(c.correct + '/' + c.d) + '</b>';
+      return;
+    }
+    if(frState.level === 1){
+      host.innerHTML = '<b>' + tt.frExplainRepresent(c.n, c.d) + '</b>';
+    } else if(frState.level === 3){
+      if(c.direction === 'toImproper') host.innerHTML = '<b>' + tt.frExplainToImproper(c.w, c.d, c.propN, c.correct.num) + '</b>';
+      else host.innerHTML = '<b>' + tt.frExplainToMixed(c.improperNum, c.d, c.correct.whole, c.correct.num) + '</b>';
+    } else {
+      host.innerHTML = '<b>' + tt.frExplainCalc(c.correct.num + '/' + c.correct.den) + '</b>';
+    }
+  }
+
+  function frFinishLevel(){
+    const tt = T[lang];
+    fr.progress[frState.level] = true;
+    fr.streaks[frState.level] = 0;
+    persist();
+
+    $('fr-results-eyebrow').textContent = frLevelName(frState.level);
+    $('fr-score-final').textContent = FR_TARGET + '/' + FR_TARGET;
+    $('fr-attempts-final').textContent = frState.attempts;
+    $('fr-grand-trophy').innerHTML = trophySVG('#f2c14e', 120);
+    burstConfetti(true); beep('good');
+    $('fr-pass-tag').textContent = tt.passTag;
+
+    const starsWrap = $('fr-stars');
+    starsWrap.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      s.setAttribute('viewBox','0 0 40 40');
+      s.innerHTML = '<path d="M20 3 L24 15 L37 15 L26.5 22.5 L30.5 35 L20 27 L9.5 35 L13.5 22.5 L3 15 L16 15 Z" fill="#f2c14e" stroke="#f2c14e" stroke-width="2" stroke-linejoin="round"/>';
+      starsWrap.appendChild(s);
+    }
+    $('fr-praise').textContent = tt.finalPraises[Math.floor(Math.random()*tt.finalPraises.length)];
+
+    const continueBtn = $('fr-btn-continue');
+    const hasNext = frState.level < FR_LEVEL_KEYS.length;
+    if(hasNext){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueNextPrefix + frLevelName(frState.level+1);
+      continueBtn.onclick = () => startFrLevel(frState.level+1);
+    } else {
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.frContinueToHub;
+      continueBtn.onclick = () => show('hub');
+    }
+    show('fr-results');
+  }
+
+  $('btn-back-fr').addEventListener('click', () => {
+    frStopTimer();
+    if(frState && frState.streak > 0 && frState.streak < FR_TARGET){
+      showToast(T[lang].frIncompleteWarning(frState.streak));
+    }
+    show('fr-map');
+  });
+  $('btn-fr-mute').addEventListener('click', () => {
+    muted = !muted;
+    $('btn-fr-mute').style.opacity = muted ? 0.35 : 1;
+  });
+  $('fr-btn-replay').addEventListener('click', () => startFrLevel(frState.level));
+  $('fr-btn-map').addEventListener('click', () => show('fr-map'));
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function level2Complete(){ return progress[2].every(Boolean); }
