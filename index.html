@@ -504,6 +504,14 @@
   .nl-level-btn .ref-icon{ background: var(--chalk-blue); font-size:1.4rem; width:44px; height:44px; }
   .nl-level-btn.done .ref-icon{ background: var(--good); }
 
+  /* ---------- Final de Fundamental ---------- */
+  .fn-story{
+    font-size:0.92rem; color:var(--chalk-dim); text-align:start; line-height:1.5;
+    background: rgba(255,255,255,0.03); border:1px dashed rgba(243,236,217,0.18);
+    border-radius:10px; padding:0.7rem 0.85rem; margin-bottom:0.7rem;
+  }
+  .fn-question-text{ font-size:1.15rem; font-weight:600; text-align:center; direction:ltr; }
+
   /* ---------- Frações ---------- */
   .fr-visual{ display:flex; justify-content:center; margin-top:0.5rem; direction:ltr; }
   .fr-question-text{ font-size:1.1rem; font-weight:600; text-align:center; direction:ltr; }
@@ -627,6 +635,14 @@
             <span class="ref-copy">
               <span class="name" id="subject-fractions-name">Frações</span>
               <span class="desc" id="subject-fractions-desc">Somar, subtrair, multiplicar, dividir</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <button class="subject-card" id="btn-open-final">
+            <span class="ref-icon">🎓</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-final-name">Final de Fundamental</span>
+              <span class="desc" id="subject-final-desc">Revisão geral antes da 7ª série</span>
             </span>
             <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
           </button>
@@ -860,6 +876,77 @@
       </div>
     </section>
 
+    <!-- ============ FINAL DE FUNDAMENTAL: mapa de níveis ============ -->
+    <section class="screen" id="screen-fn-map" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-fn-hub" aria-label="Voltar aos assuntos">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="fn-player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-fn-map">עב</button>
+      </div>
+      <header class="home-head">
+        <h1 id="fn-map-title">Final de Fundamental</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub" id="fn-map-sub">Escolhe um nível</p>
+      </header>
+      <div class="trail-scroll">
+        <div class="nl-level-list" id="fn-level-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL DE FUNDAMENTAL: jogo ============ -->
+    <section class="screen" id="screen-fn-game" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-fn" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="fn-game-title">Nível</span>
+        <button class="icon-btn" id="btn-fn-mute" aria-label="Som">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M13 7c1 .9 1 5 0 6"/></svg>
+        </button>
+      </div>
+      <div class="stats-row">
+        <span class="stat-pill" id="fn-score-pill">🔥 0/40</span>
+        <span class="stat-pill" id="fn-timer-pill">⏱ 0.0s</span>
+        <span class="stat-pill" id="fn-points-pill">💎 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="fn-progress-fill"></div></div>
+      <div class="stage">
+        <div class="fact-card" id="fn-question-card">
+          <div class="fn-story" id="fn-story" style="display:none;"></div>
+          <div class="fn-question-text" id="fn-question-text"></div>
+        </div>
+        <div class="nl-explain" id="fn-explain"></div>
+        <div class="feedback-msg" id="fn-feedback">&nbsp;</div>
+        <button class="btn primary" id="fn-btn-next" style="display:none;max-width:280px;width:100%;">Próxima</button>
+        <div class="keypad-wrap">
+          <div class="answer-display" id="fn-answer-display">&nbsp;</div>
+          <div class="keypad" id="fn-keypad"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL DE FUNDAMENTAL: resultado ============ -->
+    <section class="screen" id="screen-fn-results" hidden>
+      <div class="results">
+        <div class="eyebrow" id="fn-results-eyebrow">Resultado</div>
+        <div class="grand-trophy" id="fn-grand-trophy"></div>
+        <div class="stars" id="fn-stars"></div>
+        <div class="praise" id="fn-praise"></div>
+        <span class="pass-tag pass" id="fn-pass-tag">Passou</span>
+        <div class="score-line"><span id="fn-score-line-label">Sequência:</span> <b id="fn-score-final">40/40</b></div>
+        <div class="score-line"><span id="fn-attempts-line-label">Tentativas totais:</span> <b id="fn-attempts-final">0</b></div>
+        <div class="result-actions">
+          <button class="btn primary" id="fn-btn-continue">Continuar</button>
+          <button class="btn" id="fn-btn-replay">Tentar de novo</button>
+          <button class="btn" id="fn-btn-map">Ver níveis</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ TABELA (consulta livre) ============ -->
     <section class="screen" id="screen-reference" hidden>
       <div class="topbar">
@@ -971,6 +1058,7 @@
       subjectTabuadaName: 'Tabuada em Jogo', subjectTabuadaDesc: 'Multiplicação e divisão',
       subjectNumberLineName: 'Linha dos Números', subjectNumberLineDesc: 'Reconhecer números na reta',
       subjectFractionsName: 'Frações', subjectFractionsDesc: 'Somar, subtrair, multiplicar, dividir',
+      subjectFinalName: 'Final de Fundamental', subjectFinalDesc: 'Revisão geral antes da 7ª série',
       newPlayerBadge: 'Novo jogador', newPlayerCard: 'Novo jogador', newPlayerHeading: 'Como te chamas?',
       namePlaceholder: 'Teu nome', nameErrorEmpty: 'Escreve um nome.', nameErrorExists: 'Esse nome já existe. Escolhe outro.',
       continueBtn: 'Continuar', pinCreateHeading: 'Cria uma senha', pinCreateSub: '4 números, só para ti',
@@ -1043,6 +1131,17 @@
       frEarlyWarning: 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
       frContinueToHub: 'Voltar aos assuntos',
       frWholeLabel: 'inteiro',
+      fnMapSub: 'Escolhe um nível',
+      fnLevel1Name: 'Números Naturais', fnLevel1Desc: 'ordem das operações e problemas',
+      fnExplainOrder: (steps)=> 'Ordem: ' + steps.join(' → '),
+      fnExplainResult: (result)=> 'Resultado: ' + result + '.',
+      fnIncompleteWarning: (s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
+      fnEarlyWarning: 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
+      fnContinueToHub: 'Voltar aos assuntos',
+      fnCinemaStory: (rows,seats)=> 'Um cinema tem ' + rows + ' fileiras de ' + seats + ' lugares. Os bilhetes só podem ser reservados em pacotes de 100.',
+      fnCinemaQuestion: 'Quantos pacotes completos de 100 dá para reservar?',
+      fnBoxStory: (total,perBox)=> 'Uma loja tem ' + total + ' objetos para embalar em caixas de ' + perBox + ' unidades cada.',
+      fnBoxQuestion: 'Quantas caixas completas dá para fazer?',
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'כיתת חשבון', loginSub: 'מי משחק היום?',
@@ -1050,6 +1149,7 @@
       subjectTabuadaName: 'לוח הכפל במשחק', subjectTabuadaDesc: 'כפל וחילוק',
       subjectNumberLineName: 'ציר המספרים', subjectNumberLineDesc: 'זיהוי מספרים על הציר',
       subjectFractionsName: 'שברים', subjectFractionsDesc: 'חיבור, חיסור, כפל וחילוק',
+      subjectFinalName: 'סוף יסודי', subjectFinalDesc: 'סיכום כללי לקראת כיתה ז\'',
       newPlayerBadge: 'שחקן חדש', newPlayerCard: 'שחקן חדש', newPlayerHeading: 'איך קוראים לך?',
       namePlaceholder: 'השם שלך', nameErrorEmpty: 'כתוב שם.', nameErrorExists: 'השם הזה כבר קיים. בחר שם אחר.',
       continueBtn: 'המשך', pinCreateHeading: 'צור סיסמה', pinCreateSub: '4 ספרות, רק בשבילך',
@@ -1122,6 +1222,17 @@
       frEarlyWarning: 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
       frContinueToHub: 'חזרה לנושאים',
       frWholeLabel: 'שלם',
+      fnMapSub: 'בחר שלב',
+      fnLevel1Name: 'מספרים טבעיים', fnLevel1Desc: 'סדר פעולות ובעיות',
+      fnExplainOrder: (steps)=> 'סדר: ' + steps.join(' ← '),
+      fnExplainResult: (result)=> 'התוצאה: ' + result + '.',
+      fnIncompleteWarning: (s)=> 'עוד לא סיימת את השלב הזה (' + s + '/40). אפשר להמשיך אחר כך.',
+      fnEarlyWarning: 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
+      fnContinueToHub: 'חזרה לנושאים',
+      fnCinemaStory: (rows,seats)=> 'לקולנוע יש ' + rows + ' שורות של ' + seats + ' מקומות. אפשר להזמין כרטיסים רק בחבילות של 100.',
+      fnCinemaQuestion: 'כמה חבילות שלמות של 100 אפשר להזמין?',
+      fnBoxStory: (total,perBox)=> 'בחנות יש ' + total + ' חפצים לארוז בקופסאות של ' + perBox + ' יחידות כל אחת.',
+      fnBoxQuestion: 'כמה קופסאות שלמות אפשר להכין?',
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -1154,6 +1265,10 @@
     $('nl-map-sub').textContent = tt.nlMapSub;
     $('fr-map-title').textContent = tt.subjectFractionsName;
     $('fr-map-sub').textContent = tt.frMapSub;
+    $('subject-final-name').textContent = tt.subjectFinalName;
+    $('subject-final-desc').textContent = tt.subjectFinalDesc;
+    $('fn-map-title').textContent = tt.subjectFinalName;
+    $('fn-map-sub').textContent = tt.fnMapSub;
     $('map-title').textContent = tt.mapTitle;
     $('map-sub').textContent = tt.mapSub;
     $('level1-label').childNodes[0].textContent = tt.level1Name;
@@ -1176,10 +1291,11 @@
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl, #btn-back-fr-hub, #btn-back-fr').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl, #btn-back-fr-hub, #btn-back-fr, #btn-back-fn-hub, #btn-back-fn').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-nl-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-fr-mute').setAttribute('aria-label', tt.soundAria);
+    $('btn-fn-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-switch-player-hub').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
@@ -1191,6 +1307,8 @@
     if(!screens['nl-game'].hidden && nlState) $('nl-game-title').textContent = nlLevelName(nlState.level);
     if(!screens['fr-map'].hidden) renderFrMap();
     if(!screens['fr-game'].hidden && frState) $('fr-game-title').textContent = frLevelName(frState.level);
+    if(!screens['fn-map'].hidden) renderFnMap();
+    if(!screens['fn-game'].hidden && fnState) $('fn-game-title').textContent = fnLevelName(fnState.level);
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
@@ -1254,6 +1372,7 @@
     players[currentPlayer].byTable = byTable;
     players[currentPlayer].nl = nl;
     players[currentPlayer].fr = fr;
+    players[currentPlayer].fn = finalData;
     savePlayers(players);
   }
 
@@ -1296,7 +1415,8 @@
     hub: $('screen-hub'), map: $('screen-map'), game: $('screen-game'), results: $('screen-results'),
     admin: $('screen-admin'), reference: $('screen-reference'),
     'nl-map': $('screen-nl-map'), 'nl-game': $('screen-nl-game'), 'nl-results': $('screen-nl-results'),
-    'fr-map': $('screen-fr-map'), 'fr-game': $('screen-fr-game'), 'fr-results': $('screen-fr-results')
+    'fr-map': $('screen-fr-map'), 'fr-game': $('screen-fr-game'), 'fr-results': $('screen-fr-results'),
+    'fn-map': $('screen-fn-map'), 'fn-game': $('screen-fn-game'), 'fn-results': $('screen-fn-results')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
@@ -1308,6 +1428,7 @@
     if(name === 'reference') showReferencePicker();
     if(name === 'nl-map') renderNlMap();
     if(name === 'fr-map') renderFrMap();
+    if(name === 'fn-map') renderFnMap();
   }
   function updatePlayerChips(){
     if(!currentPlayer) return;
@@ -1450,6 +1571,7 @@
     byTable = ensureByTable(name);
     nl = ensureNL(name);
     fr = ensureFR(name);
+    finalData = ensureFinal(name);
     lastTick = Date.now();
     ensureStats(name);
     show('hub');
@@ -1463,6 +1585,7 @@
     byTable = null;
     nl = null;
     fr = null;
+    finalData = null;
     lastTick = null;
     show('login');
   }
@@ -1513,9 +1636,24 @@
         levelBreakdownHtml(name, 4, tt.lvl4ProgressLabel) +
         levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel) +
         nlBreakdownHtml(name) +
-        frBreakdownHtml(name);
+        frBreakdownHtml(name) +
+        fnBreakdownHtml(name);
       list.appendChild(card);
     });
+  }
+  function fnBreakdownHtml(name){
+    const tt = T[lang];
+    const fd = ensureFinal(name);
+    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectFinalName + '</div>';
+    const chips = FN_LEVEL_KEYS.map(level => {
+      const s = fd.byLevel[level];
+      const attempts = s.correct + s.wrong;
+      if(attempts === 0) return '';
+      const avg = (s.timeMs/attempts/1000).toFixed(1);
+      const hard = s.wrong > s.correct ? ' hard' : '';
+      return '<span class="admin-table-chip' + hard + '">' + T[lang]['fnLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
+    }).join('');
+    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
   }
   function frBreakdownHtml(name){
     const tt = T[lang];
@@ -2468,6 +2606,281 @@
   });
   $('fr-btn-replay').addEventListener('click', () => startFrLevel(frState.level));
   $('fr-btn-map').addEventListener('click', () => show('fr-map'));
+
+  // ============================================================
+  // FINAL DE FUNDAMENTAL (assunto 4) — self-contained, own state/data.
+  // Built one level at a time; only Level 1 (Números Naturais) exists so far.
+  // ============================================================
+  const FN_TARGET = 40;
+  const FN_LEVEL_KEYS = [1];
+  function defaultFinal(){
+    const progress = {}, streaks = {}, byLevel = {};
+    FN_LEVEL_KEYS.forEach(k => { progress[k]=false; streaks[k]=0; byLevel[k]={correct:0,wrong:0,timeMs:0}; });
+    return { progress, streaks, byLevel };
+  }
+  function ensureFinal(name){
+    const p = players[name];
+    if(!p.fn) p.fn = defaultFinal();
+    FN_LEVEL_KEYS.forEach(k => {
+      if(p.fn.progress[k] === undefined) p.fn.progress[k] = false;
+      if(p.fn.streaks[k] === undefined) p.fn.streaks[k] = 0;
+      if(!p.fn.byLevel[k]) p.fn.byLevel[k] = {correct:0,wrong:0,timeMs:0};
+    });
+    return p.fn;
+  }
+  let finalData = null;
+  function fnPrevComplete(level){ return level <= 1 || finalData.progress[level-1]; }
+  function fnLevelName(level){ return T[lang]['fnLevel' + level + 'Name']; }
+
+  $('btn-open-final').addEventListener('click', () => show('fn-map'));
+  $('btn-back-fn-hub').addEventListener('click', () => show('hub'));
+  $('btn-lang-fn-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
+  function renderFnMap(){
+    updatePlayerChips();
+    $('fn-player-chip').textContent = $('player-chip').textContent;
+    const list = $('fn-level-list');
+    list.innerHTML = '';
+    FN_LEVEL_KEYS.forEach(level => {
+      const done = finalData.progress[level];
+      const btn = document.createElement('button');
+      btn.className = 'nl-level-btn' + (done ? ' done' : '');
+      btn.innerHTML =
+        '<span class="ref-icon">' + (done ? '✔' : level) + '</span>' +
+        '<span class="ref-copy"><span class="name">' + fnLevelName(level) + '</span><span class="desc">' + T[lang]['fnLevel'+level+'Desc'] + '</span></span>' +
+        '<span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>';
+      btn.addEventListener('click', () => startFnLevel(level));
+      list.appendChild(btn);
+    });
+  }
+
+  // ---------- FN game state ----------
+  let fnState = null;
+  function fnRnd(n){ return Math.floor(Math.random()*n); }
+  function fnBuildExpr(){
+    const patterns = [
+      () => {
+        const a=2+fnRnd(9), b=2+fnRnd(9), c=2+fnRnd(9), bc=b*c;
+        return { display: a+' + '+b+' × '+c, correct: a+bc, steps:[b+'×'+c+'='+bc, a+'+'+bc+'='+(a+bc)] };
+      },
+      () => {
+        const a=2+fnRnd(9), b=2+fnRnd(9), ab=a*b, c=1+fnRnd(Math.min(ab,20));
+        return { display: a+' × '+b+' - '+c, correct: ab-c, steps:[a+'×'+b+'='+ab, ab+'-'+c+'='+(ab-c)] };
+      },
+      () => {
+        const a=2+fnRnd(9), b=2+fnRnd(9), c=2+fnRnd(6), ab=a+b;
+        return { display: '('+a+' + '+b+') × '+c, correct: ab*c, steps:[a+'+'+b+'='+ab, ab+'×'+c+'='+(ab*c)] };
+      },
+      () => {
+        const a=2+fnRnd(6), b=2+fnRnd(6), c=2+fnRnd(6), d=2+fnRnd(6), ab=a*b, cd=c*d;
+        return { display: a+'×'+b+' + '+c+'×'+d, correct: ab+cd, steps:[a+'×'+b+'='+ab, c+'×'+d+'='+cd, ab+'+'+cd+'='+(ab+cd)] };
+      },
+      () => {
+        const a=2+fnRnd(8), sq=a*a, b=2+fnRnd(20);
+        return { display: a+'² + '+b, correct: sq+b, steps:[a+'²='+sq, sq+'+'+b+'='+(sq+b)] };
+      },
+      () => {
+        const c=2+fnRnd(8), k=1+fnRnd(8), b=c*k, a=b+2+fnRnd(20);
+        return { display: a+' - '+b+' ÷ '+c, correct: a-k, steps:[b+'÷'+c+'='+k, a+'-'+k+'='+(a-k)] };
+      }
+    ];
+    return patterns[fnRnd(patterns.length)]();
+  }
+  function fnBuildWord(){
+    const tt = T[lang];
+    if(Math.random() < 0.5){
+      const rows=8+fnRnd(30), seats=10+fnRnd(40), total=rows*seats, correct=Math.floor(total/100);
+      return { story: tt.fnCinemaStory(rows,seats), question: tt.fnCinemaQuestion, correct };
+    }
+    const perBox=4+fnRnd(20), k=3+fnRnd(15), total=perBox*k;
+    return { story: tt.fnBoxStory(total,perBox), question: tt.fnBoxQuestion, correct:k };
+  }
+  function fnNewQuestion(level){
+    if(Math.random() < 0.6) return Object.assign({kind:'expr'}, fnBuildExpr());
+    return Object.assign({kind:'word'}, fnBuildWord());
+  }
+
+  function startFnLevel(level){
+    if(!fnPrevComplete(level)) showToast(T[lang].fnEarlyWarning);
+    fnState = { level, streak: finalData.streaks[level] || 0, attempts:0, answer:'', locked:false, current:null };
+    $('fn-game-title').textContent = fnLevelName(level);
+    show('fn-game');
+    fnRenderKeypad();
+    fnRenderQuestion();
+  }
+
+  function fnStartTimer(){
+    fnStopTimer();
+    fnState.questionStartedAt = Date.now();
+    $('fn-timer-pill').textContent = '⏱ 0.0s';
+    fnState.timerHandle = setInterval(() => {
+      const elapsed = (Date.now() - fnState.questionStartedAt) / 1000;
+      $('fn-timer-pill').textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function fnStopTimer(){
+    if(fnState && fnState.timerHandle){ clearInterval(fnState.timerHandle); fnState.timerHandle = null; }
+  }
+  function fnUpdatePointsPill(){
+    if(!currentPlayer) return;
+    $('fn-points-pill').textContent = '💎 ' + ensureStats(currentPlayer).days[todayKey()].points;
+  }
+
+  function fnRenderQuestion(){
+    fnState.current = fnNewQuestion(fnState.level);
+    fnState.answer = '';
+    fnState.locked = false;
+    $('fn-feedback').textContent = ' ';
+    $('fn-feedback').className = 'feedback-msg';
+    $('fn-question-card').className = 'fact-card';
+    $('fn-explain').innerHTML = '';
+    $('fn-btn-next').style.display = 'none';
+    $('fn-answer-display').innerHTML = '&nbsp;';
+    $('fn-score-pill').textContent = '🔥 ' + fnState.streak + '/' + FN_TARGET;
+    $('fn-progress-fill').style.width = (100*fnState.streak/FN_TARGET) + '%';
+    fnUpdatePointsPill();
+    fnStartTimer();
+
+    const c = fnState.current;
+    const storyBox = $('fn-story');
+    if(c.kind === 'word'){
+      storyBox.style.display = 'block';
+      storyBox.textContent = c.story;
+      $('fn-question-text').textContent = c.question;
+    } else {
+      storyBox.style.display = 'none';
+      $('fn-question-text').textContent = c.display + ' = ?';
+    }
+  }
+
+  function fnRenderKeypad(){
+    const kp = $('fn-keypad');
+    kp.innerHTML = '';
+    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0','OK'];
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key' + (label === 'OK' ? ' confirm' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => fnOnKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function fnOnKey(label){
+    if(fnState.locked) return;
+    if(label === '⌫'){ fnState.answer = fnState.answer.slice(0,-1); }
+    else if(label === 'OK'){ fnSubmitAnswer(); return; }
+    else { if(fnState.answer.length < 4) fnState.answer += label; }
+    $('fn-answer-display').textContent = fnState.answer.length ? fnState.answer : ' ';
+  }
+  document.addEventListener('keydown', (e) => {
+    if(screens['fn-game'].hidden || !fnState || fnState.locked) return;
+    if(/^[0-9]$/.test(e.key)) fnOnKey(e.key);
+    else if(e.key === 'Backspace') fnOnKey('⌫');
+    else if(e.key === 'Enter') fnOnKey('OK');
+  });
+
+  function fnSubmitAnswer(){
+    if(fnState.answer === '') return;
+    fnStopTimer();
+    const reactionMs = Date.now() - fnState.questionStartedAt;
+    fnState.locked = true;
+    fnState.attempts++;
+    const given = Number(fnState.answer);
+    const ok = given === fnState.current.correct;
+    const tt = T[lang];
+    const card = $('fn-question-card'); const msg = $('fn-feedback');
+
+    tickTime();
+    const stats = currentPlayer ? ensureStats(currentPlayer) : null;
+    const todayStats = stats ? stats.days[todayKey()] : null;
+    const lvlStat = finalData.byLevel[fnState.level];
+    lvlStat.timeMs += reactionMs;
+
+    if(ok){
+      fnState.streak++;
+      lvlStat.correct++;
+      card.classList.add('good'); msg.classList.add('good');
+      msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + fnState.streak + '/' + FN_TARGET + ')';
+      beep('good'); burstConfetti(false);
+      if(todayStats){
+        const earned = reactionMs < FAST_ANSWER_MS ? 2 : 1;
+        todayStats.points += earned; todayStats.correct++; stats.totalPoints += earned;
+      }
+      if(fnState.streak % 10 === 0 && fnState.streak < FN_TARGET) showMilestoneTrophy(fnState.streak/10, fnState.streak);
+      else if(fnState.streak % 5 === 0 && fnState.streak < FN_TARGET) showMilestoneMedal(fnState.streak);
+    } else {
+      lvlStat.wrong++;
+      card.classList.add('bad'); msg.classList.add('bad');
+      msg.textContent = tt.wrongMsg(fnState.current.correct);
+      beep('bad');
+      fnState.streak = 0;
+      if(todayStats) todayStats.wrong++;
+    }
+    finalData.streaks[fnState.level] = fnState.streak;
+    persist();
+    fnUpdatePointsPill();
+    $('fn-score-pill').textContent = '🔥 ' + fnState.streak + '/' + FN_TARGET;
+    $('fn-progress-fill').style.width = (100*fnState.streak/FN_TARGET) + '%';
+
+    const c = fnState.current;
+    $('fn-explain').innerHTML = '<b>' + (c.kind === 'expr' ? tt.fnExplainOrder(c.steps) : tt.fnExplainResult(c.correct)) + '</b>';
+
+    $('fn-btn-next').style.display = 'block';
+    $('fn-btn-next').onclick = () => {
+      $('fn-btn-next').style.display = 'none';
+      if(ok && fnState.streak >= FN_TARGET) fnFinishLevel(); else fnRenderQuestion();
+    };
+  }
+
+  function fnFinishLevel(){
+    const tt = T[lang];
+    finalData.progress[fnState.level] = true;
+    finalData.streaks[fnState.level] = 0;
+    persist();
+
+    $('fn-results-eyebrow').textContent = fnLevelName(fnState.level);
+    $('fn-score-final').textContent = FN_TARGET + '/' + FN_TARGET;
+    $('fn-attempts-final').textContent = fnState.attempts;
+    $('fn-grand-trophy').innerHTML = trophySVG('#f2c14e', 120);
+    burstConfetti(true); beep('good');
+    $('fn-pass-tag').textContent = tt.passTag;
+
+    const starsWrap = $('fn-stars');
+    starsWrap.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      s.setAttribute('viewBox','0 0 40 40');
+      s.innerHTML = '<path d="M20 3 L24 15 L37 15 L26.5 22.5 L30.5 35 L20 27 L9.5 35 L13.5 22.5 L3 15 L16 15 Z" fill="#f2c14e" stroke="#f2c14e" stroke-width="2" stroke-linejoin="round"/>';
+      starsWrap.appendChild(s);
+    }
+    $('fn-praise').textContent = tt.finalPraises[Math.floor(Math.random()*tt.finalPraises.length)];
+
+    const continueBtn = $('fn-btn-continue');
+    const hasNext = fnState.level < FN_LEVEL_KEYS.length;
+    if(hasNext){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueNextPrefix + fnLevelName(fnState.level+1);
+      continueBtn.onclick = () => startFnLevel(fnState.level+1);
+    } else {
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.fnContinueToHub;
+      continueBtn.onclick = () => show('hub');
+    }
+    show('fn-results');
+  }
+
+  $('btn-back-fn').addEventListener('click', () => {
+    fnStopTimer();
+    if(fnState && fnState.streak > 0 && fnState.streak < FN_TARGET){
+      showToast(T[lang].fnIncompleteWarning(fnState.streak));
+    }
+    show('fn-map');
+  });
+  $('btn-fn-mute').addEventListener('click', () => {
+    muted = !muted;
+    $('btn-fn-mute').style.opacity = muted ? 0.35 : 1;
+  });
+  $('fn-btn-replay').addEventListener('click', () => startFnLevel(fnState.level));
+  $('fn-btn-map').addEventListener('click', () => show('fn-map'));
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function level2Complete(){ return progress[2].every(Boolean); }
