@@ -2,7 +2,7 @@
 <title>Tabuada em Jogo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Fredoka:wght@400;500;600;700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -23,6 +23,8 @@
     --good-dim:     rgba(139,201,143,0.18);
     --bad:          #e07a68;
     --bad-dim:      rgba(224,122,104,0.2);
+    --font-display: 'Architects Daughter', 'Segoe Print', cursive;
+    --font-body:    'Fredoka', ui-rounded, 'Segoe UI', sans-serif;
   }
 
   *{ box-sizing:border-box; }
@@ -36,14 +38,22 @@
     justify-content:center;
     padding: 1.5rem 1rem;
     background: var(--board-edge);
-    font-family:'Fredoka', ui-rounded, 'Segoe UI', sans-serif;
+    font-family: var(--font-body);
     color: var(--chalk);
     -webkit-tap-highlight-color: transparent;
   }
+  body[dir="rtl"]{
+    --font-display: 'Rubik', 'Segoe UI', sans-serif;
+    --font-body: 'Rubik', 'Segoe UI', sans-serif;
+  }
+  body[dir="rtl"] h1{ font-weight:700; }
 
-  h1,h2,h3{ font-family:'Architects Daughter', 'Segoe Print', cursive; font-weight:400; text-wrap:balance; margin:0; }
+  h1,h2,h3{ font-family: var(--font-display); font-weight:400; text-wrap:balance; margin:0; }
   button{ font-family:inherit; }
   input{ font-family:inherit; }
+
+  /* numeric / math content always stays left-to-right */
+  .equation, .keypad, .pin-dots, .answer-display, .progress-track, .fact-triangle, .score-pill, .stat-pill{ direction:ltr; }
 
   .frame{
     position:relative;
@@ -119,6 +129,14 @@
   .icon-btn:hover{ background: rgba(255,255,255,0.12); }
   .icon-btn:active{ transform: scale(0.92); }
   .icon-btn svg{ width:18px; height:18px; }
+  body[dir="rtl"] .icon-btn svg{ transform: scaleX(-1); }
+
+  .lang-toggle{
+    width:auto; padding:0 0.6rem;
+    font-size:0.75rem; font-weight:700;
+    direction:ltr;
+  }
+  .lang-toggle svg{ display:none; }
 
   .stat-pill{
     font-size:0.78rem; font-weight:600;
@@ -156,7 +174,7 @@
   .player-avatar{
     width:44px; height:44px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Architects Daughter', cursive; font-size:1.3rem;
+    font-family: var(--font-display); font-size:1.3rem;
     background: var(--chalk-yellow); color: var(--board-dark);
   }
   .player-card.new .player-avatar{ background: rgba(255,255,255,0.08); color: var(--chalk); font-size:1.6rem; }
@@ -174,7 +192,7 @@
   .text-field:focus{ outline:none; border-color: var(--chalk-yellow); }
   .field-error{ min-height:1.2rem; font-size:0.8rem; color:var(--bad); }
 
-  .pin-dots{ display:flex; gap:0.7rem; }
+  .pin-dots{ display:flex; gap:0.7rem; justify-content:center; }
   .pin-dots .dot{
     width:16px; height:16px; border-radius:50%;
     border:2px solid rgba(243,236,217,0.35);
@@ -199,7 +217,7 @@
   .level-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:0.55rem; }
   .level-head .name{ font-size:1rem; font-weight:600; }
   .level-head .name small{ display:block; font-size:0.72rem; font-weight:500; color:var(--chalk-dim); margin-top:1px; }
-  .level-count{ font-size:0.75rem; color:var(--chalk-dim); font-variant-numeric: tabular-nums; }
+  .level-count{ font-size:0.75rem; color:var(--chalk-dim); font-variant-numeric: tabular-nums; direction:ltr; }
 
   .locked-banner{
     font-size:0.78rem; color:var(--chalk-faint);
@@ -231,7 +249,7 @@
     transition: transform .1s, background .15s;
   }
   .node svg{ width:16px; height:16px; }
-  .node.mix{ font-size:0.68rem; font-weight:600; letter-spacing:0.02em; }
+  .node.mix{ font-size:0.62rem; font-weight:600; letter-spacing:0.02em; }
 
   .node.unlocked{
     cursor:pointer;
@@ -280,11 +298,11 @@
     color: var(--chalk-yellow);
   }
 
-  .fact-triangle{ display:flex; justify-content:center; min-height:0; }
-
   .feedback-msg{ min-height: 1.4rem; font-size:0.95rem; font-weight:600; color: var(--chalk-dim); }
   .feedback-msg.good{ color: var(--good); }
   .feedback-msg.bad{ color: var(--bad); }
+
+  .fact-triangle{ display:flex; justify-content:center; min-height:0; }
 
   /* ---------- Keypad ---------- */
   .keypad-wrap{ display:flex; flex-direction:column; gap:0.6rem; align-items:center; }
@@ -323,8 +341,8 @@
   .stars{ display:flex; gap:0.4rem; }
   .stars svg{ width:44px; height:44px; }
   .score-line{ font-size:1.05rem; color:var(--chalk-dim); }
-  .score-line b{ color:var(--chalk); font-variant-numeric: tabular-nums; }
-  .praise{ font-family:'Architects Daughter', cursive; font-size:1.5rem; color:var(--chalk); }
+  .score-line b{ color:var(--chalk); font-variant-numeric: tabular-nums; direction:ltr; display:inline-block; }
+  .praise{ font-family: var(--font-display); font-size:1.5rem; color:var(--chalk); }
   .pass-tag{
     font-size:0.75rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
     padding:0.25rem 0.7rem; border-radius:999px;
@@ -342,7 +360,6 @@
   .btn:active{ transform: scale(0.98); }
   .btn.primary{ background: var(--chalk-pink); border-color:transparent; color:#2c1710; }
   .btn.primary:hover{ filter:brightness(1.05); }
-  .btn.ghost{ background:transparent; }
 
   /* ---------- Confetti + milestone trophy overlays ---------- */
   .confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:5; }
@@ -361,8 +378,9 @@
     opacity:0; animation: trophy-pop 1.3s ease forwards;
   }
   .milestone-trophy .badge .count{
-    font-family:'Architects Daughter',cursive; font-size:1.05rem; color:var(--chalk);
+    font-family: var(--font-display); font-size:1.05rem; color:var(--chalk);
     background:rgba(15,29,21,0.55); padding:0.15rem 0.65rem; border-radius:999px;
+    direction:ltr;
   }
   @keyframes trophy-pop{
     0%{ opacity:0; transform:scale(0.3) translateY(10px); }
@@ -382,13 +400,18 @@
 
     <!-- ============ LOGIN (quem vai jogar) ============ -->
     <section class="screen" id="screen-login">
+      <div class="topbar">
+        <span style="width:36px"></span>
+        <span></span>
+        <button class="icon-btn lang-toggle" id="btn-lang-login">עב</button>
+      </div>
       <header class="home-head">
-        <div class="eyebrow">Sala de Matemática</div>
-        <h1>Tabuada em Jogo</h1>
+        <div class="eyebrow" id="login-eyebrow">Sala de Matemática</div>
+        <h1 id="login-title">Tabuada em Jogo</h1>
         <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
           <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
-        <p class="sub">Quem vai jogar hoje?</p>
+        <p class="sub" id="login-sub">Quem vai jogar hoje?</p>
       </header>
       <div class="center-stage">
         <div class="player-grid" id="player-grid"></div>
@@ -401,11 +424,11 @@
         <button class="icon-btn" id="btn-back-newplayer" aria-label="Voltar">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
         </button>
-        <span class="stat-pill">Novo jogador</span>
+        <span class="stat-pill" id="newplayer-badge">Novo jogador</span>
         <span style="width:36px"></span>
       </div>
       <div class="center-stage">
-        <h1 style="font-size:1.6rem;">Como te chamas?</h1>
+        <h1 style="font-size:1.6rem;" id="newplayer-heading">Como te chamas?</h1>
         <input class="text-field" id="new-player-name" type="text" maxlength="20" placeholder="Teu nome" autocomplete="off">
         <div class="field-error" id="name-error">&nbsp;</div>
         <button class="btn primary" id="btn-name-continue" style="max-width:280px;width:100%;">Continuar</button>
@@ -435,22 +458,23 @@
     <section class="screen" id="screen-map" hidden>
       <div class="topbar">
         <span class="stat-pill" id="player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-map">עב</button>
         <button class="icon-btn" id="btn-switch-player" aria-label="Trocar jogador">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4H4v12h3"/><path d="M8 10h9m0 0-3-3m3 3-3 3"/></svg>
         </button>
       </div>
       <header class="home-head">
-        <h1>Tabuada em Jogo</h1>
+        <h1 id="map-title">Tabuada em Jogo</h1>
         <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
           <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
-        <p class="sub">Uma tabuada de cada vez. Passa de etapa para desbloquear a próxima.</p>
+        <p class="sub" id="map-sub">Escolhe uma tabuada e treina até decorar.</p>
       </header>
 
       <div class="trail-scroll">
         <div class="level-block lvl1">
           <div class="level-head">
-            <span class="name">Nível 1 · Lembrar<br><small>quanto dá a tabuada</small></span>
+            <span class="name" id="level1-label">Nível 1 · Lembrar<br><small id="level1-desc">quanto dá a tabuada</small></span>
             <span class="level-count" id="count-lvl1">0/10</span>
           </div>
           <div class="node-grid" id="nodes-lvl1"></div>
@@ -458,12 +482,12 @@
 
         <div class="level-block lvl2">
           <div class="level-head">
-            <span class="name">Nível 2 · Memória<br><small>descobre o número que falta</small></span>
+            <span class="name" id="level2-label">Nível 2 · Memória<br><small id="level2-desc">descobre o número que falta</small></span>
             <span class="level-count" id="count-lvl2">0/10</span>
           </div>
           <div class="locked-banner" id="lvl2-lock">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="12" height="8" rx="1.5"/><path d="M6.5 9V6a3.5 3.5 0 0 1 7 0v3"/></svg>
-            Termina o Nível 1 para desbloquear
+            <span id="lvl2-lock-text">Termina o Nível 1 para desbloquear</span>
           </div>
           <div class="node-grid" id="nodes-lvl2"></div>
         </div>
@@ -507,8 +531,8 @@
         <div class="stars" id="stars"></div>
         <div class="praise" id="praise"></div>
         <span class="pass-tag" id="pass-tag">Passou</span>
-        <div class="score-line">Sequência: <b id="score-final">100/100</b></div>
-        <div class="score-line" id="attempts-line">Tentativas totais: <b id="attempts-final">0</b></div>
+        <div class="score-line"><span id="score-line-label">Sequência:</span> <b id="score-final">100/100</b></div>
+        <div class="score-line" id="attempts-line"><span id="attempts-line-label">Tentativas totais:</span> <b id="attempts-final">0</b></div>
         <div class="result-actions">
           <button class="btn primary" id="btn-continue">Continuar</button>
           <button class="btn" id="btn-replay">Tentar de novo</button>
@@ -528,8 +552,92 @@
   const STREAK_TARGET = 100;
   const TABLES = [2,3,4,5,6,7,8,9,10];
   const STORAGE_KEY = 'tabuada-players-v1';
+  const LANG_KEY = 'tabuada-lang';
   const $ = (id) => document.getElementById(id);
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- translations ----------
+  const T = {
+    pt: {
+      eyebrow: 'Sala de Matemática', appTitle: 'Tabuada em Jogo', loginSub: 'Quem vai jogar hoje?',
+      newPlayerBadge: 'Novo jogador', newPlayerCard: 'Novo jogador', newPlayerHeading: 'Como te chamas?',
+      namePlaceholder: 'Teu nome', nameErrorEmpty: 'Escreve um nome.', nameErrorExists: 'Esse nome já existe. Escolhe outro.',
+      continueBtn: 'Continuar', pinCreateHeading: 'Cria uma senha', pinCreateSub: '4 números, só para ti',
+      pinEnterHeading: 'Qual é a tua senha?', pinEnterSub: '4 números',
+      mapTitle: 'Tabuada em Jogo', mapSub: 'Escolhe uma tabuada e treina até decorar.',
+      level1Name: 'Nível 1 · Lembrar', level1Desc: 'quanto dá a tabuada',
+      level2Name: 'Nível 2 · Memória', level2Desc: 'descobre o número que falta',
+      lvl2Lock: 'Termina o Nível 1 para desbloquear', mixLabel: 'Mix',
+      stageTablePrefix: 'Tabuada do', stageMixed: 'Misturado', levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ',
+      backAria: 'Voltar', soundAria: 'Som', switchAria: 'Trocar jogador',
+      praises: ['Boa!','Isso aí!','Show!','Mandou bem!','Rápido assim!'],
+      wrongMsg: (x)=> 'Era ' + x + ' — sequência voltou a 0',
+      milestoneSuffix: ' seguidas!', passTag: 'Passou de etapa',
+      scoreLineLabel: 'Sequência:', attemptsLineLabel: 'Tentativas totais:',
+      finalPraises: ['Sensacional!','Já decoraste!','Mestre da tabuada!','100 seguidas, uau!'],
+      continueNextPrefix: 'Próxima: ', continueToLevel2: 'Ir para o Nível 2',
+      btnReplay: 'Tentar de novo', btnMap: 'Ver trilha'
+    },
+    he: {
+      eyebrow: 'כיתת חשבון', appTitle: 'לוח הכפל במשחק', loginSub: 'מי משחק היום?',
+      newPlayerBadge: 'שחקן חדש', newPlayerCard: 'שחקן חדש', newPlayerHeading: 'איך קוראים לך?',
+      namePlaceholder: 'השם שלך', nameErrorEmpty: 'כתוב שם.', nameErrorExists: 'השם הזה כבר קיים. בחר שם אחר.',
+      continueBtn: 'המשך', pinCreateHeading: 'צור סיסמה', pinCreateSub: '4 ספרות, רק בשבילך',
+      pinEnterHeading: 'מה הסיסמה שלך?', pinEnterSub: '4 ספרות',
+      mapTitle: 'לוח הכפל במשחק', mapSub: 'בחר לוח כפל והתאמן עד שתשנן אותו.',
+      level1Name: 'שלב 1 · לזכור', level1Desc: 'כמה יוצא בלוח הכפל',
+      level2Name: 'שלב 2 · זיכרון', level2Desc: 'גלה את המספר החסר',
+      lvl2Lock: 'סיים את שלב 1 כדי לפתוח', mixLabel: 'מיקס',
+      stageTablePrefix: 'לוח הכפל של', stageMixed: 'מעורב', levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ',
+      backAria: 'חזור', soundAria: 'צליל', switchAria: 'החלף שחקן',
+      praises: ['יופי!','כל הכבוד!','מעולה!','ישר על המטרה!','כזה מהיר!'],
+      wrongMsg: (x)=> 'התשובה הייתה ' + x + ' — הרצף התחיל מחדש',
+      milestoneSuffix: ' ברצף!', passTag: 'עבר שלב',
+      scoreLineLabel: 'רצף:', attemptsLineLabel: 'ניסיונות בסך הכול:',
+      finalPraises: ['מדהים!','כבר שיננת!','אלוף לוח הכפל!','100 ברצף, וואו!'],
+      continueNextPrefix: 'הבא: ', continueToLevel2: 'עבור לשלב 2',
+      btnReplay: 'נסה שוב', btnMap: 'מסלול'
+    }
+  };
+  let lang = localStorage.getItem(LANG_KEY) || 'pt';
+
+  function setLang(newLang){
+    lang = newLang;
+    try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+    document.body.setAttribute('dir', lang === 'he' ? 'rtl' : 'ltr');
+    document.body.setAttribute('lang', lang);
+    applyStaticText();
+  }
+  function applyStaticText(){
+    const tt = T[lang];
+    $('login-eyebrow').textContent = tt.eyebrow;
+    $('login-title').textContent = tt.appTitle;
+    $('login-sub').textContent = tt.loginSub;
+    $('newplayer-badge').textContent = tt.newPlayerBadge;
+    $('newplayer-heading').textContent = tt.newPlayerHeading;
+    $('new-player-name').placeholder = tt.namePlaceholder;
+    $('btn-name-continue').textContent = tt.continueBtn;
+    $('map-title').textContent = tt.mapTitle;
+    $('map-sub').textContent = tt.mapSub;
+    $('level1-label').childNodes[0].textContent = tt.level1Name;
+    $('level1-desc').textContent = tt.level1Desc;
+    $('level2-label').childNodes[0].textContent = tt.level2Name;
+    $('level2-desc').textContent = tt.level2Desc;
+    $('lvl2-lock-text').textContent = tt.lvl2Lock;
+    $('btn-replay').textContent = tt.btnReplay;
+    $('btn-map').textContent = tt.btnMap;
+    $('score-line-label').textContent = tt.scoreLineLabel;
+    $('attempts-line-label').textContent = tt.attemptsLineLabel;
+    document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    $('btn-mute').setAttribute('aria-label', tt.soundAria);
+    $('btn-switch-player').setAttribute('aria-label', tt.switchAria);
+    if(!screens.login.hidden) renderPlayerGrid();
+    if(!screens.map.hidden) renderMap();
+    if(!screens.game.hidden && state) $('game-title').textContent = stageName(state.level, state.stage);
+  }
+  $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
+  $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
 
   // stage list shared shape by both levels: numbers 2..10 then 'mixed'
   const STAGES = [...TABLES, 'mixed'];
@@ -568,6 +676,7 @@
 
   // ---------- login screen ----------
   function renderPlayerGrid(){
+    const tt = T[lang];
     const grid = $('player-grid');
     grid.innerHTML = '';
     Object.keys(players).forEach(name => {
@@ -579,7 +688,7 @@
     });
     const addCard = document.createElement('button');
     addCard.className = 'player-card new';
-    addCard.innerHTML = '<span class="player-avatar">+</span><span class="player-name">Novo jogador</span>';
+    addCard.innerHTML = '<span class="player-avatar">+</span><span class="player-name">' + tt.newPlayerCard + '</span>';
     addCard.addEventListener('click', () => {
       $('new-player-name').value = '';
       $('name-error').textContent = ' ';
@@ -596,10 +705,11 @@
 
   $('btn-back-newplayer').addEventListener('click', () => show('login'));
   function submitNewName(){
+    const tt = T[lang];
     const name = $('new-player-name').value.trim();
-    if(!name){ $('name-error').textContent = 'Escreve um nome.'; return; }
+    if(!name){ $('name-error').textContent = tt.nameErrorEmpty; return; }
     const exists = Object.keys(players).some(n => n.toLowerCase() === name.toLowerCase());
-    if(exists){ $('name-error').textContent = 'Esse nome já existe. Escolhe outro.'; return; }
+    if(exists){ $('name-error').textContent = tt.nameErrorExists; return; }
     startPinFlow('create', name);
   }
   $('btn-name-continue').addEventListener('click', submitNewName);
@@ -608,14 +718,15 @@
   // ---------- pin screen ----------
   let pinState = { mode: 'create', name: '', pin: '' };
   function startPinFlow(mode, name){
+    const tt = T[lang];
     pinState = { mode, name, pin: '' };
     $('pin-title').textContent = name;
     if(mode === 'create'){
-      $('pin-heading').textContent = 'Cria uma senha';
-      $('pin-sub').textContent = '4 números, só para ti';
+      $('pin-heading').textContent = tt.pinCreateHeading;
+      $('pin-sub').textContent = tt.pinCreateSub;
     } else {
-      $('pin-heading').textContent = 'Qual é a tua senha?';
-      $('pin-sub').textContent = '4 números';
+      $('pin-heading').textContent = tt.pinEnterHeading;
+      $('pin-sub').textContent = tt.pinEnterSub;
     }
     renderPinDots();
     renderPinKeypad();
@@ -691,10 +802,11 @@
     if(level === 2) return level1Complete();
     return true;
   }
-  function stageLabel(stage){ return stage === 'mixed' ? 'Mix' : String(stage); }
+  function stageLabel(stage){ return stage === 'mixed' ? T[lang].mixLabel : String(stage); }
   function stageName(level, stage){
-    const base = stage === 'mixed' ? 'Misturado' : ('Tabuada do ' + stage);
-    return (level === 1 ? 'Nível 1 · ' : 'Nível 2 · ') + base;
+    const tt = T[lang];
+    const base = stage === 'mixed' ? tt.stageMixed : (tt.stageTablePrefix + ' ' + stage);
+    return (level === 1 ? tt.levelPrefix1 : tt.levelPrefix2) + base;
   }
 
   // ---------- shuffle helper ----------
@@ -731,7 +843,7 @@
         btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="12" height="8" rx="1.5"/><path d="M6.5 9V6a3.5 3.5 0 0 1 7 0v3"/></svg>';
       }
       btn.disabled = !unlocked;
-      btn.setAttribute('aria-label', stage === 'mixed' ? 'Misturado' : ('Tabuada do ' + stage));
+      btn.setAttribute('aria-label', stage === 'mixed' ? T[lang].stageMixed : (T[lang].stageTablePrefix + ' ' + stage));
       if(unlocked) btn.addEventListener('click', () => startStage(level, idx));
       wrap.appendChild(btn);
     });
@@ -803,6 +915,23 @@
       '<rect x="24" y="39" width="16" height="7" rx="2" fill="'+color+'"/>' +
     '</svg>';
   }
+  function trophyColor(tier){
+    if(tier<=3) return '#cd7f32';
+    if(tier<=6) return '#cfd8de';
+    return '#f2c14e';
+  }
+  function showMilestoneTrophy(tier, streakVal){
+    if(reducedMotion) return;
+    const host = $('milestone-trophy');
+    host.innerHTML = '';
+    const size = 38 + tier*7;
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.innerHTML = trophySVG(trophyColor(tier), size) + '<span class="count">' + streakVal + T[lang].milestoneSuffix + '</span>';
+    host.appendChild(badge);
+    setTimeout(() => { host.innerHTML = ''; }, 1300);
+  }
+
   function renderFactTriangle(a, b, p, hiddenSlot){
     const c = '#f2c14e';
     let arrow;
@@ -824,23 +953,6 @@
       '<text x="40" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
       '<text x="120" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
     '</svg>';
-  }
-
-  function trophyColor(tier){
-    if(tier<=3) return '#cd7f32';
-    if(tier<=6) return '#cfd8de';
-    return '#f2c14e';
-  }
-  function showMilestoneTrophy(tier, streakVal){
-    if(reducedMotion) return;
-    const host = $('milestone-trophy');
-    host.innerHTML = '';
-    const size = 38 + tier*7;
-    const badge = document.createElement('div');
-    badge.className = 'badge';
-    badge.innerHTML = trophySVG(trophyColor(tier), size) + '<span class="count">' + streakVal + ' seguidas!</span>';
-    host.appendChild(badge);
-    setTimeout(() => { host.innerHTML = ''; }, 1300);
   }
 
   // ---------- game state ----------
@@ -959,13 +1071,13 @@
     const msg = $('feedback-msg');
     const blank = $('blank-slot');
     let delay = 550;
+    const tt = T[lang];
 
     if(ok){
       state.streak++;
       card.classList.add('good');
       msg.classList.add('good');
-      const praises = ['Boa!','Isso aí!','Show!','Mandou bem!','Rápido assim!'];
-      msg.textContent = praises[Math.floor(Math.random()*praises.length)] + ' (' + state.streak + '/' + STREAK_TARGET + ')';
+      msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + state.streak + '/' + STREAK_TARGET + ')';
       beep('good');
       burstConfetti(false);
       if(state.streak % 10 === 0 && state.streak < STREAK_TARGET){
@@ -975,7 +1087,7 @@
     } else {
       card.classList.add('bad');
       msg.classList.add('bad');
-      msg.textContent = 'Era ' + state.correct + ' — sequência voltou a 0';
+      msg.textContent = tt.wrongMsg(state.correct);
       beep('bad');
       state.streak = 0;
       delay = 1150;
@@ -1000,6 +1112,7 @@
   }
 
   function finishRound(){
+    const tt = T[lang];
     progress[state.level][state.idx] = true;
     persist();
 
@@ -1012,7 +1125,7 @@
     beep('good');
 
     const tag = $('pass-tag');
-    tag.textContent = 'Passou de etapa';
+    tag.textContent = tt.passTag;
     tag.className = 'pass-tag pass';
 
     const starsWrap = $('stars');
@@ -1024,18 +1137,17 @@
       starsWrap.appendChild(s);
     }
 
-    const praiseOptions = ['Sensacional!','Já decoraste!','Mestre da tabuada!','100 seguidas, uau!'];
-    $('praise').textContent = praiseOptions[Math.floor(Math.random()*praiseOptions.length)];
+    $('praise').textContent = tt.finalPraises[Math.floor(Math.random()*tt.finalPraises.length)];
 
     const hasNext = state.idx < STAGES.length - 1;
     const continueBtn = $('btn-continue');
     if(hasNext){
       continueBtn.style.display = 'block';
-      continueBtn.textContent = 'Próxima: ' + (STAGES[state.idx+1] === 'mixed' ? 'Misturado' : 'Tabuada do ' + STAGES[state.idx+1]);
+      continueBtn.textContent = tt.continueNextPrefix + (STAGES[state.idx+1] === 'mixed' ? tt.stageMixed : (tt.stageTablePrefix + ' ' + STAGES[state.idx+1]));
       continueBtn.onclick = () => startStage(state.level, state.idx + 1);
     } else if(state.level === 1){
       continueBtn.style.display = 'block';
-      continueBtn.textContent = 'Ir para o Nível 2';
+      continueBtn.textContent = tt.continueToLevel2;
       continueBtn.onclick = () => startStage(2, 0);
     } else {
       continueBtn.style.display = 'none';
@@ -1049,6 +1161,9 @@
   $('btn-map').addEventListener('click', () => show('map'));
   $('btn-replay').addEventListener('click', () => startStage(state.level, state.idx));
 
+  document.body.setAttribute('dir', lang === 'he' ? 'rtl' : 'ltr');
+  document.body.setAttribute('lang', lang);
+  applyStaticText();
   show('login');
 })();
 </script>
