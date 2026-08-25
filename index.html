@@ -503,6 +503,8 @@
   .nl-level-btn:active{ transform: scale(0.98); }
   .nl-level-btn .ref-icon{ background: var(--chalk-blue); font-size:1.4rem; width:44px; height:44px; }
   .nl-level-btn.done .ref-icon{ background: var(--good); }
+  .nl-level-btn .name{ display:block; font-size:0.95rem; font-weight:700; }
+  .nl-level-btn .desc{ display:block; font-size:0.78rem; color:var(--chalk-dim); margin-top:2px; font-weight:400; }
 
   /* ---------- Final de Fundamental ---------- */
   .fn-story{
@@ -2481,8 +2483,16 @@
     for(const s of need){ if(frState.slotValues[s] === '') return; }
     const given = {};
     need.forEach(s => given[s] = Number(frState.slotValues[s]));
-    let ok = true;
-    for(const s of need){ if(given[s] !== frState.current.correct[s]) ok = false; }
+    let ok;
+    if((frState.level === 4 || frState.level === 5) && need.includes('num') && need.includes('den')){
+      // Somar/Subtrair and Multiplicar/Dividir produce a computed result — any fraction
+      // equivalent to the correct one counts (10/12 and 5/6 are the same answer).
+      const c = frState.current.correct;
+      ok = given.den !== 0 && given.num * c.den === c.num * given.den;
+    } else {
+      ok = true;
+      for(const s of need){ if(given[s] !== frState.current.correct[s]) ok = false; }
+    }
     frResolve(ok);
   }
 
