@@ -390,6 +390,30 @@
     100%{ opacity:0; transform:scale(0.9) translateY(-8px); }
   }
 
+  /* ---------- Toast ---------- */
+  .toast{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
+    background:rgba(15,29,21,0.92); border:1px solid rgba(243,236,217,0.25); color:var(--chalk);
+    padding:0.55rem 0.9rem; border-radius:10px; font-size:0.78rem; z-index:7;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    max-width:88%; text-align:center;
+  }
+  .toast.show{ opacity:1; }
+
+  /* ---------- Stats row + admin ---------- */
+  .stats-row{ display:flex; gap:0.4rem; justify-content:center; flex-wrap:wrap; direction:ltr; }
+  .admin-list{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:0.7rem; }
+  .admin-card{
+    border-radius:14px; border:1px solid rgba(243,236,217,0.16);
+    background: rgba(255,255,255,0.04);
+    padding:0.85rem 0.9rem;
+  }
+  .admin-card .row1{ display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
+  .admin-card .name{ font-weight:600; font-size:1rem; }
+  .admin-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:0.4rem 0.8rem; font-size:0.8rem; color:var(--chalk-dim); direction:ltr; }
+  .admin-stats b{ color:var(--chalk); font-variant-numeric:tabular-nums; }
+  .admin-progress{ font-size:0.72rem; color:var(--chalk-faint); margin-top:0.5rem; }
+
   @media (prefers-reduced-motion: reduce){
     .progress-fill, .fact-card, .key, .icon-btn, .node, .btn, .player-card{ transition:none !important; }
   }
@@ -401,7 +425,9 @@
     <!-- ============ LOGIN (quem vai jogar) ============ -->
     <section class="screen" id="screen-login">
       <div class="topbar">
-        <span style="width:36px"></span>
+        <button class="icon-btn" id="btn-admin" aria-label="Admin">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.5 4.5l1.4 1.4M14.1 14.1l1.4 1.4M4.5 15.5l1.4-1.4M14.1 5.9l1.4-1.4"/></svg>
+        </button>
         <span></span>
         <button class="icon-btn lang-toggle" id="btn-lang-login">עב</button>
       </div>
@@ -501,10 +527,15 @@
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
         </button>
         <span class="stat-pill" id="game-title">Nível 1</span>
-        <span class="stat-pill" id="score-pill">🔥 0/100</span>
         <button class="icon-btn" id="btn-mute" aria-label="Som">
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="icon-sound"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M13 7c1 .9 1 5 0 6"/></svg>
         </button>
+      </div>
+
+      <div class="stats-row">
+        <span class="stat-pill" id="score-pill">🔥 0/100</span>
+        <span class="stat-pill" id="timer-pill">⏱ 0.0s</span>
+        <span class="stat-pill" id="points-pill">💎 0</span>
       </div>
 
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -541,8 +572,21 @@
       </div>
     </section>
 
+    <!-- ============ ADMIN (área dos pais) ============ -->
+    <section class="screen" id="screen-admin" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-admin" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="admin-title">Área dos pais</span>
+        <span style="width:36px"></span>
+      </div>
+      <div class="admin-list" id="admin-list"></div>
+    </section>
+
     <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
     <div class="milestone-trophy" id="milestone-trophy" aria-hidden="true"></div>
+    <div class="toast" id="toast"></div>
 
   </div>
 </div>
@@ -553,6 +597,8 @@
   const TABLES = [2,3,4,5,6,7,8,9,10];
   const STORAGE_KEY = 'tabuada-players-v1';
   const LANG_KEY = 'tabuada-lang';
+  const ADMIN_PIN_KEY = 'tabuada-admin-pin';
+  const FAST_ANSWER_MS = 5000;
   const $ = (id) => document.getElementById(id);
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -576,7 +622,11 @@
       scoreLineLabel: 'Sequência:', attemptsLineLabel: 'Tentativas totais:',
       finalPraises: ['Sensacional!','Já decoraste!','Mestre da tabuada!','100 seguidas, uau!'],
       continueNextPrefix: 'Próxima: ', continueToLevel2: 'Ir para o Nível 2',
-      btnReplay: 'Tentar de novo', btnMap: 'Ver trilha'
+      btnReplay: 'Tentar de novo', btnMap: 'Ver trilha',
+      incompleteWarning: (s)=> 'Ainda não completaste esta tabuada (' + s + '/100). Podes continuar depois.',
+      adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
+      pointsLabel: 'Pontos', correctLabel: 'Acertos', wrongLabel: 'Erros', noPlayersYet: 'Ainda não há jogadores.',
+      lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2'
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'לוח הכפל במשחק', loginSub: 'מי משחק היום?',
@@ -596,7 +646,11 @@
       scoreLineLabel: 'רצף:', attemptsLineLabel: 'ניסיונות בסך הכול:',
       finalPraises: ['מדהים!','כבר שיננת!','אלוף לוח הכפל!','100 ברצף, וואו!'],
       continueNextPrefix: 'הבא: ', continueToLevel2: 'עבור לשלב 2',
-      btnReplay: 'נסה שוב', btnMap: 'מסלול'
+      btnReplay: 'נסה שוב', btnMap: 'מסלול',
+      incompleteWarning: (s)=> 'עוד לא סיימת את הלוח הזה (' + s + '/100). אפשר להמשיך אחר כך.',
+      adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
+      pointsLabel: 'נקודות', correctLabel: 'תשובות נכונות', wrongLabel: 'טעויות', noPlayersYet: 'עדיין אין שחקנים.',
+      lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2'
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -656,6 +710,7 @@
   let players = loadPlayers();
   let currentPlayer = null;
   let progress = null;
+  let lastTick = null;
 
   function persist(){
     if(!currentPlayer) return;
@@ -663,15 +718,50 @@
     savePlayers(players);
   }
 
+  function todayKey(){
+    return new Date().toISOString().slice(0,10);
+  }
+  function ensureStats(name){
+    const p = players[name];
+    if(!p.stats) p.stats = { totalPoints: 0, days: {} };
+    if(!p.stats.days[todayKey()]) p.stats.days[todayKey()] = { points: 0, timeMs: 0, correct: 0, wrong: 0 };
+    return p.stats;
+  }
+  function tickTime(){
+    if(!currentPlayer || !lastTick) return;
+    const now = Date.now();
+    const delta = now - lastTick;
+    lastTick = now;
+    if(delta <= 0 || delta > 5*60*1000) return; // ignore huge gaps (tab left open overnight etc.)
+    ensureStats(currentPlayer).days[todayKey()].timeMs += delta;
+  }
+  function fmtTime(ms){
+    const s = Math.round(ms/1000);
+    const m = Math.floor(s/60);
+    const r = s%60;
+    return m + ':' + String(r).padStart(2,'0');
+  }
+  window.addEventListener('beforeunload', () => { tickTime(); persist(); });
+
+  let toastTimer = null;
+  function showToast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
   const screens = {
     login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
-    map: $('screen-map'), game: $('screen-game'), results: $('screen-results')
+    map: $('screen-map'), game: $('screen-game'), results: $('screen-results'), admin: $('screen-admin')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
     screens[name].hidden = false;
     if(name === 'login') renderPlayerGrid();
     if(name === 'map') renderMap();
+    if(name === 'admin') renderAdmin();
   }
 
   // ---------- login screen ----------
@@ -720,8 +810,8 @@
   function startPinFlow(mode, name){
     const tt = T[lang];
     pinState = { mode, name, pin: '' };
-    $('pin-title').textContent = name;
-    if(mode === 'create'){
+    $('pin-title').textContent = mode.indexOf('admin') === 0 ? tt.adminTitle : name;
+    if(mode === 'create' || mode === 'admin-create'){
       $('pin-heading').textContent = tt.pinCreateHeading;
       $('pin-sub').textContent = tt.pinCreateSub;
     } else {
@@ -767,6 +857,19 @@
     }
   }
   function resolvePin(){
+    if(pinState.mode === 'admin-create'){
+      localStorage.setItem(ADMIN_PIN_KEY, pinState.pin);
+      show('admin');
+      return;
+    }
+    if(pinState.mode === 'admin-enter'){
+      if(localStorage.getItem(ADMIN_PIN_KEY) === pinState.pin){
+        show('admin');
+      } else {
+        pinShake();
+      }
+      return;
+    }
     if(pinState.mode === 'create'){
       players[pinState.name] = { pin: pinState.pin, progress: defaultProgress() };
       savePlayers(players);
@@ -775,26 +878,72 @@
       if(players[pinState.name] && players[pinState.name].pin === pinState.pin){
         loginAs(pinState.name);
       } else {
-        const dotsWrap = $('pin-dots');
-        dotsWrap.className = 'pin-dots shake';
-        setTimeout(() => {
-          pinState.pin = '';
-          renderPinDots();
-        }, 400);
+        pinShake();
       }
     }
+  }
+  function pinShake(){
+    const dotsWrap = $('pin-dots');
+    dotsWrap.className = 'pin-dots shake';
+    setTimeout(() => {
+      pinState.pin = '';
+      renderPinDots();
+    }, 400);
   }
   function loginAs(name){
     currentPlayer = name;
     progress = players[name].progress;
+    lastTick = Date.now();
+    ensureStats(name);
     $('player-chip').textContent = '👤 ' + name;
     show('map');
   }
   $('btn-switch-player').addEventListener('click', () => {
+    tickTime();
+    persist();
     currentPlayer = null;
     progress = null;
+    lastTick = null;
     show('login');
   });
+  $('btn-admin').addEventListener('click', () => {
+    const hasAdminPin = !!localStorage.getItem(ADMIN_PIN_KEY);
+    startPinFlow(hasAdminPin ? 'admin-enter' : 'admin-create', '__admin__');
+  });
+  $('btn-back-admin').addEventListener('click', () => show('login'));
+
+  function renderAdmin(){
+    const tt = T[lang];
+    $('admin-title').textContent = tt.adminTitle;
+    const list = $('admin-list');
+    list.innerHTML = '';
+    const names = Object.keys(players);
+    if(names.length === 0){
+      const p = document.createElement('p');
+      p.className = 'sub';
+      p.textContent = tt.noPlayersYet;
+      list.appendChild(p);
+      return;
+    }
+    names.forEach(name => {
+      const stats = ensureStats(name);
+      const today = stats.days[todayKey()];
+      const card = document.createElement('div');
+      card.className = 'admin-card';
+      const lvl1Done = players[name].progress[1].filter(Boolean).length;
+      const lvl2Done = players[name].progress[2].filter(Boolean).length;
+      card.innerHTML =
+        '<div class="row1"><span class="name">' + escapeHtml(name) + '</span></div>' +
+        '<div class="admin-stats">' +
+          '<span>' + tt.timeLabel + ' (' + tt.todayLabel + ')</span><b>' + fmtTime(today.timeMs) + '</b>' +
+          '<span>' + tt.pointsLabel + ' (' + tt.todayLabel + ')</span><b>' + today.points + '</b>' +
+          '<span>' + tt.pointsLabel + ' (' + tt.totalLabel + ')</span><b>' + stats.totalPoints + '</b>' +
+          '<span>' + tt.correctLabel + ' / ' + tt.wrongLabel + '</span><b>' + today.correct + ' / ' + today.wrong + '</b>' +
+        '</div>' +
+        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10</div>';
+      list.appendChild(card);
+    });
+  }
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function isUnlocked(level, idx){
@@ -821,6 +970,10 @@
 
   // ---------- build the map screen ----------
   function renderMap(){
+    if(currentPlayer){
+      const stats = ensureStats(currentPlayer);
+      $('player-chip').textContent = '👤 ' + currentPlayer + ' · 💎 ' + stats.totalPoints;
+    }
     renderNodes(1);
     renderNodes(2);
     $('count-lvl1').textContent = progress[1].filter(Boolean).length + '/' + STAGES.length;
@@ -992,6 +1145,24 @@
     return pick;
   }
 
+  function startTimer(){
+    stopTimer();
+    state.questionStartedAt = Date.now();
+    $('timer-pill').textContent = '⏱ 0.0s';
+    state.timerHandle = setInterval(() => {
+      const elapsed = (Date.now() - state.questionStartedAt) / 1000;
+      $('timer-pill').textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function stopTimer(){
+    if(state && state.timerHandle){ clearInterval(state.timerHandle); state.timerHandle = null; }
+  }
+  function updatePointsPill(){
+    if(!currentPlayer) return;
+    const stats = ensureStats(currentPlayer);
+    $('points-pill').textContent = '💎 ' + stats.days[todayKey()].points;
+  }
+
   function renderQuestion(){
     state.current = pickPair();
     state.answer = '';
@@ -1003,6 +1174,8 @@
     $('answer-display').innerHTML = '&nbsp;';
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
+    updatePointsPill();
+    startTimer();
 
     const [a,b] = state.current;
     const p = a*b;
@@ -1063,6 +1236,8 @@
 
   function submitAnswer(){
     if(state.answer === '') return;
+    stopTimer();
+    const reactionMs = Date.now() - state.questionStartedAt;
     state.locked = true;
     state.attempts++;
     const given = Number(state.answer);
@@ -1073,6 +1248,10 @@
     let delay = 550;
     const tt = T[lang];
 
+    tickTime();
+    const stats = currentPlayer ? ensureStats(currentPlayer) : null;
+    const todayStats = stats ? stats.days[todayKey()] : null;
+
     if(ok){
       state.streak++;
       card.classList.add('good');
@@ -1080,6 +1259,12 @@
       msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + state.streak + '/' + STREAK_TARGET + ')';
       beep('good');
       burstConfetti(false);
+      if(todayStats){
+        const earned = reactionMs < FAST_ANSWER_MS ? 2 : 1;
+        todayStats.points += earned;
+        todayStats.correct++;
+        stats.totalPoints += earned;
+      }
       if(state.streak % 10 === 0 && state.streak < STREAK_TARGET){
         showMilestoneTrophy(state.streak / 10, state.streak);
         delay = 1500;
@@ -1091,7 +1276,10 @@
       beep('bad');
       state.streak = 0;
       delay = 1150;
+      if(todayStats) todayStats.wrong++;
     }
+    persist();
+    updatePointsPill();
     if(blank) blank.textContent = state.correct;
     $('score-pill').textContent = '🔥 ' + state.streak + '/' + STREAK_TARGET;
     $('progress-fill').style.width = (100 * state.streak / STREAK_TARGET) + '%';
@@ -1157,7 +1345,13 @@
   }
 
   // ---------- navigation ----------
-  $('btn-back').addEventListener('click', () => show('map'));
+  $('btn-back').addEventListener('click', () => {
+    stopTimer();
+    if(state && state.streak > 0 && state.streak < STREAK_TARGET){
+      showToast(T[lang].incompleteWarning(state.streak));
+    }
+    show('map');
+  });
   $('btn-map').addEventListener('click', () => show('map'));
   $('btn-replay').addEventListener('click', () => startStage(state.level, state.idx));
 
