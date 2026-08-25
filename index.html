@@ -384,8 +384,8 @@
 
   .milestone-trophy{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:6; }
   .milestone-trophy .badge{
-    display:flex; flex-direction:column; align-items:center; gap:0.4rem;
-    opacity:0; animation: trophy-pop 1.3s ease forwards;
+    display:flex; flex-direction:column; align-items:center; gap:0.35rem;
+    opacity:0; animation: trophy-pop 3s ease forwards;
   }
   .milestone-trophy .badge .count{
     font-family: var(--font-display); font-size:1.05rem; color:var(--chalk);
@@ -394,9 +394,9 @@
   }
   @keyframes trophy-pop{
     0%{ opacity:0; transform:scale(0.3) translateY(10px); }
-    15%{ opacity:1; transform:scale(1.15) translateY(0); }
-    25%{ transform:scale(1); }
-    78%{ opacity:1; transform:scale(1); }
+    8%{ opacity:1; transform:scale(1.15) translateY(0); }
+    14%{ transform:scale(1); }
+    88%{ opacity:1; transform:scale(1); }
     100%{ opacity:0; transform:scale(0.9) translateY(-8px); }
   }
 
@@ -714,7 +714,8 @@
       adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
       pointsLabel: 'Pontos', correctLabel: 'Acertos', wrongLabel: 'Erros', noPlayersYet: 'Ainda não há jogadores.',
       lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2',
-      avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas'
+      avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas',
+      milestonePraises: ['Continua assim!','Estás voando!','Isso mesmo!','Fantástico!','Não para agora!','Arrasando!'],
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'לוח הכפל במשחק', loginSub: 'מי משחק היום?',
@@ -746,7 +747,8 @@
       adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
       pointsLabel: 'נקודות', correctLabel: 'תשובות נכונות', wrongLabel: 'טעויות', noPlayersYet: 'עדיין אין שחקנים.',
       lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2',
-      avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות'
+      avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות',
+      milestonePraises: ['תמשיך ככה!','אתה טס!','בדיוק ככה!','פנטסטי!','אל תעצור עכשיו!','אלוף!'],
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -1282,6 +1284,30 @@
     if(tier<=6) return '#cfd8de';
     return '#f2c14e';
   }
+  function randomPraise(){
+    const list = T[lang].milestonePraises;
+    return list[Math.floor(Math.random()*list.length)];
+  }
+  function medalSVG(color, size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 64 64">' +
+      '<path d="M20 28 L13 55 L24 48 L32 60 L25 32z" fill="'+color+'" opacity="0.85"/>' +
+      '<path d="M44 28 L51 55 L40 48 L32 60 L39 32z" fill="'+color+'" opacity="0.85"/>' +
+      '<circle cx="32" cy="25" r="19" fill="'+color+'"/>' +
+      '<circle cx="32" cy="25" r="12" fill="none" stroke="rgba(15,29,21,0.3)" stroke-width="2.5"/>' +
+    '</svg>';
+  }
+  function showMilestoneMedal(streakVal){
+    if(reducedMotion) return;
+    const host = $('milestone-trophy');
+    host.innerHTML = '';
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.innerHTML = medalSVG('#8fc7d9', 68) +
+      '<span class="count">' + streakVal + T[lang].milestoneSuffix + '</span>' +
+      '<span class="count">' + randomPraise() + '</span>';
+    host.appendChild(badge);
+    setTimeout(() => { host.innerHTML = ''; }, 3000);
+  }
   function showMilestoneTrophy(tier, streakVal){
     if(reducedMotion) return;
     const host = $('milestone-trophy');
@@ -1289,9 +1315,11 @@
     const size = 38 + tier*7;
     const badge = document.createElement('div');
     badge.className = 'badge';
-    badge.innerHTML = trophySVG(trophyColor(tier), size) + '<span class="count">' + streakVal + T[lang].milestoneSuffix + '</span>';
+    badge.innerHTML = trophySVG(trophyColor(tier), size) +
+      '<span class="count">' + streakVal + T[lang].milestoneSuffix + '</span>' +
+      '<span class="count">' + randomPraise() + '</span>';
     host.appendChild(badge);
-    setTimeout(() => { host.innerHTML = ''; }, 1300);
+    setTimeout(() => { host.innerHTML = ''; }, 3000);
   }
 
   function renderSingleTriangle(a, b, p, mode, markerId, sizePx){
@@ -1506,6 +1534,8 @@
       }
       if(state.streak % 10 === 0 && state.streak < STREAK_TARGET){
         showMilestoneTrophy(state.streak / 10, state.streak);
+      } else if(state.streak % 5 === 0 && state.streak < STREAK_TARGET){
+        showMilestoneMedal(state.streak);
       }
     } else {
       card.classList.add('bad');
