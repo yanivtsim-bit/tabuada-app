@@ -262,6 +262,7 @@
   }
   .lvl2 .node.unlocked{ background: var(--chalk-pink); }
   .lvl3 .node.unlocked{ background: var(--chalk-blue); }
+  .lvl4 .node.unlocked{ background: #cfa8e8; }
   .node.unlocked:hover{ filter:brightness(1.08); }
   .node.unlocked:active{ transform: scale(0.92); }
 
@@ -689,6 +690,14 @@
           <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
         </button>
 
+        <div class="level-block lvl4">
+          <div class="level-head">
+            <span class="name" id="level4-label">Nível 4 · Divisão<br><small id="level4-desc">sempre divisão, dois caminhos</small></span>
+            <span class="level-count" id="count-lvl4">0/10</span>
+          </div>
+          <div class="node-grid" id="nodes-lvl4"></div>
+        </div>
+
         <div class="level-block lvl3">
           <div class="level-head">
             <span class="name" id="level3-label">Nível 3 · Família<br><small id="level3-desc">os dois caminhos, × e ÷</small></span>
@@ -970,9 +979,10 @@
       level1Name: 'Nível 1 · Base', level1Desc: 'quanto dá a tabuada',
       level2Name: 'Nível 2 · Avanço', level2Desc: 'descobre o número que falta',
       level3Name: 'Nível 3 · Família', level3Desc: 'os dois caminhos, × e ÷',
+      level4Name: 'Nível 4 · Divisão', level4Desc: 'sempre divisão, dois caminhos',
       lvl2Lock: 'Termina o Nível 1 para desbloquear', mixLabel: 'Mix',
       stageTablePrefix: 'Tabuada do', stageMixed: 'Misturado',
-      levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ', levelPrefix3: 'Nível 3 · ',
+      levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ', levelPrefix3: 'Nível 3 · ', levelPrefix4: 'Nível 4 · ',
       referenceCardName: 'Tabela completa', referenceCardDesc: 'Consulta livre, sem prova',
       referenceTitle: 'Tabela completa', referenceSub: 'Toca num número para veres a tabuada dele bem grande.',
       referenceDivCardName: 'Tabela de divisão', referenceDivCardDesc: 'Consulta livre, sem prova',
@@ -991,7 +1001,7 @@
       level2EarlyWarning: 'Ainda não terminaste a Base (Nível 1). Podes continuar mesmo assim.',
       adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
       pointsLabel: 'Pontos', correctLabel: 'Acertos', wrongLabel: 'Erros', noPlayersYet: 'Ainda não há jogadores.',
-      lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2',
+      lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2', lvl4ProgressLabel: 'Nível 4',
       avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas',
       milestonePraises: ['Continua assim!','Estás voando!','Isso mesmo!','Fantástico!','Não para agora!','Arrasando!'],
       nlMapSub: 'Escolhe um nível',
@@ -1022,10 +1032,14 @@
       frAskToMixed: 'Escreve como número misto.',
       frAskCalc: 'Calcula.',
       frExplainRepresent: (n,d)=> n + ' em ' + d + ' partes iguais = ' + n + '/' + d + '.',
-      frExplainSimplify: (n0,d0)=> 'Forma mais simples: ' + n0 + '/' + d0 + '.',
+      frExplainSimplify: (shownN,shownD,n0,d0)=> shownN + '/' + shownD + ' simplifica para ' + n0 + '/' + d0 + ' (divide os dois pelo mesmo número).',
       frExplainToImproper: (w,d,n,res)=> w + ' × ' + d + ' + ' + n + ' = ' + res + ', por isso é ' + res + '/' + d + '.',
       frExplainToMixed: (p,d,w,rem)=> p + ' ÷ ' + d + ' = ' + w + ' e sobra ' + rem + ', por isso é ' + w + ' e ' + rem + '/' + d + '.',
-      frExplainCalc: (result)=> 'Resultado: ' + result + '.',
+      frExplainSameDen: (n1,op,n2,d,res)=> 'Como o denominador é igual (' + d + '), só ' + (op==='+'?'soma':'subtrai') + ' os de cima: ' + n1 + ' ' + op + ' ' + n2 + ' = ' + res + '.',
+      frExplainDiffDen: (n1,d1,n2,d2,op,rn,rd)=> 'Denominadores diferentes: ' + n1 + '/' + d1 + ' vira ' + (n1*d2) + '/' + rd + ', e ' + n2 + '/' + d2 + ' vira ' + (n2*d1) + '/' + rd + '. Depois ' + (op==='+'?'soma':'subtrai') + ': ' + rn + '/' + rd + '.',
+      frExplainMulDiv: (a,b,c,d,op,rn,rd)=> op==='×'
+        ? a+'×'+c+'='+rn+' e '+b+'×'+d+'='+rd+', por isso é '+rn+'/'+rd+'.'
+        : a+'/'+b+' ÷ '+c+'/'+d+' = '+a+'×'+d+' sobre '+b+'×'+c+' = '+rn+'/'+rd+'.',
       frIncompleteWarning: (s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
       frEarlyWarning: 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
       frContinueToHub: 'Voltar aos assuntos',
@@ -1045,9 +1059,10 @@
       level1Name: 'שלב 1 · בסיס', level1Desc: 'כמה יוצא בלוח הכפל',
       level2Name: 'שלב 2 · התקדמות', level2Desc: 'גלה את המספר החסר',
       level3Name: 'שלב 3 · משפחה', level3Desc: 'שני הכיוונים, × ו-÷',
+      level4Name: 'שלב 4 · חילוק', level4Desc: 'תמיד חילוק, שני כיוונים',
       lvl2Lock: 'סיים את שלב 1 כדי לפתוח', mixLabel: 'מיקס',
       stageTablePrefix: 'לוח הכפל של', stageMixed: 'מעורב',
-      levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ', levelPrefix3: 'שלב 3 · ',
+      levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ', levelPrefix3: 'שלב 3 · ', levelPrefix4: 'שלב 4 · ',
       referenceCardName: 'לוח כפל מלא', referenceCardDesc: 'עיון חופשי, בלי מבחן',
       referenceTitle: 'לוח כפל מלא', referenceSub: 'גע במספר כדי לראות את הלוח שלו גדול וברור.',
       referenceDivCardName: 'לוח חילוק', referenceDivCardDesc: 'עיון חופשי, בלי מבחן',
@@ -1066,7 +1081,7 @@
       level2EarlyWarning: 'עוד לא סיימת את הבסיס (שלב 1). אפשר להמשיך בכל זאת.',
       adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
       pointsLabel: 'נקודות', correctLabel: 'תשובות נכונות', wrongLabel: 'טעויות', noPlayersYet: 'עדיין אין שחקנים.',
-      lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2',
+      lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2', lvl4ProgressLabel: 'שלב 4',
       avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות',
       milestonePraises: ['תמשיך ככה!','אתה טס!','בדיוק ככה!','פנטסטי!','אל תעצור עכשיו!','אלוף!'],
       nlMapSub: 'בחר שלב',
@@ -1097,10 +1112,14 @@
       frAskToMixed: 'כתוב כמספר מעורב.',
       frAskCalc: 'חשב.',
       frExplainRepresent: (n,d)=> n + ' מתוך ' + d + ' חלקים שווים = ' + n + '/' + d + '.',
-      frExplainSimplify: (n0,d0)=> 'הצורה הפשוטה ביותר: ' + n0 + '/' + d0 + '.',
+      frExplainSimplify: (shownN,shownD,n0,d0)=> shownN + '/' + shownD + ' מצטמצם ל-' + n0 + '/' + d0 + ' (מחלקים את שניהם באותו מספר).',
       frExplainToImproper: (w,d,n,res)=> w + ' × ' + d + ' + ' + n + ' = ' + res + ', לכן זה ' + res + '/' + d + '.',
       frExplainToMixed: (p,d,w,rem)=> p + ' ÷ ' + d + ' = ' + w + ' ונשאר ' + rem + ', לכן זה ' + w + ' ו-' + rem + '/' + d + '.',
-      frExplainCalc: (result)=> 'התוצאה: ' + result + '.',
+      frExplainSameDen: (n1,op,n2,d,res)=> 'המכנה זהה (' + d + '), אז רק ' + (op==='+'?'מחברים':'מחסרים') + ' את המונים: ' + n1 + ' ' + op + ' ' + n2 + ' = ' + res + '.',
+      frExplainDiffDen: (n1,d1,n2,d2,op,rn,rd)=> 'מכנים שונים: ' + n1 + '/' + d1 + ' הופך ל-' + (n1*d2) + '/' + rd + ', ו-' + n2 + '/' + d2 + ' הופך ל-' + (n2*d1) + '/' + rd + '. אז ' + (op==='+'?'מחברים':'מחסרים') + ': ' + rn + '/' + rd + '.',
+      frExplainMulDiv: (a,b,c,d,op,rn,rd)=> op==='×'
+        ? a+'×'+c+'='+rn+' ו-'+b+'×'+d+'='+rd+', לכן זה '+rn+'/'+rd+'.'
+        : a+'/'+b+' ÷ '+c+'/'+d+' = '+a+'×'+d+' חלקי '+b+'×'+c+' = '+rn+'/'+rd+'.',
       frIncompleteWarning: (s)=> 'עוד לא סיימת את השלב הזה (' + s + '/40). אפשר להמשיך אחר כך.',
       frEarlyWarning: 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
       frContinueToHub: 'חזרה לנושאים',
@@ -1143,6 +1162,8 @@
     $('level1-desc').textContent = tt.level1Desc;
     $('level2-label').childNodes[0].textContent = tt.level2Name;
     $('level2-desc').textContent = tt.level2Desc;
+    $('level4-label').childNodes[0].textContent = tt.level4Name;
+    $('level4-desc').textContent = tt.level4Desc;
     $('level3-label').childNodes[0].textContent = tt.level3Name;
     $('level3-desc').textContent = tt.level3Desc;
     $('lvl2-lock-text').textContent = tt.lvl2Lock;
@@ -1180,7 +1201,7 @@
   const STAGES = [...TABLES, 'mixed'];
   const REF_TABLES = [1,2,3,4,5,6,7,8,9,10];
   function defaultProgress(){
-    return { 1: new Array(STAGES.length).fill(false), 2: new Array(STAGES.length).fill(false), 3: new Array(STAGES.length).fill(false) };
+    return { 1: new Array(STAGES.length).fill(false), 2: new Array(STAGES.length).fill(false), 3: new Array(STAGES.length).fill(false), 4: new Array(STAGES.length).fill(false) };
   }
 
   // ---------- players (persisted in localStorage) ----------
@@ -1199,18 +1220,20 @@
   let lastTick = null;
 
   function defaultStreaks(){
-    return { 1: new Array(STAGES.length).fill(0), 2: new Array(STAGES.length).fill(0), 3: new Array(STAGES.length).fill(0) };
+    return { 1: new Array(STAGES.length).fill(0), 2: new Array(STAGES.length).fill(0), 3: new Array(STAGES.length).fill(0), 4: new Array(STAGES.length).fill(0) };
   }
   function ensureStreaks(name){
     const p = players[name];
     if(!p.streaks) p.streaks = defaultStreaks();
     if(!p.streaks[3]) p.streaks[3] = new Array(STAGES.length).fill(0);
+    if(!p.streaks[4]) p.streaks[4] = new Array(STAGES.length).fill(0);
     return p.streaks;
   }
   function ensureProgress(name){
     const p = players[name];
     if(!p.progress) p.progress = defaultProgress();
     if(!p.progress[3]) p.progress[3] = new Array(STAGES.length).fill(false);
+    if(!p.progress[4]) p.progress[4] = new Array(STAGES.length).fill(false);
     return p.progress;
   }
 
@@ -1477,6 +1500,7 @@
       const lvl1Done = pr[1].filter(Boolean).length;
       const lvl2Done = pr[2].filter(Boolean).length;
       const lvl3Done = pr[3].filter(Boolean).length;
+      const lvl4Done = pr[4].filter(Boolean).length;
       card.innerHTML =
         '<div class="row1"><span class="name">' + escapeHtml(name) + '</span></div>' +
         '<div class="admin-stats">' +
@@ -1485,9 +1509,10 @@
           '<span>' + tt.pointsLabel + ' (' + tt.totalLabel + ')</span><b>' + stats.totalPoints + '</b>' +
           '<span>' + tt.correctLabel + ' / ' + tt.wrongLabel + '</span><b>' + today.correct + ' / ' + today.wrong + '</b>' +
         '</div>' +
-        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>' +
+        '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl4ProgressLabel + ': ' + lvl4Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>' +
         levelBreakdownHtml(name, 1, tt.lvl1ProgressLabel) +
         levelBreakdownHtml(name, 2, tt.lvl2ProgressLabel) +
+        levelBreakdownHtml(name, 4, tt.lvl4ProgressLabel) +
         levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel) +
         nlBreakdownHtml(name) +
         frBreakdownHtml(name);
@@ -2054,7 +2079,13 @@
       let n0;
       do{ n0 = 1 + Math.floor(Math.random()*(d0-1)); } while(gcd(n0,d0) !== 1);
       const k = 2 + Math.floor(Math.random()*2);
-      return { mode:'single', shownN: n0*k, shownD: d0*k, targetD: d0, correct: n0 };
+      const shownN = n0*k, shownD = d0*k;
+      if(Math.random() < 0.5){
+        // easier: target denominator given, find the numerator
+        return { mode:'single', shownN, shownD, targetD: d0, correct: n0 };
+      }
+      // harder: simplify all the way on your own — nothing given
+      return { mode:'slots', slotOrder:['num','den'], shownN, shownD, correct:{num:n0, den:d0} };
     }
     if(level === 3){
       const direction = Math.random() < 0.5 ? 'toImproper' : 'toMixed';
@@ -2068,13 +2099,30 @@
       return { mode:'slots', slotOrder:['whole','num','den'], direction, improperNum, d, correct:{whole:w, num:propN, den:d} };
     }
     if(level === 4){
-      const d = 2 + Math.floor(Math.random()*9);
-      let n1 = 1 + Math.floor(Math.random()*(d-1));
-      let n2 = 1 + Math.floor(Math.random()*(d-1));
       const op = Math.random() < 0.5 ? '+' : '-';
-      if(op === '-' && n1 < n2){ const t=n1; n1=n2; n2=t; }
-      const correct = op === '+' ? n1+n2 : n1-n2;
-      return { mode:'single', n1, n2, d, op, correct };
+      if(Math.random() < 0.5){
+        // easier: same denominator, find only the resulting numerator
+        const d = 2 + Math.floor(Math.random()*9);
+        let n1 = 1 + Math.floor(Math.random()*(d-1));
+        let n2 = 1 + Math.floor(Math.random()*(d-1));
+        if(op === '-' && n1 < n2){ const t=n1; n1=n2; n2=t; }
+        const correct = op === '+' ? n1+n2 : n1-n2;
+        return { mode:'single', sameD:true, n1, n2, d1:d, d2:d, op, correct };
+      }
+      // harder: different denominators — the child has to find a common one
+      const dOpts = [2,3,4,5,6];
+      let d1 = dOpts[Math.floor(Math.random()*dOpts.length)];
+      let d2 = dOpts[Math.floor(Math.random()*dOpts.length)];
+      while(d2 === d1) d2 = dOpts[Math.floor(Math.random()*dOpts.length)];
+      let n1 = 1 + Math.floor(Math.random()*(d1-1));
+      let n2 = 1 + Math.floor(Math.random()*(d2-1));
+      if(op === '-' && (n1*d2) < (n2*d1)){
+        // swap so the first fraction is the larger one — keeps the answer positive
+        [n1,d1,n2,d2] = [n2,d2,n1,d1];
+      }
+      const rn = op === '+' ? n1*d2 + n2*d1 : n1*d2 - n2*d1;
+      const rd = d1*d2;
+      return { mode:'slots', slotOrder:['num','den'], sameD:false, n1, d1, n2, d2, op, correct:{num:rn, den:rd} };
     }
     // level 5
     const a = 1+Math.floor(Math.random()*5), b = 2+Math.floor(Math.random()*5);
@@ -2113,6 +2161,7 @@
 
   function frRenderQuestion(){
     const tt = T[lang];
+    clearTimeout(frState.slotAdvanceTimer);
     frState.current = frNewQuestion(frState.level);
     frState.answer = '';
     frState.locked = false;
@@ -2134,25 +2183,45 @@
     const plainWrap = $('fr-keypad-wrap');
     const slotsWrap = $('fr-slots-wrap');
 
+    function pairBars(n1,d1,n2,d2){
+      const row = document.createElement('div');
+      row.style.display = 'flex'; row.style.gap = '10px'; row.style.justifyContent = 'center'; row.style.flexWrap = 'wrap';
+      row.appendChild(buildFractionBar(n1, d1, {width:90}));
+      row.appendChild(buildFractionBar(n2, d2, {width:90}));
+      visual.appendChild(row);
+    }
+
     if(c.mode === 'single'){
       plainWrap.style.display = 'flex';
       slotsWrap.style.display = 'none';
       $('fr-answer-display').innerHTML = '&nbsp;';
       frRenderKeypad();
-      if(frState.level === 2) qText.textContent = c.shownN + '/' + c.shownD + ' = ?/' + c.targetD;
-      else qText.textContent = c.n1 + '/' + c.d + ' ' + c.op + ' ' + c.n2 + '/' + c.d + ' = ?/' + c.d;
+      if(frState.level === 2){
+        qText.textContent = c.shownN + '/' + c.shownD + ' = ?/' + c.targetD;
+        visual.appendChild(buildFractionBar(c.shownN, c.shownD, {width:170}));
+      } else {
+        qText.textContent = c.n1 + '/' + c.d1 + ' ' + c.op + ' ' + c.n2 + '/' + c.d2 + ' = ?/' + c.d1;
+        pairBars(c.n1, c.d1, c.n2, c.d2);
+      }
     } else {
       plainWrap.style.display = 'none';
       slotsWrap.style.display = 'flex';
       if(frState.level === 1){
         qText.textContent = tt.frAskRepresent;
         visual.appendChild(buildFractionBar(c.n, c.d, {width:180}));
+      } else if(frState.level === 2){
+        qText.textContent = tt.frAskEquivalent;
+        visual.appendChild(buildFractionBar(c.shownN, c.shownD, {width:170}));
       } else if(frState.level === 3){
         qText.textContent = c.direction === 'toImproper' ? tt.frAskToImproper : tt.frAskToMixed;
         if(c.direction === 'toImproper') renderMixedVisual(visual, c.w*c.d + c.propN, c.d);
         else renderMixedVisual(visual, c.improperNum, c.d);
+      } else if(frState.level === 4){
+        qText.textContent = c.n1 + '/' + c.d1 + ' ' + c.op + ' ' + c.n2 + '/' + c.d2 + ' = ?';
+        pairBars(c.n1, c.d1, c.n2, c.d2);
       } else {
         qText.textContent = tt.frAskCalc + ' ' + c.a + '/' + c.b + ' ' + c.op + ' ' + c.c + '/' + c.d;
+        pairBars(c.a, c.b, c.c, c.d);
       }
       frState.slotOrder = c.slotOrder;
       frState.activeSlot = c.slotOrder[0];
@@ -2199,6 +2268,7 @@
   }
   function frOnSlotKey(label){
     if(frState.locked) return;
+    clearTimeout(frState.slotAdvanceTimer);
     if(label === '⌫'){
       if(frState.slotValues[frState.activeSlot]){
         frState.slotValues[frState.activeSlot] = frState.slotValues[frState.activeSlot].slice(0,-1);
@@ -2214,6 +2284,15 @@
       frState.slotValues[frState.activeSlot] = (frState.slotValues[frState.activeSlot] || '') + label;
     }
     frRenderSlots();
+    // Auto-advance to the next box after a short pause, so the child doesn't have to tap —
+    // but give a moment in case a second digit is coming.
+    const idx = frState.slotOrder.indexOf(frState.activeSlot);
+    if(idx < frState.slotOrder.length - 1){
+      frState.slotAdvanceTimer = setTimeout(() => {
+        frState.activeSlot = frState.slotOrder[idx+1];
+        frRenderSlots();
+      }, 550);
+    }
   }
   function frSubmitSlotAnswer(){
     if(frState.locked) return;
@@ -2316,18 +2395,20 @@
 
   function frRenderExplanation(){
     const tt = T[lang]; const c = frState.current; const host = $('fr-explain');
-    if(c.mode === 'single'){
-      if(frState.level === 2) host.innerHTML = '<b>' + tt.frExplainSimplify(c.correct, c.targetD) + '</b>';
-      else host.innerHTML = '<b>' + tt.frExplainCalc(c.correct + '/' + c.d) + '</b>';
-      return;
-    }
     if(frState.level === 1){
       host.innerHTML = '<b>' + tt.frExplainRepresent(c.n, c.d) + '</b>';
+    } else if(frState.level === 2){
+      host.innerHTML = '<b>' + tt.frExplainSimplify(c.shownN, c.shownD, c.correct.num !== undefined ? c.correct.num : c.correct, c.correct.den !== undefined ? c.correct.den : c.targetD) + '</b>';
     } else if(frState.level === 3){
       if(c.direction === 'toImproper') host.innerHTML = '<b>' + tt.frExplainToImproper(c.w, c.d, c.propN, c.correct.num) + '</b>';
       else host.innerHTML = '<b>' + tt.frExplainToMixed(c.improperNum, c.d, c.correct.whole, c.correct.num) + '</b>';
+    } else if(frState.level === 4){
+      const rn = c.correct.num !== undefined ? c.correct.num : c.correct;
+      const rd = c.correct.den !== undefined ? c.correct.den : c.d1;
+      if(c.sameD) host.innerHTML = '<b>' + tt.frExplainSameDen(c.n1, c.op, c.n2, c.d1, rn) + '</b>';
+      else host.innerHTML = '<b>' + tt.frExplainDiffDen(c.n1, c.d1, c.n2, c.d2, c.op, rn, rd) + '</b>';
     } else {
-      host.innerHTML = '<b>' + tt.frExplainCalc(c.correct.num + '/' + c.correct.den) + '</b>';
+      host.innerHTML = '<b>' + tt.frExplainMulDiv(c.a, c.b, c.c, c.d, c.op, c.correct.num, c.correct.den) + '</b>';
     }
   }
 
@@ -2389,7 +2470,7 @@
     return true;
   }
   function stageLabel(stage){ return stage === 'mixed' ? T[lang].mixLabel : String(stage); }
-  const LEVEL_PREFIX_KEYS = { 1: 'levelPrefix1', 2: 'levelPrefix2', 3: 'levelPrefix3' };
+  const LEVEL_PREFIX_KEYS = { 1: 'levelPrefix1', 2: 'levelPrefix2', 3: 'levelPrefix3', 4: 'levelPrefix4' };
   function stageName(level, stage){
     const tt = T[lang];
     const base = stage === 'mixed' ? tt.stageMixed : (tt.stageTablePrefix + ' ' + stage);
@@ -2412,9 +2493,11 @@
     renderNodes(1);
     renderNodes(2);
     renderNodes(3);
+    renderNodes(4);
     $('count-lvl1').textContent = progress[1].filter(Boolean).length + '/' + STAGES.length;
     $('count-lvl2').textContent = progress[2].filter(Boolean).length + '/' + STAGES.length;
     $('count-lvl3').textContent = progress[3].filter(Boolean).length + '/' + STAGES.length;
+    $('count-lvl4').textContent = progress[4].filter(Boolean).length + '/' + STAGES.length;
     $('lvl2-lock').style.display = 'none';
   }
   function renderNodes(level){
@@ -2589,7 +2672,9 @@
     return '<div class="tri-pair pop">' + html + '</div>';
   }
   function factRevealCount(level){
-    return level === 1 ? 0 : level === 2 ? 2 : 3;
+    if(level === 1) return 0;
+    if(level === 3) return 3;
+    return 2; // level 2 (Avanço) and level 4 (Divisão)
   }
 
   // ---------- game state ----------
@@ -2672,20 +2757,32 @@
     let hiddenSlot;
     if(state.level === 1){
       hiddenSlot = 2; // level 1: always ask for the product
+    } else if(state.level === 4){
+      hiddenSlot = Math.random() < 0.5 ? 0 : 1; // level 4: always a factor — pure division
     } else {
-      hiddenSlot = Math.floor(Math.random()*3); // level 2: any of the three
+      hiddenSlot = Math.floor(Math.random()*3); // level 2/3: any of the three
     }
     state.hiddenSlot = hiddenSlot;
     state.correct = [a,b,p][hiddenSlot];
 
-    const parts = [a, b, p];
     const eq = $('equation');
-    eq.innerHTML =
-      slotHTML(parts[0], hiddenSlot===0) +
-      '<span class="op">×</span>' +
-      slotHTML(parts[1], hiddenSlot===1) +
-      '<span class="op">=</span>' +
-      slotHTML(parts[2], hiddenSlot===2);
+    if(state.level === 4){
+      const known = hiddenSlot === 0 ? b : a;
+      eq.innerHTML =
+        slotHTML(p, false) +
+        '<span class="op">÷</span>' +
+        slotHTML(known, false) +
+        '<span class="op">=</span>' +
+        slotHTML(null, true);
+    } else {
+      const parts = [a, b, p];
+      eq.innerHTML =
+        slotHTML(parts[0], hiddenSlot===0) +
+        '<span class="op">×</span>' +
+        slotHTML(parts[1], hiddenSlot===1) +
+        '<span class="op">=</span>' +
+        slotHTML(parts[2], hiddenSlot===2);
+    }
   }
   function slotHTML(val, isBlank){
     return isBlank ? '<span class="blank" id="blank-slot">?</span>' : '<span>'+val+'</span>';
@@ -2840,6 +2937,10 @@
       continueBtn.textContent = tt.continueToLevel2;
       continueBtn.onclick = () => startStage(2, 0);
     } else if(state.level === 2){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueNextPrefix + tt.level4Name;
+      continueBtn.onclick = () => startStage(4, 0);
+    } else if(state.level === 4){
       continueBtn.style.display = 'block';
       continueBtn.textContent = tt.continueToLevel3;
       continueBtn.onclick = () => startStage(3, 0);
