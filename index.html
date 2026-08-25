@@ -611,8 +611,8 @@
       continueBtn: 'Continuar', pinCreateHeading: 'Cria uma senha', pinCreateSub: '4 números, só para ti',
       pinEnterHeading: 'Qual é a tua senha?', pinEnterSub: '4 números',
       mapTitle: 'Tabuada em Jogo', mapSub: 'Escolhe uma tabuada e treina até decorar.',
-      level1Name: 'Nível 1 · Lembrar', level1Desc: 'quanto dá a tabuada',
-      level2Name: 'Nível 2 · Memória', level2Desc: 'descobre o número que falta',
+      level1Name: 'Nível 1 · Base', level1Desc: 'quanto dá a tabuada',
+      level2Name: 'Nível 2 · Avanço', level2Desc: 'descobre o número que falta',
       lvl2Lock: 'Termina o Nível 1 para desbloquear', mixLabel: 'Mix',
       stageTablePrefix: 'Tabuada do', stageMixed: 'Misturado', levelPrefix1: 'Nível 1 · ', levelPrefix2: 'Nível 2 · ',
       backAria: 'Voltar', soundAria: 'Som', switchAria: 'Trocar jogador',
@@ -624,6 +624,7 @@
       continueNextPrefix: 'Próxima: ', continueToLevel2: 'Ir para o Nível 2',
       btnReplay: 'Tentar de novo', btnMap: 'Ver trilha',
       incompleteWarning: (s)=> 'Ainda não completaste esta tabuada (' + s + '/100). Podes continuar depois.',
+      level2EarlyWarning: 'Ainda não terminaste a Base (Nível 1). Podes continuar mesmo assim.',
       adminTitle: 'Área dos pais', todayLabel: 'Hoje', totalLabel: 'Total', timeLabel: 'Tempo',
       pointsLabel: 'Pontos', correctLabel: 'Acertos', wrongLabel: 'Erros', noPlayersYet: 'Ainda não há jogadores.',
       lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2'
@@ -635,8 +636,8 @@
       continueBtn: 'המשך', pinCreateHeading: 'צור סיסמה', pinCreateSub: '4 ספרות, רק בשבילך',
       pinEnterHeading: 'מה הסיסמה שלך?', pinEnterSub: '4 ספרות',
       mapTitle: 'לוח הכפל במשחק', mapSub: 'בחר לוח כפל והתאמן עד שתשנן אותו.',
-      level1Name: 'שלב 1 · לזכור', level1Desc: 'כמה יוצא בלוח הכפל',
-      level2Name: 'שלב 2 · זיכרון', level2Desc: 'גלה את המספר החסר',
+      level1Name: 'שלב 1 · בסיס', level1Desc: 'כמה יוצא בלוח הכפל',
+      level2Name: 'שלב 2 · התקדמות', level2Desc: 'גלה את המספר החסר',
       lvl2Lock: 'סיים את שלב 1 כדי לפתוח', mixLabel: 'מיקס',
       stageTablePrefix: 'לוח הכפל של', stageMixed: 'מעורב', levelPrefix1: 'שלב 1 · ', levelPrefix2: 'שלב 2 · ',
       backAria: 'חזור', soundAria: 'צליל', switchAria: 'החלף שחקן',
@@ -648,6 +649,7 @@
       continueNextPrefix: 'הבא: ', continueToLevel2: 'עבור לשלב 2',
       btnReplay: 'נסה שוב', btnMap: 'מסלול',
       incompleteWarning: (s)=> 'עוד לא סיימת את הלוח הזה (' + s + '/100). אפשר להמשיך אחר כך.',
+      level2EarlyWarning: 'עוד לא סיימת את הבסיס (שלב 1). אפשר להמשיך בכל זאת.',
       adminTitle: 'איזור ההורים', todayLabel: 'היום', totalLabel: 'סה"כ', timeLabel: 'זמן',
       pointsLabel: 'נקודות', correctLabel: 'תשובות נכונות', wrongLabel: 'טעויות', noPlayersYet: 'עדיין אין שחקנים.',
       lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2'
@@ -946,9 +948,8 @@
   }
 
   function level1Complete(){ return progress[1].every(Boolean); }
-  function isUnlocked(level, idx){
-    // Free choice of stage within a level; level 2 as a whole needs level 1 fully done.
-    if(level === 2) return level1Complete();
+  function isUnlocked(){
+    // Every stage in both levels is freely selectable; incomplete stages just get a warning toast.
     return true;
   }
   function stageLabel(stage){ return stage === 'mixed' ? T[lang].mixLabel : String(stage); }
@@ -978,7 +979,7 @@
     renderNodes(2);
     $('count-lvl1').textContent = progress[1].filter(Boolean).length + '/' + STAGES.length;
     $('count-lvl2').textContent = progress[2].filter(Boolean).length + '/' + STAGES.length;
-    $('lvl2-lock').style.display = level1Complete() ? 'none' : 'flex';
+    $('lvl2-lock').style.display = 'none';
   }
   function renderNodes(level){
     const wrap = $('nodes-lvl' + level);
@@ -1124,6 +1125,9 @@
 
   function startStage(level, idx){
     const stage = STAGES[idx];
+    if(level === 2 && !level1Complete()){
+      showToast(T[lang].level2EarlyWarning);
+    }
     state = {
       level, idx, stage,
       pool: poolForStage(stage),
