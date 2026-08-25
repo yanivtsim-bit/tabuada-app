@@ -482,6 +482,27 @@
   .ref-row .op{ color:var(--chalk-dim); font-weight:500; font-size:1rem; }
   .ref-row .res{ color:var(--chalk-yellow); }
 
+  /* ---------- Linha dos Números ---------- */
+  .nl-line-host{ display:flex; justify-content:center; margin-top:0.6rem; }
+  .nl-line-host svg{ width:100%; max-width:340px; }
+  .nl-question-text{ font-size:1.15rem; font-weight:600; text-align:center; }
+  .nl-choice-wrap{ display:flex; gap:0.6rem; width:100%; max-width:320px; }
+  .nl-choice-wrap .btn{ flex:1; font-size:1.4rem; font-weight:700; padding:1rem; font-variant-numeric:tabular-nums; }
+  .nl-explain{ font-size:0.88rem; color:var(--chalk-dim); text-align:center; direction:ltr; }
+  .nl-explain b{ color:var(--chalk); }
+  .nl-level-list{ display:flex; flex-direction:column; gap:0.7rem; width:100%; max-width:340px; }
+  .nl-level-btn{
+    display:flex; align-items:center; gap:0.9rem;
+    width:100%; border-radius:16px; border:1.5px solid rgba(243,236,217,0.16);
+    background: rgba(255,255,255,0.045); padding:0.9rem 1.05rem;
+    cursor:pointer; color:inherit; text-align:start;
+    transition: background .15s, transform .1s;
+  }
+  .nl-level-btn:hover{ background: rgba(255,255,255,0.08); }
+  .nl-level-btn:active{ transform: scale(0.98); }
+  .nl-level-btn .ref-icon{ background: var(--chalk-blue); font-size:1.4rem; width:44px; height:44px; }
+  .nl-level-btn.done .ref-icon{ background: var(--good); }
+
   @media (prefers-reduced-motion: reduce){
     .progress-fill, .fact-card, .key, .icon-btn, .node, .btn, .player-card{ transition:none !important; }
   }
@@ -574,14 +595,14 @@
             </span>
             <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
           </button>
-          <div class="subject-card soon">
+          <button class="subject-card" id="btn-open-numberline">
             <span class="ref-icon">📏</span>
             <span class="ref-copy">
               <span class="name" id="subject-numberline-name">Linha dos Números</span>
               <span class="desc" id="subject-numberline-desc">Reconhecer números na reta</span>
             </span>
-            <span class="soon-tag" id="soon-tag-1">Em breve</span>
-          </div>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
           <div class="subject-card soon">
             <span class="ref-icon">🍰</span>
             <span class="ref-copy">
@@ -656,6 +677,81 @@
             <span class="level-count" id="count-lvl3">0/10</span>
           </div>
           <div class="node-grid" id="nodes-lvl3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LINHA DOS NÚMEROS: mapa de níveis ============ -->
+    <section class="screen" id="screen-nl-map" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-nl-hub" aria-label="Voltar aos assuntos">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="nl-player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-nl-map">עב</button>
+      </div>
+      <header class="home-head">
+        <h1 id="nl-map-title">Linha dos Números</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub" id="nl-map-sub">Escolhe um nível</p>
+      </header>
+      <div class="trail-scroll">
+        <div class="nl-level-list" id="nl-level-list"></div>
+      </div>
+    </section>
+
+    <!-- ============ LINHA DOS NÚMEROS: jogo ============ -->
+    <section class="screen" id="screen-nl-game" hidden>
+      <div class="topbar">
+        <button class="icon-btn" id="btn-back-nl" aria-label="Voltar">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
+        <span class="stat-pill" id="nl-game-title">Nível</span>
+        <button class="icon-btn" id="btn-nl-mute" aria-label="Som">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l4-3v10l-4-3H4z"/><path d="M13 7c1 .9 1 5 0 6"/></svg>
+        </button>
+      </div>
+      <div class="stats-row">
+        <span class="stat-pill" id="nl-score-pill">🔥 0/40</span>
+        <span class="stat-pill" id="nl-timer-pill">⏱ 0.0s</span>
+        <span class="stat-pill" id="nl-points-pill">💎 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="nl-progress-fill"></div></div>
+      <div class="stage">
+        <div class="fact-card" id="nl-question-card">
+          <div class="nl-question-text" id="nl-question-text"></div>
+          <div class="nl-line-host" id="nl-line-host"></div>
+        </div>
+        <div class="nl-explain" id="nl-explain"></div>
+        <div class="feedback-msg" id="nl-feedback">&nbsp;</div>
+        <button class="btn primary" id="nl-btn-next" style="display:none;max-width:280px;width:100%;">Próxima</button>
+        <div class="keypad-wrap" id="nl-keypad-wrap">
+          <div class="answer-display" id="nl-answer-display">&nbsp;</div>
+          <div class="keypad" id="nl-keypad"></div>
+        </div>
+        <div class="nl-choice-wrap" id="nl-choice-wrap" style="display:none;">
+          <button class="btn" id="nl-choice-a"></button>
+          <button class="btn" id="nl-choice-b"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LINHA DOS NÚMEROS: resultado ============ -->
+    <section class="screen" id="screen-nl-results" hidden>
+      <div class="results">
+        <div class="eyebrow" id="nl-results-eyebrow">Resultado</div>
+        <div class="grand-trophy" id="nl-grand-trophy"></div>
+        <div class="stars" id="nl-stars"></div>
+        <div class="praise" id="nl-praise"></div>
+        <span class="pass-tag pass" id="nl-pass-tag">Passou</span>
+        <div class="score-line"><span id="nl-score-line-label">Sequência:</span> <b id="nl-score-final">40/40</b></div>
+        <div class="score-line"><span id="nl-attempts-line-label">Tentativas totais:</span> <b id="nl-attempts-final">0</b></div>
+        <div class="result-actions">
+          <button class="btn primary" id="nl-btn-continue">Continuar</button>
+          <button class="btn" id="nl-btn-replay">Tentar de novo</button>
+          <button class="btn" id="nl-btn-map">Ver níveis</button>
         </div>
       </div>
     </section>
@@ -803,6 +899,22 @@
       lvl1ProgressLabel: 'Nível 1', lvl2ProgressLabel: 'Nível 2',
       avgTimeLabel: 'tempo médio', noAttemptsYet: 'ainda sem tentativas',
       milestonePraises: ['Continua assim!','Estás voando!','Isso mesmo!','Fantástico!','Não para agora!','Arrasando!'],
+      nlMapSub: 'Escolhe um nível',
+      nlLevel1Name: 'Localizar', nlLevel1Desc: 'que número é este ponto?',
+      nlLevel2Name: 'Marcar', nlLevel2Desc: 'toca no lugar certo da reta',
+      nlLevel3Name: 'Comparar', nlLevel3Desc: 'qual número é maior ou menor?',
+      nlLevel4Name: 'Saltos', nlLevel4Desc: 'conta os saltos na reta',
+      nlAskPoint: 'Que número é este ponto?',
+      nlAskPlace: (n)=> 'Onde fica o número ' + n + '?',
+      nlAskBigger: 'Qual número é maior?', nlAskSmaller: 'Qual número é menor?',
+      nlAskJumps: (s,j,st)=> 'Começa em ' + s + '. Dá ' + j + ' saltos de ' + st + ' em ' + st + '. Onde chega?',
+      nlExplainPoint: (n)=> 'É o número ' + n + '.',
+      nlExplainBigger: (a,b)=> a + ' é maior que ' + b + ' porque vem depois na reta numérica.',
+      nlExplainSmaller: (a,b)=> a + ' é menor que ' + b + ' porque vem antes na reta numérica.',
+      nlExplainJumps: (trail)=> 'Caminho: ' + trail.join(' → '),
+      nlIncompleteWarning: (lvl,s)=> 'Ainda não completaste este nível (' + s + '/40). Podes continuar depois.',
+      nlEarlyWarning: (prev)=> 'Ainda não terminaste o nível anterior. Podes continuar mesmo assim.',
+      nlContinueToHub: 'Voltar aos assuntos',
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'כיתת חשבון', loginSub: 'מי משחק היום?',
@@ -842,6 +954,22 @@
       lvl1ProgressLabel: 'שלב 1', lvl2ProgressLabel: 'שלב 2',
       avgTimeLabel: 'זמן ממוצע', noAttemptsYet: 'עדיין אין ניסיונות',
       milestonePraises: ['תמשיך ככה!','אתה טס!','בדיוק ככה!','פנטסטי!','אל תעצור עכשיו!','אלוף!'],
+      nlMapSub: 'בחר שלב',
+      nlLevel1Name: 'איתור', nlLevel1Desc: 'איזה מספר זו הנקודה הזו?',
+      nlLevel2Name: 'סימון', nlLevel2Desc: 'גע במקום הנכון על הציר',
+      nlLevel3Name: 'השוואה', nlLevel3Desc: 'איזה מספר גדול או קטן יותר?',
+      nlLevel4Name: 'קפיצות', nlLevel4Desc: 'ספור את הקפיצות על הציר',
+      nlAskPoint: 'איזה מספר זו הנקודה הזו?',
+      nlAskPlace: (n)=> 'איפה נמצא המספר ' + n + '?',
+      nlAskBigger: 'איזה מספר גדול יותר?', nlAskSmaller: 'איזה מספר קטן יותר?',
+      nlAskJumps: (s,j,st)=> 'מתחילים ב-' + s + '. עושים ' + j + ' קפיצות של ' + st + '. לאן מגיעים?',
+      nlExplainPoint: (n)=> 'זה המספר ' + n + '.',
+      nlExplainBigger: (a,b)=> a + ' גדול מ-' + b + ' כי הוא מגיע אחריו בציר המספרים.',
+      nlExplainSmaller: (a,b)=> a + ' קטן מ-' + b + ' כי הוא מגיע לפניו בציר המספרים.',
+      nlExplainJumps: (trail)=> 'הדרך: ' + trail.join(' ← '),
+      nlIncompleteWarning: (lvl,s)=> 'עוד לא סיימת את השלב הזה (' + s + '/40). אפשר להמשיך אחר כך.',
+      nlEarlyWarning: (prev)=> 'עוד לא סיימת את השלב הקודם. אפשר להמשיך בכל זאת.',
+      nlContinueToHub: 'חזרה לנושאים',
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -870,8 +998,9 @@
     $('subject-numberline-desc').textContent = tt.subjectNumberLineDesc;
     $('subject-fractions-name').textContent = tt.subjectFractionsName;
     $('subject-fractions-desc').textContent = tt.subjectFractionsDesc;
-    $('soon-tag-1').textContent = tt.comingSoonLabel;
     $('soon-tag-2').textContent = tt.comingSoonLabel;
+    $('nl-map-title').textContent = tt.subjectNumberLineName;
+    $('nl-map-sub').textContent = tt.nlMapSub;
     $('map-title').textContent = tt.mapTitle;
     $('map-sub').textContent = tt.mapSub;
     $('level1-label').childNodes[0].textContent = tt.level1Name;
@@ -892,8 +1021,9 @@
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub, #btn-back-nl-hub, #btn-back-nl').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
+    $('btn-nl-mute').setAttribute('aria-label', tt.soundAria);
     $('btn-switch-player-hub').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
@@ -901,6 +1031,8 @@
     if(!screens.reference.hidden){
       if(refState.current) showReferenceDetail(refState.current); else showReferencePicker();
     }
+    if(!screens['nl-map'].hidden) renderNlMap();
+    if(!screens['nl-game'].hidden && nlState) $('nl-game-title').textContent = nlLevelName(nlState.level);
   }
   $('btn-lang-login').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-lang-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
@@ -960,6 +1092,7 @@
     players[currentPlayer].progress = progress;
     players[currentPlayer].streaks = streaks;
     players[currentPlayer].byTable = byTable;
+    players[currentPlayer].nl = nl;
     savePlayers(players);
   }
 
@@ -1000,7 +1133,8 @@
   const screens = {
     login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
     hub: $('screen-hub'), map: $('screen-map'), game: $('screen-game'), results: $('screen-results'),
-    admin: $('screen-admin'), reference: $('screen-reference')
+    admin: $('screen-admin'), reference: $('screen-reference'),
+    'nl-map': $('screen-nl-map'), 'nl-game': $('screen-nl-game'), 'nl-results': $('screen-nl-results')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
@@ -1010,6 +1144,7 @@
     if(name === 'map') renderMap();
     if(name === 'admin') renderAdmin();
     if(name === 'reference') showReferencePicker();
+    if(name === 'nl-map') renderNlMap();
   }
   function updatePlayerChips(){
     if(!currentPlayer) return;
@@ -1150,6 +1285,7 @@
     progress = ensureProgress(name);
     streaks = ensureStreaks(name);
     byTable = ensureByTable(name);
+    nl = ensureNL(name);
     lastTick = Date.now();
     ensureStats(name);
     show('hub');
@@ -1161,6 +1297,7 @@
     progress = null;
     streaks = null;
     byTable = null;
+    nl = null;
     lastTick = null;
     show('login');
   }
@@ -1207,9 +1344,24 @@
         '<div class="admin-progress">' + tt.lvl1ProgressLabel + ': ' + lvl1Done + '/10 · ' + tt.lvl2ProgressLabel + ': ' + lvl2Done + '/10 · ' + tt.lvl3ProgressLabel + ': ' + lvl3Done + '/10</div>' +
         levelBreakdownHtml(name, 1, tt.lvl1ProgressLabel) +
         levelBreakdownHtml(name, 2, tt.lvl2ProgressLabel) +
-        levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel);
+        levelBreakdownHtml(name, 3, tt.lvl3ProgressLabel) +
+        nlBreakdownHtml(name);
       list.appendChild(card);
     });
+  }
+  function nlBreakdownHtml(name){
+    const tt = T[lang];
+    const nlData = ensureNL(name);
+    let head = '<div class="admin-level-head" style="border-top:1px dashed rgba(243,236,217,0.18);padding-top:0.5rem;">' + tt.subjectNumberLineName + '</div>';
+    const chips = NL_LEVEL_KEYS.map(level => {
+      const s = nlData.byLevel[level];
+      const attempts = s.correct + s.wrong;
+      if(attempts === 0) return '';
+      const avg = (s.timeMs/attempts/1000).toFixed(1);
+      const hard = s.wrong > s.correct ? ' hard' : '';
+      return '<span class="admin-table-chip' + hard + '">' + T[lang]['nlLevel'+level+'Name'] + ': ' + s.correct + '✓/' + s.wrong + '✗ · ' + avg + 's</span>';
+    }).join('');
+    return '<div class="admin-level">' + head + (chips ? '<div class="admin-tables">' + chips + '</div>' : '<div class="admin-level-head">(' + tt.noAttemptsYet + ')</div>') + '</div>';
   }
   function levelBreakdownHtml(name, level, levelName){
     const tt = T[lang];
@@ -1277,6 +1429,369 @@
       list.appendChild(row);
     }
   }
+
+  // ============================================================
+  // LINHA DOS NÚMEROS (assunto 2) — self-contained, own state/data.
+  // ============================================================
+  const NL_TARGET = 40;
+  const NL_LEVEL_KEYS = [1,2,3,4];
+  function defaultNL(){
+    return {
+      progress: {1:false, 2:false, 3:false, 4:false},
+      streaks:  {1:0, 2:0, 3:0, 4:0},
+      byLevel:  {1:{correct:0,wrong:0,timeMs:0}, 2:{correct:0,wrong:0,timeMs:0}, 3:{correct:0,wrong:0,timeMs:0}, 4:{correct:0,wrong:0,timeMs:0}}
+    };
+  }
+  function ensureNL(name){
+    const p = players[name];
+    if(!p.nl) p.nl = defaultNL();
+    NL_LEVEL_KEYS.forEach(k => {
+      if(p.nl.progress[k] === undefined) p.nl.progress[k] = false;
+      if(p.nl.streaks[k] === undefined) p.nl.streaks[k] = 0;
+      if(!p.nl.byLevel[k]) p.nl.byLevel[k] = {correct:0,wrong:0,timeMs:0};
+    });
+    return p.nl;
+  }
+  let nl = null;
+  function nlPrevComplete(level){ return level <= 1 || nl.progress[level-1]; }
+  function nlLevelName(level){
+    return T[lang]['nlLevel' + level + 'Name'];
+  }
+
+  function buildNumberLineSVG(max, opts){
+    opts = opts || {};
+    const width = 320, height = 90, padX = 22, y = 50;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    const usableW = width - padX*2;
+    const xFor = v => padX + (v/max)*usableW;
+    const base = document.createElementNS(ns, 'line');
+    base.setAttribute('x1', padX); base.setAttribute('y1', y); base.setAttribute('x2', width-padX); base.setAttribute('y2', y);
+    base.setAttribute('stroke', 'rgba(243,236,217,0.4)'); base.setAttribute('stroke-width', '2');
+    svg.appendChild(base);
+    const labelEvery = max > 10 ? 2 : 1;
+    for(let v=0; v<=max; v++){
+      const x = xFor(v);
+      const tick = document.createElementNS(ns, 'line');
+      tick.setAttribute('x1', x); tick.setAttribute('y1', y-6); tick.setAttribute('x2', x); tick.setAttribute('y2', y+6);
+      tick.setAttribute('stroke', 'rgba(243,236,217,0.3)'); tick.setAttribute('stroke-width', '1.5');
+      svg.appendChild(tick);
+      if(v % labelEvery === 0){
+        const lbl = document.createElementNS(ns, 'text');
+        lbl.setAttribute('x', x); lbl.setAttribute('y', y+22); lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('fill', '#b9c4b4'); lbl.setAttribute('font-size', '10'); lbl.setAttribute('font-family', 'Fredoka, sans-serif');
+        lbl.textContent = v;
+        svg.appendChild(lbl);
+      }
+      if(opts.clickable){
+        const hit = document.createElementNS(ns, 'circle');
+        hit.setAttribute('cx', x); hit.setAttribute('cy', y); hit.setAttribute('r', 12);
+        hit.setAttribute('fill', 'transparent'); hit.style.cursor = 'pointer';
+        hit.addEventListener('click', () => opts.onPick(v));
+        svg.appendChild(hit);
+        const dot = document.createElementNS(ns, 'circle');
+        dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 4);
+        dot.setAttribute('fill', 'rgba(243,236,217,0.5)');
+        svg.appendChild(dot);
+      }
+    }
+    (opts.markPoints || []).forEach(mp => {
+      const x = xFor(mp.value);
+      const dot = document.createElementNS(ns, 'circle');
+      dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 7);
+      dot.setAttribute('fill', mp.color || '#f2c14e');
+      svg.appendChild(dot);
+      const lbl = document.createElementNS(ns, 'text');
+      lbl.setAttribute('x', x); lbl.setAttribute('y', y-14); lbl.setAttribute('text-anchor', 'middle');
+      lbl.setAttribute('fill', mp.color || '#f2c14e'); lbl.setAttribute('font-size', '16'); lbl.setAttribute('font-weight', '700');
+      lbl.setAttribute('font-family', 'Fredoka, sans-serif');
+      lbl.textContent = mp.value;
+      svg.appendChild(lbl);
+    });
+    return svg;
+  }
+
+  // ---------- NL map (level picker) ----------
+  $('btn-open-numberline').addEventListener('click', () => show('nl-map'));
+  $('btn-back-nl-hub').addEventListener('click', () => show('hub'));
+  $('btn-lang-nl-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
+  function renderNlMap(){
+    updatePlayerChips();
+    $('nl-player-chip').textContent = $('player-chip').textContent;
+    const list = $('nl-level-list');
+    list.innerHTML = '';
+    NL_LEVEL_KEYS.forEach(level => {
+      const done = nl.progress[level];
+      const btn = document.createElement('button');
+      btn.className = 'nl-level-btn' + (done ? ' done' : '');
+      btn.innerHTML =
+        '<span class="ref-icon">' + (done ? '✔' : level) + '</span>' +
+        '<span class="ref-copy"><span class="name">' + nlLevelName(level) + '</span><span class="desc">' + T[lang]['nlLevel'+level+'Desc'] + '</span></span>' +
+        '<span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>';
+      btn.addEventListener('click', () => startNlLevel(level));
+      list.appendChild(btn);
+    });
+  }
+
+  // ---------- NL game state ----------
+  let nlState = null;
+  function nlNewQuestion(level){
+    if(level === 1){
+      const max = 10;
+      const point = Math.floor(Math.random()*(max+1));
+      return { max, point, correct: point };
+    }
+    if(level === 2){
+      const max = 10;
+      const target = Math.floor(Math.random()*(max+1));
+      return { max, target, correct: target };
+    }
+    if(level === 3){
+      const max = 10;
+      let a = Math.floor(Math.random()*(max+1));
+      let b = Math.floor(Math.random()*(max+1));
+      while(b === a) b = Math.floor(Math.random()*(max+1));
+      const askBigger = Math.random() < 0.5;
+      return { a, b, askBigger, correct: askBigger ? Math.max(a,b) : Math.min(a,b) };
+    }
+    // level 4
+    const start = Math.floor(Math.random()*9);
+    const step = 1 + Math.floor(Math.random()*3);
+    const jumps = 1 + Math.floor(Math.random()*3);
+    return { start, step, jumps, correct: start + step*jumps };
+  }
+
+  function startNlLevel(level){
+    if(!nlPrevComplete(level)) showToast(T[lang].nlEarlyWarning(level-1));
+    nlState = { level, streak: nl.streaks[level] || 0, attempts: 0, answer: '', locked: false, current: null };
+    $('nl-game-title').textContent = nlLevelName(level);
+    show('nl-game');
+    nlRenderKeypad();
+    nlRenderQuestion();
+  }
+
+  function nlStartTimer(){
+    nlStopTimer();
+    nlState.questionStartedAt = Date.now();
+    $('nl-timer-pill').textContent = '⏱ 0.0s';
+    nlState.timerHandle = setInterval(() => {
+      const elapsed = (Date.now() - nlState.questionStartedAt) / 1000;
+      $('nl-timer-pill').textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+    }, 100);
+  }
+  function nlStopTimer(){
+    if(nlState && nlState.timerHandle){ clearInterval(nlState.timerHandle); nlState.timerHandle = null; }
+  }
+  function nlUpdatePointsPill(){
+    if(!currentPlayer) return;
+    $('nl-points-pill').textContent = '💎 ' + ensureStats(currentPlayer).days[todayKey()].points;
+  }
+
+  function nlRenderQuestion(){
+    const tt = T[lang];
+    nlState.current = nlNewQuestion(nlState.level);
+    nlState.answer = '';
+    nlState.locked = false;
+    $('nl-feedback').textContent = ' ';
+    $('nl-feedback').className = 'feedback-msg';
+    $('nl-question-card').className = 'fact-card';
+    $('nl-explain').innerHTML = '';
+    $('nl-btn-next').style.display = 'none';
+    $('nl-answer-display').innerHTML = '&nbsp;';
+    $('nl-score-pill').textContent = '🔥 ' + nlState.streak + '/' + NL_TARGET;
+    $('nl-progress-fill').style.width = (100*nlState.streak/NL_TARGET) + '%';
+    nlUpdatePointsPill();
+    nlStartTimer();
+
+    const lineHost = $('nl-line-host');
+    lineHost.innerHTML = '';
+    const qText = $('nl-question-text');
+    const keypadWrap = $('nl-keypad-wrap');
+    const choiceWrap = $('nl-choice-wrap');
+    keypadWrap.style.display = 'flex';
+    choiceWrap.style.display = 'none';
+
+    const c = nlState.current;
+    if(nlState.level === 1){
+      qText.textContent = tt.nlAskPoint;
+      lineHost.appendChild(buildNumberLineSVG(c.max, { markPoints: [{ value: c.point }] }));
+    } else if(nlState.level === 2){
+      qText.textContent = tt.nlAskPlace(c.target);
+      lineHost.appendChild(buildNumberLineSVG(c.max, { clickable: true, onPick: (v) => nlSubmitAnswer(v) }));
+      keypadWrap.style.display = 'none';
+    } else if(nlState.level === 3){
+      qText.textContent = c.askBigger ? tt.nlAskBigger : tt.nlAskSmaller;
+      keypadWrap.style.display = 'none';
+      choiceWrap.style.display = 'flex';
+      const btnA = $('nl-choice-a'), btnB = $('nl-choice-b');
+      btnA.textContent = c.a; btnB.textContent = c.b;
+      btnA.onclick = () => nlSubmitAnswer(c.a);
+      btnB.onclick = () => nlSubmitAnswer(c.b);
+    } else {
+      qText.textContent = tt.nlAskJumps(c.start, c.jumps, c.step);
+    }
+  }
+
+  function nlRenderKeypad(){
+    const kp = $('nl-keypad');
+    kp.innerHTML = '';
+    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0','OK'];
+    layout.forEach(label => {
+      const b = document.createElement('button');
+      b.className = 'key' + (label === 'OK' ? ' confirm' : '');
+      b.textContent = label;
+      b.addEventListener('click', () => nlOnKey(label));
+      kp.appendChild(b);
+    });
+  }
+  function nlOnKey(label){
+    if(nlState.locked) return;
+    if(label === '⌫'){
+      nlState.answer = nlState.answer.slice(0,-1);
+    } else if(label === 'OK'){
+      if(nlState.answer === '') return;
+      nlSubmitAnswer(Number(nlState.answer));
+      return;
+    } else {
+      if(nlState.answer.length < 3) nlState.answer += label;
+    }
+    $('nl-answer-display').textContent = nlState.answer.length ? nlState.answer : ' ';
+  }
+  document.addEventListener('keydown', (e) => {
+    if(screens['nl-game'].hidden || nlState.locked) return;
+    if(nlState.level !== 1 && nlState.level !== 4) return;
+    if(/^[0-9]$/.test(e.key)) nlOnKey(e.key);
+    else if(e.key === 'Backspace') nlOnKey('⌫');
+    else if(e.key === 'Enter') nlOnKey('OK');
+  });
+
+  function nlSubmitAnswer(given){
+    if(nlState.locked) return;
+    nlStopTimer();
+    const reactionMs = Date.now() - nlState.questionStartedAt;
+    nlState.locked = true;
+    nlState.attempts++;
+    const ok = given === nlState.current.correct;
+    const tt = T[lang];
+    const card = $('nl-question-card');
+    const msg = $('nl-feedback');
+
+    tickTime();
+    const stats = currentPlayer ? ensureStats(currentPlayer) : null;
+    const todayStats = stats ? stats.days[todayKey()] : null;
+    const lvlStat = nl.byLevel[nlState.level];
+    lvlStat.timeMs += reactionMs;
+
+    if(ok){
+      nlState.streak++;
+      lvlStat.correct++;
+      card.classList.add('good'); msg.classList.add('good');
+      msg.textContent = tt.praises[Math.floor(Math.random()*tt.praises.length)] + ' (' + nlState.streak + '/' + NL_TARGET + ')';
+      beep('good'); burstConfetti(false);
+      if(todayStats){
+        const earned = reactionMs < FAST_ANSWER_MS ? 2 : 1;
+        todayStats.points += earned; todayStats.correct++; stats.totalPoints += earned;
+      }
+      if(nlState.streak % 10 === 0 && nlState.streak < NL_TARGET) showMilestoneTrophy(nlState.streak/10, nlState.streak);
+      else if(nlState.streak % 5 === 0 && nlState.streak < NL_TARGET) showMilestoneMedal(nlState.streak);
+    } else {
+      lvlStat.wrong++;
+      card.classList.add('bad'); msg.classList.add('bad');
+      msg.textContent = tt.wrongMsg(nlState.current.correct);
+      beep('bad');
+      nlState.streak = 0;
+      if(todayStats) todayStats.wrong++;
+    }
+    nl.streaks[nlState.level] = nlState.streak;
+    persist();
+    nlUpdatePointsPill();
+    $('nl-score-pill').textContent = '🔥 ' + nlState.streak + '/' + NL_TARGET;
+    $('nl-progress-fill').style.width = (100*nlState.streak/NL_TARGET) + '%';
+
+    nlRenderExplanation();
+
+    $('nl-btn-next').style.display = 'block';
+    $('nl-btn-next').onclick = () => {
+      $('nl-btn-next').style.display = 'none';
+      if(ok && nlState.streak >= NL_TARGET) nlFinishLevel(); else nlRenderQuestion();
+    };
+  }
+
+  function nlRenderExplanation(){
+    const tt = T[lang];
+    const c = nlState.current;
+    const host = $('nl-explain');
+    if(nlState.level === 1){
+      host.innerHTML = '<b>' + tt.nlExplainPoint(c.point) + '</b>';
+    } else if(nlState.level === 2){
+      const lineHost = $('nl-line-host');
+      lineHost.innerHTML = '';
+      lineHost.appendChild(buildNumberLineSVG(c.max, { markPoints: [{ value: c.target }] }));
+      host.innerHTML = '<b>' + tt.nlExplainPoint(c.target) + '</b>';
+    } else if(nlState.level === 3){
+      host.innerHTML = '<b>' + (c.askBigger ? tt.nlExplainBigger(c.correct, c.a===c.correct?c.b:c.a) : tt.nlExplainSmaller(c.correct, c.a===c.correct?c.b:c.a)) + '</b>';
+    } else {
+      const trail = [c.start];
+      for(let i=1;i<=c.jumps;i++) trail.push(c.start + i*c.step);
+      host.innerHTML = '<b>' + tt.nlExplainJumps(trail) + '</b>';
+      const lineHost = $('nl-line-host');
+      lineHost.innerHTML = '';
+      const maxV = Math.max(20, c.correct+2);
+      lineHost.appendChild(buildNumberLineSVG(maxV, { markPoints: trail.map((v,i) => ({ value:v, color: i===trail.length-1 ? '#f2c14e' : '#8fc7d9' })) }));
+    }
+  }
+
+  function nlFinishLevel(){
+    const tt = T[lang];
+    nl.progress[nlState.level] = true;
+    nl.streaks[nlState.level] = 0;
+    persist();
+
+    $('nl-results-eyebrow').textContent = nlLevelName(nlState.level);
+    $('nl-score-final').textContent = NL_TARGET + '/' + NL_TARGET;
+    $('nl-attempts-final').textContent = nlState.attempts;
+    $('nl-grand-trophy').innerHTML = trophySVG('#f2c14e', 120);
+    burstConfetti(true); beep('good');
+    $('nl-pass-tag').textContent = tt.passTag;
+
+    const starsWrap = $('nl-stars');
+    starsWrap.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const s = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      s.setAttribute('viewBox','0 0 40 40');
+      s.innerHTML = '<path d="M20 3 L24 15 L37 15 L26.5 22.5 L30.5 35 L20 27 L9.5 35 L13.5 22.5 L3 15 L16 15 Z" fill="#f2c14e" stroke="#f2c14e" stroke-width="2" stroke-linejoin="round"/>';
+      starsWrap.appendChild(s);
+    }
+    $('nl-praise').textContent = tt.finalPraises[Math.floor(Math.random()*tt.finalPraises.length)];
+
+    const continueBtn = $('nl-btn-continue');
+    const hasNext = nlState.level < NL_LEVEL_KEYS.length;
+    if(hasNext){
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.continueNextPrefix + nlLevelName(nlState.level+1);
+      continueBtn.onclick = () => startNlLevel(nlState.level+1);
+    } else {
+      continueBtn.style.display = 'block';
+      continueBtn.textContent = tt.nlContinueToHub;
+      continueBtn.onclick = () => show('hub');
+    }
+    show('nl-results');
+  }
+
+  $('btn-back-nl').addEventListener('click', () => {
+    nlStopTimer();
+    if(nlState && nlState.streak > 0 && nlState.streak < NL_TARGET){
+      showToast(T[lang].nlIncompleteWarning(nlState.level, nlState.streak));
+    }
+    show('nl-map');
+  });
+  $('btn-nl-mute').addEventListener('click', () => {
+    muted = !muted;
+    $('btn-nl-mute').style.opacity = muted ? 0.35 : 1;
+  });
+  $('nl-btn-replay').addEventListener('click', () => startNlLevel(nlState.level));
+  $('nl-btn-map').addEventListener('click', () => show('nl-map'));
 
   function level1Complete(){ return progress[1].every(Boolean); }
   function level2Complete(){ return progress[2].every(Boolean); }
