@@ -303,15 +303,14 @@
   .feedback-msg.bad{ color: var(--bad); }
 
   .fact-triangle{ display:flex; justify-content:center; min-height:0; }
-  .tri-wrap{ display:flex; flex-direction:column; align-items:center; gap:0.35rem; }
-  .tri-wrap.pop{ animation: triangle-zoom .35s ease; }
+  .tri-pair{ display:flex; align-items:center; justify-content:center; gap:0.7rem; }
+  .tri-pair.pop{ animation: triangle-zoom .35s ease; }
+  .tri-small{ opacity:0.88; }
   @keyframes triangle-zoom{
     0%{ transform:scale(0.4); opacity:0; }
     60%{ transform:scale(1.08); opacity:1; }
     100%{ transform:scale(1); opacity:1; }
   }
-  .tri-captions{ display:flex; flex-direction:column; gap:0.15rem; font-size:0.85rem; color:var(--chalk-dim); font-variant-numeric:tabular-nums; direction:ltr; }
-  .tri-captions b{ color:var(--chalk); font-weight:600; }
 
   /* ---------- Keypad ---------- */
   .keypad-wrap{ display:flex; flex-direction:column; gap:0.6rem; align-items:center; }
@@ -1097,34 +1096,35 @@
     setTimeout(() => { host.innerHTML = ''; }, 1300);
   }
 
-  function renderFactTriangle(a, b, p, hiddenSlot){
+  function renderSingleTriangle(a, b, p, mode, markerId, sizePx){
+    // mode 'times': horizontal arrow a->b labelled ×, then up to p.  mode 'divide': arrow p->b labelled ÷.
     const c = '#f2c14e';
     let arrow;
-    if(hiddenSlot === 2){
-      arrow = '<line x1="80" y1="103" x2="80" y2="48" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
-              '<text x="94" y="80" fill="'+c+'" font-size="17" font-weight="700">×</text>';
-    } else if(hiddenSlot === 0){
-      arrow = '<line x1="70" y1="47" x2="35" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
-              '<text x="40" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
+    if(mode === 'times'){
+      arrow =
+        '<line x1="40" y1="104" x2="120" y2="104" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="80" y="122" text-anchor="middle" fill="'+c+'" font-size="17" font-weight="700">×</text>' +
+        '<line x1="80" y1="98" x2="80" y2="46" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="94" y="76" fill="'+c+'" font-size="17" font-weight="700">=</text>';
     } else {
-      arrow = '<line x1="90" y1="47" x2="125" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#tri-arrow)"/>' +
-              '<text x="106" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
+      arrow =
+        '<line x1="80" y1="47" x2="125" y2="98" stroke="'+c+'" stroke-width="3" marker-end="url(#'+markerId+')"/>' +
+        '<text x="108" y="72" fill="'+c+'" font-size="17" font-weight="700">÷</text>';
     }
-    const svg = '<svg viewBox="0 0 160 128" width="140" height="112">' +
-      '<defs><marker id="tri-arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="'+c+'"/></marker></defs>' +
+    return '<svg viewBox="0 0 160 128" width="'+sizePx+'" height="'+Math.round(sizePx*0.8)+'">' +
+      '<defs><marker id="'+markerId+'" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="'+c+'"/></marker></defs>' +
       '<path d="M80 8 L18 112 L142 112 Z" fill="none" stroke="rgba(243,236,217,0.35)" stroke-width="2"/>' +
       arrow +
       '<text x="80" y="34" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+p+'</text>' +
       '<text x="40" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+a+'</text>' +
       '<text x="120" y="104" text-anchor="middle" fill="#f3ecd9" font-family="Fredoka, sans-serif" font-size="22" font-weight="700">'+b+'</text>' +
     '</svg>';
-    // Always show both paths: the multiplication and the division that connect the same three numbers.
-    const captions =
-      '<div class="tri-captions">' +
-        '<span>' + a + ' × ' + b + ' = <b>' + p + '</b></span>' +
-        '<span>' + p + ' ÷ ' + a + ' = <b>' + b + '</b></span>' +
-      '</div>';
-    return '<div class="tri-wrap pop">' + svg + captions + '</div>';
+  }
+  function renderFactTriangle(a, b, p){
+    // Two triangles side by side: the big one is the multiplication fact, the small one shows it reversed as a division.
+    const big = renderSingleTriangle(a, b, p, 'times', 'tri-arrow-big', 128);
+    const small = renderSingleTriangle(a, b, p, 'divide', 'tri-arrow-small', 82);
+    return '<div class="tri-pair pop"><div class="tri-big">' + big + '</div><div class="tri-small">' + small + '</div></div>';
   }
 
   // ---------- game state ----------
@@ -1309,8 +1309,7 @@
 
     if(state.level === 2){
       const [ca, cb] = state.current;
-      $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb, state.hiddenSlot);
-      delay = 6000; // fallback only — the child can also tap "Próxima" to move on sooner
+      $('fact-triangle').innerHTML = renderFactTriangle(ca, cb, ca*cb);
     }
 
     function advance(){
@@ -1322,11 +1321,13 @@
         renderQuestion();
       }
     }
-    state.advanceTimer = setTimeout(advance, delay);
     if(state.level === 2){
+      // Level 2 never auto-advances — the child studies the triangles and taps "Próxima" when ready.
       const nextBtn = $('btn-next-question');
       nextBtn.style.display = 'block';
       nextBtn.onclick = advance;
+    } else {
+      state.advanceTimer = setTimeout(advance, delay);
     }
   }
 
