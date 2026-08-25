@@ -451,6 +451,27 @@
   .ref-card .desc{ font-size:0.78rem; color:var(--chalk-dim); }
   .ref-card .ref-arrow{ flex:none; color: var(--chalk-blue); opacity:0.85; }
 
+  /* ---------- Hub de assuntos ---------- */
+  .subject-grid{ display:flex; flex-direction:column; gap:0.8rem; width:100%; max-width:340px; }
+  .subject-card{
+    display:flex; align-items:center; gap:0.9rem;
+    width:100%; border-radius:16px; border:1.5px solid rgba(243,236,217,0.16);
+    background: rgba(255,255,255,0.045); padding:1rem 1.05rem;
+    cursor:pointer; color:inherit; text-align:start;
+    transition: background .15s, transform .1s;
+  }
+  .subject-card:hover{ background: rgba(255,255,255,0.08); }
+  .subject-card:active{ transform: scale(0.98); }
+  .subject-card .ref-icon{ background: var(--chalk-yellow); }
+  .subject-card.soon{ cursor:default; opacity:0.55; }
+  .subject-card.soon:hover{ background: rgba(255,255,255,0.045); }
+  .subject-card.soon:active{ transform:none; }
+  .subject-card .soon-tag{
+    flex:none; font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    background: rgba(255,255,255,0.08); color: var(--chalk-dim);
+    padding:0.2rem 0.5rem; border-radius:999px;
+  }
+
   .ref-list{ display:flex; flex-direction:column; gap:0.35rem; width:100%; max-width:280px; }
   .ref-row{
     display:flex; align-items:center; justify-content:center; gap:0.5rem;
@@ -527,14 +548,60 @@
       </div>
     </section>
 
+    <!-- ============ HUB (escolha de assunto) ============ -->
+    <section class="screen" id="screen-hub" hidden>
+      <div class="topbar">
+        <span class="stat-pill" id="hub-player-chip">👤 Jogador</span>
+        <button class="icon-btn lang-toggle" id="btn-lang-hub">עב</button>
+        <button class="icon-btn" id="btn-switch-player-hub" aria-label="Trocar jogador">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4H4v12h3"/><path d="M8 10h9m0 0-3-3m3 3-3 3"/></svg>
+        </button>
+      </div>
+      <header class="home-head">
+        <h1 id="hub-title">Sala de Matemática</h1>
+        <svg class="underline" viewBox="0 0 220 12" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M3 7 Q 55 -2 110 6 T 217 5" fill="none" stroke="#e88b74" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <p class="sub" id="hub-sub">Escolhe o assunto</p>
+      </header>
+      <div class="center-stage">
+        <div class="subject-grid">
+          <button class="subject-card" id="btn-open-tabuada">
+            <span class="ref-icon">✖️</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-tabuada-name">Tabuada em Jogo</span>
+              <span class="desc" id="subject-tabuada-desc">Multiplicação e divisão</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <div class="subject-card soon">
+            <span class="ref-icon">📏</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-numberline-name">Linha dos Números</span>
+              <span class="desc" id="subject-numberline-desc">Reconhecer números na reta</span>
+            </span>
+            <span class="soon-tag" id="soon-tag-1">Em breve</span>
+          </div>
+          <div class="subject-card soon">
+            <span class="ref-icon">🍰</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-fractions-name">Frações</span>
+              <span class="desc" id="subject-fractions-desc">Somar, subtrair, multiplicar, dividir</span>
+            </span>
+            <span class="soon-tag" id="soon-tag-2">Em breve</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ TRILHA (mapa de etapas) ============ -->
     <section class="screen" id="screen-map" hidden>
       <div class="topbar">
+        <button class="icon-btn" id="btn-back-to-hub" aria-label="Voltar aos assuntos">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 4l-6 6 6 6"/></svg>
+        </button>
         <span class="stat-pill" id="player-chip">👤 Jogador</span>
         <button class="icon-btn lang-toggle" id="btn-lang-map">עב</button>
-        <button class="icon-btn" id="btn-switch-player" aria-label="Trocar jogador">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4H4v12h3"/><path d="M8 10h9m0 0-3-3m3 3-3 3"/></svg>
-        </button>
       </div>
       <header class="home-head">
         <h1 id="map-title">Tabuada em Jogo</h1>
@@ -699,7 +766,11 @@
   // ---------- translations ----------
   const T = {
     pt: {
-      eyebrow: 'Sala de Matemática', appTitle: 'Tabuada em Jogo', loginSub: 'Quem vai jogar hoje?',
+      eyebrow: 'Sala de Matemática', appTitle: 'Sala de Matemática', loginSub: 'Quem vai jogar hoje?',
+      hubSub: 'Escolhe o assunto', comingSoonLabel: 'Em breve',
+      subjectTabuadaName: 'Tabuada em Jogo', subjectTabuadaDesc: 'Multiplicação e divisão',
+      subjectNumberLineName: 'Linha dos Números', subjectNumberLineDesc: 'Reconhecer números na reta',
+      subjectFractionsName: 'Frações', subjectFractionsDesc: 'Somar, subtrair, multiplicar, dividir',
       newPlayerBadge: 'Novo jogador', newPlayerCard: 'Novo jogador', newPlayerHeading: 'Como te chamas?',
       namePlaceholder: 'Teu nome', nameErrorEmpty: 'Escreve um nome.', nameErrorExists: 'Esse nome já existe. Escolhe outro.',
       continueBtn: 'Continuar', pinCreateHeading: 'Cria uma senha', pinCreateSub: '4 números, só para ti',
@@ -734,7 +805,11 @@
       milestonePraises: ['Continua assim!','Estás voando!','Isso mesmo!','Fantástico!','Não para agora!','Arrasando!'],
     },
     he: {
-      eyebrow: 'כיתת חשבון', appTitle: 'לוח הכפל במשחק', loginSub: 'מי משחק היום?',
+      eyebrow: 'כיתת חשבון', appTitle: 'כיתת חשבון', loginSub: 'מי משחק היום?',
+      hubSub: 'בחר נושא', comingSoonLabel: 'בקרוב',
+      subjectTabuadaName: 'לוח הכפל במשחק', subjectTabuadaDesc: 'כפל וחילוק',
+      subjectNumberLineName: 'ציר המספרים', subjectNumberLineDesc: 'זיהוי מספרים על הציר',
+      subjectFractionsName: 'שברים', subjectFractionsDesc: 'חיבור, חיסור, כפל וחילוק',
       newPlayerBadge: 'שחקן חדש', newPlayerCard: 'שחקן חדש', newPlayerHeading: 'איך קוראים לך?',
       namePlaceholder: 'השם שלך', nameErrorEmpty: 'כתוב שם.', nameErrorExists: 'השם הזה כבר קיים. בחר שם אחר.',
       continueBtn: 'המשך', pinCreateHeading: 'צור סיסמה', pinCreateSub: '4 ספרות, רק בשבילך',
@@ -787,6 +862,16 @@
     $('newplayer-heading').textContent = tt.newPlayerHeading;
     $('new-player-name').placeholder = tt.namePlaceholder;
     $('btn-name-continue').textContent = tt.continueBtn;
+    $('hub-title').textContent = tt.appTitle;
+    $('hub-sub').textContent = tt.hubSub;
+    $('subject-tabuada-name').textContent = tt.subjectTabuadaName;
+    $('subject-tabuada-desc').textContent = tt.subjectTabuadaDesc;
+    $('subject-numberline-name').textContent = tt.subjectNumberLineName;
+    $('subject-numberline-desc').textContent = tt.subjectNumberLineDesc;
+    $('subject-fractions-name').textContent = tt.subjectFractionsName;
+    $('subject-fractions-desc').textContent = tt.subjectFractionsDesc;
+    $('soon-tag-1').textContent = tt.comingSoonLabel;
+    $('soon-tag-2').textContent = tt.comingSoonLabel;
     $('map-title').textContent = tt.mapTitle;
     $('map-sub').textContent = tt.mapSub;
     $('level1-label').childNodes[0].textContent = tt.level1Name;
@@ -807,9 +892,9 @@
     $('score-line-label').textContent = tt.scoreLineLabel;
     $('attempts-line-label').textContent = tt.attemptsLineLabel;
     document.querySelectorAll('.lang-toggle').forEach(b => b.textContent = lang === 'pt' ? 'עב' : 'PT');
-    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference').forEach(b => b.setAttribute('aria-label', tt.backAria));
+    document.querySelectorAll('#btn-back, #btn-back-newplayer, #btn-back-pin, #btn-back-reference, #btn-back-to-hub').forEach(b => b.setAttribute('aria-label', tt.backAria));
     $('btn-mute').setAttribute('aria-label', tt.soundAria);
-    $('btn-switch-player').setAttribute('aria-label', tt.switchAria);
+    $('btn-switch-player-hub').setAttribute('aria-label', tt.switchAria);
     if(!screens.login.hidden) renderPlayerGrid();
     if(!screens.map.hidden) renderMap();
     if(!screens.game.hidden && state) $('game-title').textContent = stageName(state.level, state.stage);
@@ -914,16 +999,24 @@
 
   const screens = {
     login: $('screen-login'), newplayer: $('screen-newplayer'), pin: $('screen-pin'),
-    map: $('screen-map'), game: $('screen-game'), results: $('screen-results'), admin: $('screen-admin'),
-    reference: $('screen-reference')
+    hub: $('screen-hub'), map: $('screen-map'), game: $('screen-game'), results: $('screen-results'),
+    admin: $('screen-admin'), reference: $('screen-reference')
   };
   function show(name){
     Object.values(screens).forEach(s => s.hidden = true);
     screens[name].hidden = false;
     if(name === 'login') renderPlayerGrid();
+    if(name === 'hub') updatePlayerChips();
     if(name === 'map') renderMap();
     if(name === 'admin') renderAdmin();
     if(name === 'reference') showReferencePicker();
+  }
+  function updatePlayerChips(){
+    if(!currentPlayer) return;
+    const stats = ensureStats(currentPlayer);
+    const text = '👤 ' + currentPlayer + ' · 💎 ' + stats.totalPoints;
+    $('hub-player-chip').textContent = text;
+    $('player-chip').textContent = text;
   }
 
   // ---------- login screen ----------
@@ -1059,10 +1152,9 @@
     byTable = ensureByTable(name);
     lastTick = Date.now();
     ensureStats(name);
-    $('player-chip').textContent = '👤 ' + name;
-    show('map');
+    show('hub');
   }
-  $('btn-switch-player').addEventListener('click', () => {
+  function logoutPlayer(){
     tickTime();
     persist();
     currentPlayer = null;
@@ -1071,7 +1163,11 @@
     byTable = null;
     lastTick = null;
     show('login');
-  });
+  }
+  $('btn-switch-player-hub').addEventListener('click', logoutPlayer);
+  $('btn-open-tabuada').addEventListener('click', () => show('map'));
+  $('btn-back-to-hub').addEventListener('click', () => show('hub'));
+  $('btn-lang-hub').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   $('btn-admin').addEventListener('click', () => {
     const hasAdminPin = !!localStorage.getItem(ADMIN_PIN_KEY);
     startPinFlow(hasAdminPin ? 'admin-enter' : 'admin-create', '__admin__');
@@ -1208,10 +1304,7 @@
 
   // ---------- build the map screen ----------
   function renderMap(){
-    if(currentPlayer){
-      const stats = ensureStats(currentPlayer);
-      $('player-chip').textContent = '👤 ' + currentPlayer + ' · 💎 ' + stats.totalPoints;
-    }
+    updatePlayerChips();
     renderNodes(1);
     renderNodes(2);
     renderNodes(3);
