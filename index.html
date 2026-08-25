@@ -922,10 +922,11 @@
         <div class="nl-explain" id="fn-explain"></div>
         <div class="feedback-msg" id="fn-feedback">&nbsp;</div>
         <button class="btn primary" id="fn-btn-next" style="display:none;max-width:280px;width:100%;">Próxima</button>
-        <div class="keypad-wrap">
+        <div class="keypad-wrap" id="fn-keypad-wrap">
           <div class="answer-display" id="fn-answer-display">&nbsp;</div>
           <div class="keypad" id="fn-keypad"></div>
         </div>
+        <div class="nl-choice-wrap" id="fn-choice-wrap" style="display:none;"></div>
       </div>
     </section>
 
@@ -1142,6 +1143,24 @@
       fnCinemaQuestion: 'Quantos pacotes completos de 100 dá para reservar?',
       fnBoxStory: (total,perBox)=> 'Uma loja tem ' + total + ' objetos para embalar em caixas de ' + perBox + ' unidades cada.',
       fnBoxQuestion: 'Quantas caixas completas dá para fazer?',
+      fnLevel2Name: 'Frações Avançado', fnLevel2Desc: 'equivalência, misto, comparar',
+      fnLevel3Name: 'Decimais', fnLevel3Desc: 'operações, comparar, valor posicional',
+      fnLevel4Name: 'Porcentagens', fnLevel4Desc: 'de um número, encontrar o todo, problemas',
+      fnLevel5Name: 'Geometria', fnLevel5Desc: 'perímetro, área, ângulos',
+      fnFracOfWhole: (a,b,n)=> 'Quanto é ' + a + '/' + b + ' de ' + n + '?',
+      fnMixedToImproper: (w,n,d)=> w + ' e ' + n + '/' + d + ' = ?/' + d,
+      fnAddSameDen: (n1,n2,d)=> n1 + '/' + d + ' + ' + n2 + '/' + d + ' = ?/' + d,
+      fnWhichBiggerFrac: 'Qual fração é maior?',
+      fnPlaceValue: (num)=> 'No número ' + num + ', qual é o algarismo dos décimos?',
+      fnOfWord: 'de',
+      fnFindWhole: (part,pct)=> part + ' é ' + pct + '% de quanto?',
+      fnDiscountStory: (price,pct)=> 'Uma loja vende um produto por ' + price + ' com ' + pct + '% de desconto.',
+      fnDiscountQuestion: 'Qual é o preço final, com desconto?',
+      fnRectPerimeter: (w,h)=> 'Um retângulo tem lados ' + w + ' e ' + h + '. Qual é o perímetro?',
+      fnRectArea: (w,h)=> 'Um retângulo tem lados ' + w + ' e ' + h + '. Qual é a área?',
+      fnTriArea: (b,h)=> 'Um triângulo tem base ' + b + ' e altura ' + h + '. Qual é a área?',
+      fnAngleQuestion: (deg)=> 'Um ângulo de ' + deg + '°. Que tipo de ângulo é?',
+      fnAngleAcute: 'agudo', fnAngleRight: 'reto', fnAngleObtuse: 'obtuso',
     },
     he: {
       eyebrow: 'כיתת חשבון', appTitle: 'כיתת חשבון', loginSub: 'מי משחק היום?',
@@ -1233,6 +1252,24 @@
       fnCinemaQuestion: 'כמה חבילות שלמות של 100 אפשר להזמין?',
       fnBoxStory: (total,perBox)=> 'בחנות יש ' + total + ' חפצים לארוז בקופסאות של ' + perBox + ' יחידות כל אחת.',
       fnBoxQuestion: 'כמה קופסאות שלמות אפשר להכין?',
+      fnLevel2Name: 'שברים מתקדם', fnLevel2Desc: 'שקילות, מספר מעורב, השוואה',
+      fnLevel3Name: 'עשרוניים', fnLevel3Desc: 'פעולות, השוואה, ערך מקומי',
+      fnLevel4Name: 'אחוזים', fnLevel4Desc: 'אחוז ממספר, מציאת השלם, בעיות',
+      fnLevel5Name: 'גיאומטריה', fnLevel5Desc: 'היקף, שטח, זוויות',
+      fnFracOfWhole: (a,b,n)=> 'כמה זה ' + a + '/' + b + ' מ-' + n + '?',
+      fnMixedToImproper: (w,n,d)=> w + ' ו-' + n + '/' + d + ' = ?/' + d,
+      fnAddSameDen: (n1,n2,d)=> n1 + '/' + d + ' + ' + n2 + '/' + d + ' = ?/' + d,
+      fnWhichBiggerFrac: 'איזה שבר גדול יותר?',
+      fnPlaceValue: (num)=> 'במספר ' + num + ', מהי ספרת העשיריות?',
+      fnOfWord: 'מ',
+      fnFindWhole: (part,pct)=> part + ' הם ' + pct + '% מכמה?',
+      fnDiscountStory: (price,pct)=> 'חנות מוכרת מוצר ב-' + price + ' עם ' + pct + '% הנחה.',
+      fnDiscountQuestion: 'מה המחיר הסופי, אחרי ההנחה?',
+      fnRectPerimeter: (w,h)=> 'למלבן יש צלעות ' + w + ' ו-' + h + '. מה ההיקף?',
+      fnRectArea: (w,h)=> 'למלבן יש צלעות ' + w + ' ו-' + h + '. מה השטח?',
+      fnTriArea: (b,h)=> 'למשולש יש בסיס ' + b + ' וגובה ' + h + '. מה השטח?',
+      fnAngleQuestion: (deg)=> 'זווית של ' + deg + '°. איזה סוג זווית זו?',
+      fnAngleAcute: 'חדה', fnAngleRight: 'ישרה', fnAngleObtuse: 'קהה',
     }
   };
   let lang = localStorage.getItem(LANG_KEY) || 'pt';
@@ -2612,7 +2649,7 @@
   // Built one level at a time; only Level 1 (Números Naturais) exists so far.
   // ============================================================
   const FN_TARGET = 40;
-  const FN_LEVEL_KEYS = [1];
+  const FN_LEVEL_KEYS = [1,2,3,4,5];
   function defaultFinal(){
     const progress = {}, streaks = {}, byLevel = {};
     FN_LEVEL_KEYS.forEach(k => { progress[k]=false; streaks[k]=0; byLevel[k]={correct:0,wrong:0,timeMs:0}; });
@@ -2694,9 +2731,118 @@
     const perBox=4+fnRnd(20), k=3+fnRnd(15), total=perBox*k;
     return { story: tt.fnBoxStory(total,perBox), question: tt.fnBoxQuestion, correct:k };
   }
+  function fnGenLevel2(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){
+      const b=2+fnRnd(7), a=1+fnRnd(b-1), k=2+fnRnd(10), N=b*k, correct=a*k;
+      return { kind:'keypad', question: tt.fnFracOfWhole(a,b,N), correct };
+    }
+    if(t === 1){
+      const d=2+fnRnd(6), w=1+fnRnd(4), n=1+fnRnd(d-1), correct=w*d+n;
+      return { kind:'keypad', question: tt.fnMixedToImproper(w,n,d), correct };
+    }
+    if(t === 2){
+      const d=2+fnRnd(8), n1=1+fnRnd(d-1), n2=1+fnRnd(d-1), correct=n1+n2;
+      return { kind:'keypad', question: tt.fnAddSameDen(n1,n2,d), correct };
+    }
+    let b1,a1,b2,a2,v1,v2,tries=0;
+    do{
+      b1=2+fnRnd(7); a1=1+fnRnd(b1-1); b2=2+fnRnd(7); a2=1+fnRnd(b2-1);
+      v1=a1/b1; v2=a2/b2; tries++;
+    } while(Math.abs(v1-v2) < 0.02 && tries < 20);
+    return { kind:'choice', question: tt.fnWhichBiggerFrac,
+      choices: [{label:a1+'/'+b1, value:v1}, {label:a2+'/'+b2, value:v2}],
+      correct: Math.max(v1,v2) };
+  }
+  function fnGenLevel3(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){
+      const opAdd = Math.random() < 0.5;
+      const a = (fnRnd(900)+100)/100, b = (fnRnd(500)+50)/100;
+      const correct = Math.round((opAdd ? a+b : a-b)*100)/100;
+      return { kind:'keypad', decimal:true, question: a.toFixed(2)+(opAdd?' + ':' - ')+b.toFixed(2)+' = ?', correct };
+    }
+    if(t === 1){
+      const base = (fnRnd(900)+10)/10;
+      const factors = [10,100,1000], f = factors[fnRnd(3)];
+      const mult = Math.random() < 0.5;
+      const correct = Math.round((mult ? base*f : base/f)*1000)/1000;
+      return { kind:'keypad', decimal:true, question: base+' '+(mult?'×':'÷')+' '+f+' = ?', correct };
+    }
+    if(t === 2){
+      const whole = fnRnd(90)+10, d1 = fnRnd(10), d2 = fnRnd(10), d3 = fnRnd(10);
+      const num = whole+'.'+d1+''+d2+''+d3;
+      return { kind:'keypad', question: tt.fnPlaceValue(num), correct: d1 };
+    }
+    const a = (fnRnd(900)+10)/100, b = (fnRnd(900)+10)/100;
+    const correct = a>b ? '>' : (a<b ? '<' : '=');
+    return { kind:'choice', question: a.toFixed(2)+'  ?  '+b.toFixed(2),
+      choices: [{label:'<',value:'<'},{label:'>',value:'>'},{label:'=',value:'='}], correct };
+  }
+  function fnGenLevel4(){
+    const tt = T[lang];
+    const t = fnRnd(3);
+    if(t === 0){
+      const pct = [10,20,25,50,75][fnRnd(5)], base = [20,40,60,80,100,120][fnRnd(6)];
+      return { kind:'keypad', question: pct+'% ' + tt.fnOfWord + ' ' + base + ' = ?', correct: pct*base/100 };
+    }
+    if(t === 1){
+      const pct = [10,20,25,50][fnRnd(4)], whole = [20,40,60,80,100][fnRnd(5)];
+      const part = pct*whole/100;
+      return { kind:'keypad', question: tt.fnFindWhole(part,pct), correct: whole };
+    }
+    const price = [40,60,80,100,120][fnRnd(5)], pct = [10,20,25,50][fnRnd(4)];
+    const correct = price - (price*pct/100);
+    return { kind:'keypad', story: tt.fnDiscountStory(price,pct), question: tt.fnDiscountQuestion, correct };
+  }
+  function fnGenLevel5(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){
+      const w=2+fnRnd(10), h=2+fnRnd(10);
+      return { kind:'keypad', question: tt.fnRectPerimeter(w,h), correct: 2*(w+h) };
+    }
+    if(t === 1){
+      const w=2+fnRnd(10), h=2+fnRnd(10);
+      return { kind:'keypad', question: tt.fnRectArea(w,h), correct: w*h };
+    }
+    if(t === 2){
+      const b=2+2*fnRnd(6), h=2+2*fnRnd(6);
+      return { kind:'keypad', question: tt.fnTriArea(b,h), correct: (b*h)/2 };
+    }
+    const deg = [30,45,90,120,150][fnRnd(5)];
+    const correct = deg < 90 ? 'acute' : (deg === 90 ? 'right' : 'obtuse');
+    return { kind:'choice', question: tt.fnAngleQuestion(deg),
+      choices: [
+        {label: tt.fnAngleAcute, value:'acute'},
+        {label: tt.fnAngleRight, value:'right'},
+        {label: tt.fnAngleObtuse, value:'obtuse'}
+      ], correct };
+  }
   function fnNewQuestion(level){
+    if(level === 2) return fnGenLevel2();
+    if(level === 3) return fnGenLevel3();
+    if(level === 4) return fnGenLevel4();
+    if(level === 5) return fnGenLevel5();
     if(Math.random() < 0.6) return Object.assign({kind:'expr'}, fnBuildExpr());
     return Object.assign({kind:'word'}, fnBuildWord());
+  }
+  function fnCheckAnswer(given, correct){
+    if(typeof correct === 'string') return given === correct;
+    return Math.abs(Number(given) - Number(correct)) < 0.005;
+  }
+  function fnFormatCorrect(correct){
+    if(typeof correct === 'string') return correct;
+    return (Math.round(correct*1000)/1000).toString();
+  }
+  function fnDisplayCorrect(c){
+    if(c.kind === 'choice'){
+      const found = c.choices.find(ch => fnCheckAnswer(ch.value, c.correct));
+      return found ? found.label : fnFormatCorrect(c.correct);
+    }
+    return fnFormatCorrect(c.correct);
   }
 
   function startFnLevel(level){
@@ -2704,7 +2850,6 @@
     fnState = { level, streak: finalData.streaks[level] || 0, attempts:0, answer:'', locked:false, current:null };
     $('fn-game-title').textContent = fnLevelName(level);
     show('fn-game');
-    fnRenderKeypad();
     fnRenderQuestion();
   }
 
@@ -2742,20 +2887,40 @@
 
     const c = fnState.current;
     const storyBox = $('fn-story');
-    if(c.kind === 'word'){
+    if(c.story){
       storyBox.style.display = 'block';
       storyBox.textContent = c.story;
-      $('fn-question-text').textContent = c.question;
     } else {
       storyBox.style.display = 'none';
-      $('fn-question-text').textContent = c.display + ' = ?';
+    }
+    $('fn-question-text').textContent = c.kind === 'expr' ? (c.display + ' = ?') : c.question;
+
+    const keypadWrap = $('fn-keypad-wrap');
+    const choiceWrap = $('fn-choice-wrap');
+    if(c.kind === 'choice'){
+      keypadWrap.style.display = 'none';
+      choiceWrap.style.display = 'flex';
+      choiceWrap.innerHTML = '';
+      c.choices.forEach(ch => {
+        const b = document.createElement('button');
+        b.className = 'btn';
+        b.textContent = ch.label;
+        b.addEventListener('click', () => fnSubmitAnswer(ch.value));
+        choiceWrap.appendChild(b);
+      });
+    } else {
+      keypadWrap.style.display = 'flex';
+      choiceWrap.style.display = 'none';
+      fnRenderKeypad();
     }
   }
 
   function fnRenderKeypad(){
     const kp = $('fn-keypad');
     kp.innerHTML = '';
-    const layout = ['1','2','3','4','5','6','7','8','9','⌫','0','OK'];
+    const decimalMode = fnState.current && fnState.current.decimal;
+    const layout = ['1','2','3','4','5','6','7','8','9', decimalMode ? '.' : '⌫','0', decimalMode ? '⌫' : 'OK'];
+    if(decimalMode) layout.push('OK');
     layout.forEach(label => {
       const b = document.createElement('button');
       b.className = 'key' + (label === 'OK' ? ' confirm' : '');
@@ -2768,7 +2933,8 @@
     if(fnState.locked) return;
     if(label === '⌫'){ fnState.answer = fnState.answer.slice(0,-1); }
     else if(label === 'OK'){ fnSubmitAnswer(); return; }
-    else { if(fnState.answer.length < 4) fnState.answer += label; }
+    else if(label === '.'){ if(fnState.answer.indexOf('.') === -1 && fnState.answer.length) fnState.answer += '.'; }
+    else { if(fnState.answer.length < 6) fnState.answer += label; }
     $('fn-answer-display').textContent = fnState.answer.length ? fnState.answer : ' ';
   }
   document.addEventListener('keydown', (e) => {
@@ -2778,14 +2944,15 @@
     else if(e.key === 'Enter') fnOnKey('OK');
   });
 
-  function fnSubmitAnswer(){
-    if(fnState.answer === '') return;
+  function fnSubmitAnswer(choiceValue){
+    const fromChoice = choiceValue !== undefined;
+    if(!fromChoice && fnState.answer === '') return;
     fnStopTimer();
     const reactionMs = Date.now() - fnState.questionStartedAt;
     fnState.locked = true;
     fnState.attempts++;
-    const given = Number(fnState.answer);
-    const ok = given === fnState.current.correct;
+    const given = fromChoice ? choiceValue : Number(fnState.answer);
+    const ok = fnCheckAnswer(given, fnState.current.correct);
     const tt = T[lang];
     const card = $('fn-question-card'); const msg = $('fn-feedback');
 
@@ -2810,7 +2977,7 @@
     } else {
       lvlStat.wrong++;
       card.classList.add('bad'); msg.classList.add('bad');
-      msg.textContent = tt.wrongMsg(fnState.current.correct);
+      msg.textContent = tt.wrongMsg(fnDisplayCorrect(fnState.current));
       beep('bad');
       fnState.streak = 0;
       if(todayStats) todayStats.wrong++;
@@ -2822,7 +2989,7 @@
     $('fn-progress-fill').style.width = (100*fnState.streak/FN_TARGET) + '%';
 
     const c = fnState.current;
-    $('fn-explain').innerHTML = '<b>' + (c.kind === 'expr' ? tt.fnExplainOrder(c.steps) : tt.fnExplainResult(c.correct)) + '</b>';
+    $('fn-explain').innerHTML = '<b>' + (c.kind === 'expr' ? tt.fnExplainOrder(c.steps) : tt.fnExplainResult(fnDisplayCorrect(c))) + '</b>';
 
     $('fn-btn-next').style.display = 'block';
     $('fn-btn-next').onclick = () => {
