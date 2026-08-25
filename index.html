@@ -516,11 +516,11 @@
     background: rgba(255,255,255,0.03); border:1px dashed rgba(243,236,217,0.18);
     border-radius:10px; padding:0.7rem 0.85rem; margin-bottom:0.7rem;
   }
-  .fn-question-text{ font-size:1.15rem; font-weight:600; text-align:center; direction:ltr; }
+  .fn-question-text{ font-size:1.15rem; font-weight:600; text-align:center; }
 
   /* ---------- Frações ---------- */
   .fr-visual{ display:flex; justify-content:center; margin-top:0.5rem; direction:ltr; }
-  .fr-question-text{ font-size:1.1rem; font-weight:600; text-align:center; direction:ltr; }
+  .fr-question-text{ font-size:1.1rem; font-weight:600; text-align:center; }
   .fr-slots{ display:flex; align-items:center; justify-content:center; gap:0.6rem; direction:ltr; }
   .fr-whole-slot{ font-size:1.7rem; font-weight:700; }
   .fr-frac-slot{ display:flex; flex-direction:column; align-items:center; gap:0.2rem; }
@@ -641,6 +641,22 @@
             <span class="ref-copy">
               <span class="name" id="subject-numberline-name">Linha dos Números</span>
               <span class="desc" id="subject-numberline-desc">Reconhecer números na reta</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <button class="subject-card" id="btn-open-multv">
+            <span class="ref-icon">✏️</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-multv-name">Multiplicação Vertical</span>
+              <span class="desc" id="subject-multv-desc">Conta armada, até centenas</span>
+            </span>
+            <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
+          </button>
+          <button class="subject-card" id="btn-open-divlong">
+            <span class="ref-icon">➗</span>
+            <span class="ref-copy">
+              <span class="name" id="subject-divlong-name">Divisão Longa</span>
+              <span class="desc" id="subject-divlong-desc">Conta armada, com e sem resto</span>
             </span>
             <span class="ref-arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 4l6 6-6 6"/></svg></span>
           </button>
@@ -1019,6 +1035,7 @@
       <div class="stage">
         <div class="fact-card" id="mini-question-card">
           <div class="fn-story" id="mini-story" style="display:none;"></div>
+          <div class="fr-visual" id="mini-visual" style="display:none;"></div>
           <div class="fn-question-text" id="mini-question-text"></div>
         </div>
         <div class="nl-explain" id="mini-explain"></div>
@@ -1156,6 +1173,8 @@
   // Wrap a numeric/formula fragment in Unicode isolate marks so it never gets
   // visually reordered when embedded inside Hebrew (RTL) sentence text.
   function ltr(s){ return '⁦' + s + '⁩'; }
+  const HEBREW_CHAR_RE = /[֐-׿]/;
+  function autoDirection(el, text){ el.style.direction = HEBREW_CHAR_RE.test(text) ? '' : 'ltr'; }
 
   // ---------- translations ----------
   const T = {
@@ -1178,6 +1197,18 @@
       addsubExplainCarry: (steps)=> steps.join(' → '),
       addsubRule1: 'Soma ou subtrai os dois números.',
       addsubRule2: 'Regra: calcula as unidades, depois as dezenas, depois as centenas — reagrupa quando passar de 10.',
+      subjectMultVName: 'Multiplicação Vertical', subjectMultVDesc: 'Conta armada, até centenas',
+      multvLevel1Name: 'Simples', multvLevel1Desc: '2 dígitos × 1 dígito',
+      multvLevel2Name: 'Avançado', multvLevel2Desc: 'centenas × dezenas',
+      multvRule1: 'Regra: multiplica cada algarismo de cima pelo de baixo, começando pelas unidades, e soma os resultados.',
+      multvRule2: 'Regra: multiplica pelas unidades, depois pelas dezenas (desloca uma casa à esquerda), e soma tudo.',
+      subjectDivLongName: 'Divisão Longa', subjectDivLongDesc: 'Conta armada, com e sem resto',
+      divlongLevel1Name: 'Sem Resto', divlongLevel1Desc: 'divisão exata',
+      divlongLevel2Name: 'Com Resto', divlongLevel2Desc: 'sobra no final',
+      divlongRule1: 'Regra: divide, multiplica, subtrai e repete até não sobrar nada.',
+      divlongRule2: 'Regra: divide, multiplica, subtrai e repete — o que sobrar no final, menor que o divisor, é o resto.',
+      divlongAsk: (a,b)=> ltr(a+' ÷ '+b) + ' = ?',
+      divlongResultLabel: (q,r)=> r === 0 ? ltr('' + q) : ltr(q + ' resto ' + r),
       decfrLevel1Name: 'Ler e Escrever', decfrLevel1Desc: 'fração ↔ decimal',
       decfrLevel2Name: 'Operações', decfrLevel2Desc: 'somar, subtrair, comparar',
       decfrRule1: 'Regra: a casa depois da vírgula é décimos; a segunda casa é centésimos.',
@@ -1186,8 +1217,33 @@
       decfrAskToFraction: (dec,d)=> 'Escreve ' + dec + ' como fração: ?/' + d,
       decfrExplainToDecimal: (n,d,dec)=> n + '/' + d + ' = ' + dec + '.',
       decfrExplainToFraction: (dec,n,d)=> dec + ' = ' + n + '/' + d + '.',
-      geoLevel1Name: 'Perímetro', geoLevel1Desc: 'contorno das formas',
-      geoLevel2Name: 'Área', geoLevel2Desc: 'espaço dentro das formas',
+      geoLevel1Name: 'Formas e Regras', geoLevel1Desc: '10 formas comuns, com as suas regras',
+      geoLevel2Name: 'Perímetro e Área', geoLevel2Desc: 'contorno e espaço das formas',
+      geoLevel3Name: 'Ângulos e Círculo', geoLevel3Desc: 'ângulos, lados e raio/diâmetro',
+      geoAskShapeName: 'Como se chama esta forma?',
+      geoAskSides: (name)=> 'Quantos lados tem ' + name + '?',
+      geoShapeName: (key)=> ({ square:'Quadrado', rect:'Retângulo', tri:'Triângulo', pentagon:'Pentágono', hexagon:'Hexágono', trapezoid:'Trapézio', rhombus:'Losango', circle:'Círculo', oval:'Oval', star:'Estrela' }[key]),
+      geoShapeRule: (key)=> ({
+        square:'Regra: o quadrado tem 4 lados iguais e 4 ângulos retos (90°).',
+        rect:'Regra: o retângulo tem 4 lados — os opostos são iguais — e 4 ângulos retos.',
+        tri:'Regra: o triângulo tem 3 lados e os seus 3 ângulos somam sempre 180°.',
+        pentagon:'Regra: o pentágono tem 5 lados e 5 ângulos.',
+        hexagon:'Regra: o hexágono tem 6 lados e 6 ângulos.',
+        trapezoid:'Regra: o trapézio tem 4 lados, mas só um par de lados é paralelo.',
+        rhombus:'Regra: o losango tem 4 lados iguais, mas os seus ângulos não são retos.',
+        circle:'Regra: o círculo não tem lados retos — é uma curva sempre à mesma distância do centro (o raio).',
+        oval:'Regra: a oval é uma curva fechada, mais alongada que o círculo, sem lados retos.',
+        star:'Regra: a estrela de 5 pontas tem 10 lados, alternando pontas para fora e para dentro.'
+      }[key]),
+      geoAskTriMissingAngle: (a,b)=> 'O triângulo tem ângulos de ' + a + '° e ' + b + '°. Qual é o terceiro ângulo?',
+      geoAskRectMissingSide: (area,side)=> 'O retângulo tem área ' + area + ' e um lado mede ' + side + '. Qual é o outro lado?',
+      geoAskSquareMissingSide: (area)=> 'O quadrado tem área ' + area + '. Qual é o lado?',
+      geoAskCircleDiameterFromRadius: (r)=> 'O raio do círculo é ' + r + '. Qual é o diâmetro?',
+      geoAskCircleRadiusFromDiameter: (d)=> 'O diâmetro do círculo é ' + d + '. Qual é o raio?',
+      geoRuleTriAngleSum: 'Regra: os 3 ângulos de um triângulo somam sempre 180°. Terceiro ângulo = 180° menos os outros dois.',
+      geoRuleRectMissingSide: 'Regra: área do retângulo = base × altura. Para achar um lado, divide a área pelo lado que já sabes.',
+      geoRuleSquareMissingSide: 'Regra: o lado do quadrado é a raiz quadrada da área — o número que multiplicado por ele mesmo dá a área.',
+      geoRuleCircleDiameter: 'Regra: o diâmetro é sempre o dobro do raio (diâmetro = raio × 2; raio = diâmetro ÷ 2).',
       geoRuleSquarePerim: 'Regra: perímetro do quadrado = lado × 4.',
       geoRuleRectPerim: 'Regra: perímetro do retângulo = (base + altura) × 2.',
       geoRuleTriPerim: 'Regra: perímetro do triângulo = soma dos 3 lados.',
@@ -1325,6 +1381,18 @@
       addsubExplainCarry: (steps)=> steps.join(' ← '),
       addsubRule1: 'חבר או חסר את שני המספרים.',
       addsubRule2: 'כלל: חשב קודם יחידות, אחר כך עשרות, אחר כך מאות — פרוק כשעוברים את 10.',
+      subjectMultVName: 'כפל בטור', subjectMultVDesc: 'חישוב בטור, עד מאות',
+      multvLevel1Name: 'פשוט', multvLevel1Desc: ltr('2') + ' ספרות × ' + ltr('1') + ' ספרה',
+      multvLevel2Name: 'מתקדם', multvLevel2Desc: 'מאות × עשרות',
+      multvRule1: 'כלל: כופלים כל ספרה מלמעלה בספרה מלמטה, מתחילים מהיחידות, וסוכמים את התוצאות.',
+      multvRule2: 'כלל: כופלים ביחידות, אחר כך בעשרות (מזיזים מקום שמאלה), וסוכמים הכול.',
+      subjectDivLongName: 'חילוק ארוך', subjectDivLongDesc: 'חישוב בטור, עם ובלי שארית',
+      divlongLevel1Name: 'בלי שארית', divlongLevel1Desc: 'חילוק מדויק',
+      divlongLevel2Name: 'עם שארית', divlongLevel2Desc: 'נשאר משהו בסוף',
+      divlongRule1: 'כלל: מחלקים, כופלים, מחסרים וחוזרים על זה עד שלא נשאר כלום.',
+      divlongRule2: 'כלל: מחלקים, כופלים, מחסרים וחוזרים על זה — מה שנשאר בסוף, קטן מהמחלק, זו השארית.',
+      divlongAsk: (a,b)=> ltr(a+' ÷ '+b) + ' = ?',
+      divlongResultLabel: (q,r)=> r === 0 ? ltr('' + q) : ltr(q + ' שארית ' + r),
       decfrLevel1Name: 'קריאה וכתיבה', decfrLevel1Desc: 'שבר ↔ עשרוני',
       decfrLevel2Name: 'פעולות', decfrLevel2Desc: 'חיבור, חיסור, השוואה',
       decfrRule1: 'כלל: הספרה אחרי הנקודה היא עשיריות; השנייה היא מאיות.',
@@ -1333,8 +1401,33 @@
       decfrAskToFraction: (dec,d)=> 'כתוב את ' + ltr(dec) + ' כשבר: ?/' + d,
       decfrExplainToDecimal: (n,d,dec)=> ltr(n+'/'+d+' = '+dec) + '.',
       decfrExplainToFraction: (dec,n,d)=> ltr(dec+' = '+n+'/'+d) + '.',
-      geoLevel1Name: 'היקף', geoLevel1Desc: 'המתאר של הצורה',
-      geoLevel2Name: 'שטח', geoLevel2Desc: 'החלל בתוך הצורה',
+      geoLevel1Name: 'צורות וכללים', geoLevel1Desc: '10 צורות נפוצות, עם הכללים שלהן',
+      geoLevel2Name: 'היקף ושטח', geoLevel2Desc: 'המתאר והחלל של הצורות',
+      geoLevel3Name: 'זוויות ומעגל', geoLevel3Desc: 'זוויות, צלעות ורדיוס/קוטר',
+      geoAskShapeName: 'איך קוראים לצורה הזאת?',
+      geoAskSides: (name)=> 'כמה צלעות יש ל' + name + '?',
+      geoShapeName: (key)=> ({ square:'ריבוע', rect:'מלבן', tri:'משולש', pentagon:'מחומש', hexagon:'משושה', trapezoid:'טרפז', rhombus:'מעוין', circle:'עיגול', oval:'אליפסה', star:'כוכב' }[key]),
+      geoShapeRule: (key)=> ({
+        square:'כלל: לריבוע יש 4 צלעות שוות ו-4 זוויות ישרות (90°).',
+        rect:'כלל: למלבן יש 4 צלעות — הנגדיות שוות — ו-4 זוויות ישרות.',
+        tri:'כלל: למשולש יש 3 צלעות, וסכום 3 הזוויות שלו הוא תמיד 180°.',
+        pentagon:'כלל: למחומש יש 5 צלעות ו-5 זוויות.',
+        hexagon:'כלל: למשושה יש 6 צלעות ו-6 זוויות.',
+        trapezoid:'כלל: לטרפז יש 4 צלעות, אבל רק זוג אחד של צלעות מקביל.',
+        rhombus:'כלל: למעוין יש 4 צלעות שוות, אבל הזוויות שלו אינן ישרות.',
+        circle:'כלל: לעיגול אין צלעות ישרות — זו עקומה שנמצאת תמיד באותו מרחק מהמרכז (הרדיוס).',
+        oval:'כלל: האליפסה היא עקומה סגורה, מוארכת יותר מהעיגול, בלי צלעות ישרות.',
+        star:'כלל: לכוכב בעל 5 קצוות יש 10 צלעות, לסירוגין כלפי חוץ וכלפי פנים.'
+      }[key]),
+      geoAskTriMissingAngle: (a,b)=> 'למשולש יש זוויות של ' + ltr(a+'°') + ' ו-' + ltr(b+'°') + '. מה הזווית השלישית?',
+      geoAskRectMissingSide: (area,side)=> 'למלבן יש שטח ' + ltr(area) + ' וצלע אחת היא ' + ltr(side) + '. מה הצלע השנייה?',
+      geoAskSquareMissingSide: (area)=> 'לריבוע יש שטח ' + ltr(area) + '. מה אורך הצלע?',
+      geoAskCircleDiameterFromRadius: (r)=> 'הרדיוס של העיגול הוא ' + ltr(r) + '. מה הקוטר?',
+      geoAskCircleRadiusFromDiameter: (d)=> 'הקוטר של העיגול הוא ' + ltr(d) + '. מה הרדיוס?',
+      geoRuleTriAngleSum: 'כלל: סכום 3 הזוויות במשולש הוא תמיד 180°. הזווית השלישית = 180° פחות שתי האחרות.',
+      geoRuleRectMissingSide: 'כלל: שטח המלבן = בסיס × גובה. כדי למצוא צלע, מחלקים את השטח בצלע הידועה.',
+      geoRuleSquareMissingSide: 'כלל: צלע הריבוע היא השורש הריבועי של השטח — המספר שכפול עצמו נותן את השטח.',
+      geoRuleCircleDiameter: 'כלל: הקוטר הוא תמיד כפול מהרדיוס (קוטר = רדיוס × 2; רדיוס = קוטר ÷ 2).',
       geoRuleSquarePerim: 'כלל: היקף הריבוע = צלע × 4.',
       geoRuleRectPerim: 'כלל: היקף המלבן = (בסיס + גובה) × 2.',
       geoRuleTriPerim: 'כלל: היקף המשולש = סכום 3 הצלעות.',
@@ -1478,6 +1571,10 @@
     $('subject-tabuada-desc').textContent = tt.subjectTabuadaDesc;
     $('subject-numberline-name').textContent = tt.subjectNumberLineName;
     $('subject-numberline-desc').textContent = tt.subjectNumberLineDesc;
+    $('subject-multv-name').textContent = tt.subjectMultVName;
+    $('subject-multv-desc').textContent = tt.subjectMultVDesc;
+    $('subject-divlong-name').textContent = tt.subjectDivLongName;
+    $('subject-divlong-desc').textContent = tt.subjectDivLongDesc;
     $('subject-fractions-name').textContent = tt.subjectFractionsName;
     $('subject-fractions-desc').textContent = tt.subjectFractionsDesc;
     $('nl-map-title').textContent = tt.subjectNumberLineName;
@@ -1852,9 +1949,11 @@
       body += adminSubjectBlock(tt.subjectAddSubName, subjectAdminLines(ensureMiniData(name,'addsub'), [1,2], 'addsubLevel'));
       body += adminSubjectBlock(tt.subjectTabuadaName, tabuadaAdminLines(name));
       body += adminSubjectBlock(tt.subjectNumberLineName, subjectAdminLines(ensureNL(name), NL_LEVEL_KEYS, 'nlLevel'));
+      body += adminSubjectBlock(tt.subjectMultVName, subjectAdminLines(ensureMiniData(name,'multv'), [1,2], 'multvLevel'));
+      body += adminSubjectBlock(tt.subjectDivLongName, subjectAdminLines(ensureMiniData(name,'divlong'), [1,2], 'divlongLevel'));
       body += adminSubjectBlock(tt.subjectFractionsName, subjectAdminLines(ensureFR(name), FR_LEVEL_KEYS, 'frLevel'));
       body += adminSubjectBlock(tt.subjectDecFrName, subjectAdminLines(ensureMiniData(name,'decfr'), [1,2], 'decfrLevel'));
-      body += adminSubjectBlock(tt.subjectGeoName, subjectAdminLines(ensureMiniData(name,'geo'), [1,2], 'geoLevel'));
+      body += adminSubjectBlock(tt.subjectGeoName, subjectAdminLines(ensureMiniData(name,'geo'), [1,2,3], 'geoLevel'));
       body += adminSubjectBlock(tt.subjectFinalName, subjectAdminLines(ensureFinal(name), FN_LEVEL_KEYS, 'fnLevel'));
       card.innerHTML = body;
       list.appendChild(card);
@@ -2546,7 +2645,7 @@
         qText.textContent = c.n1 + '/' + c.d1 + ' ' + c.op + ' ' + c.n2 + '/' + c.d2 + ' = ?';
         pairBars(c.n1, c.d1, c.n2, c.d2);
       } else {
-        qText.textContent = tt.frAskCalc + ' ' + c.a + '/' + c.b + ' ' + c.op + ' ' + c.c + '/' + c.d;
+        qText.textContent = tt.frAskCalc + ' ' + ltr(c.a + '/' + c.b + ' ' + c.op + ' ' + c.c + '/' + c.d);
         pairBars(c.a, c.b, c.c, c.d);
       }
       frState.slotOrder = c.slotOrder;
@@ -2554,6 +2653,7 @@
       frRenderSlots();
       frRenderSlotsKeypad();
     }
+    autoDirection(qText, qText.textContent);
   }
 
   function frRenderSlots(){
@@ -3048,7 +3148,9 @@
     } else {
       storyBox.style.display = 'none';
     }
-    $('fn-question-text').textContent = c.kind === 'expr' ? (c.display + ' = ?') : c.question;
+    const fnQText = $('fn-question-text');
+    fnQText.textContent = c.kind === 'expr' ? (c.display + ' = ?') : c.question;
+    autoDirection(fnQText, fnQText.textContent);
 
     const keypadWrap = $('fn-keypad-wrap');
     const choiceWrap = $('fn-choice-wrap');
@@ -3208,7 +3310,7 @@
   // MINI ASSUNTOS — Adição/Subtração, Frações Decimais, Geometria Simples.
   // One shared engine + shared screens for all three (never run at once).
   // ============================================================
-  const MINI_LEVEL_COUNT = { addsub:2, decfr:2, geo:2 };
+  const MINI_LEVEL_COUNT = { addsub:2, decfr:2, geo:3, multv:2, divlong:2 };
   const MINI_TARGET = 40;
   function defaultMini(levelCount){
     const progress={}, streaks={}, byLevel={};
@@ -3230,13 +3332,16 @@
   let miniActive = null, miniData = null, miniState = null;
   function miniPrevComplete(level){ return level <= 1 || miniData.progress[level-1]; }
   function miniLevelName(level){ return T[lang][miniActive+'Level'+level+'Name']; }
+  const MINI_SUBJECT_NAME_KEY = { addsub:'subjectAddSubName', decfr:'subjectDecFrName', geo:'subjectGeoName', multv:'subjectMultVName', divlong:'subjectDivLongName' };
   function miniSubjectTitle(){
-    return miniActive === 'addsub' ? T[lang].subjectAddSubName : miniActive === 'decfr' ? T[lang].subjectDecFrName : T[lang].subjectGeoName;
+    return T[lang][MINI_SUBJECT_NAME_KEY[miniActive]];
   }
 
   $('btn-open-addsub').addEventListener('click', () => openMiniSubject('addsub'));
   $('btn-open-decfr').addEventListener('click', () => openMiniSubject('decfr'));
   $('btn-open-geo').addEventListener('click', () => openMiniSubject('geo'));
+  $('btn-open-multv').addEventListener('click', () => openMiniSubject('multv'));
+  $('btn-open-divlong').addEventListener('click', () => openMiniSubject('divlong'));
   $('btn-back-mini-hub').addEventListener('click', () => show('hub'));
   $('btn-lang-mini-map').addEventListener('click', () => setLang(lang === 'pt' ? 'he' : 'pt'));
   function openMiniSubject(subj){
@@ -3316,28 +3421,205 @@
     const correct = Math.round((mult ? base*10 : base/10)*100)/100;
     return { kind:'keypad', decimal:true, question: base+' '+(mult?'×':'÷')+' 10 = ?', correct };
   }
+  // ---- Geometria: desenhos SVG ----
+  function polyPoints(cx,cy,r,sides,startDeg){
+    const pts = [];
+    for(let i=0;i<sides;i++){
+      const a = (startDeg + i*360/sides) * Math.PI/180;
+      pts.push((cx+r*Math.cos(a)).toFixed(1) + ',' + (cy+r*Math.sin(a)).toFixed(1));
+    }
+    return pts.join(' ');
+  }
+  function starPoints(cx,cy,rOuter,rInner,points,startDeg){
+    const pts = [];
+    for(let i=0;i<points*2;i++){
+      const r = i%2===0 ? rOuter : rInner;
+      const a = (startDeg + i*360/(points*2)) * Math.PI/180;
+      pts.push((cx+r*Math.cos(a)).toFixed(1) + ',' + (cy+r*Math.sin(a)).toFixed(1));
+    }
+    return pts.join(' ');
+  }
+  function svgBox(inner, vb){
+    return '<svg viewBox="'+(vb||'0 0 140 110')+'" width="150" style="max-width:100%;" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
+  }
+  const GEO_STROKE = 'fill="none" stroke="var(--chalk-yellow)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"';
+  const GEO_LABEL = 'fill="var(--chalk)" font-size="15" font-weight="700" text-anchor="middle" font-family=\'Fredoka,sans-serif\'';
+  const GEO_LABEL_PINK = 'fill="var(--chalk-pink)" font-size="15" font-weight="700" text-anchor="middle" font-family=\'Fredoka,sans-serif\'';
+  function shapeIconSVG(key){
+    let inner = '';
+    if(key==='square') inner = '<rect x="35" y="15" width="70" height="70" '+GEO_STROKE+'/>';
+    else if(key==='rect') inner = '<rect x="15" y="30" width="110" height="55" '+GEO_STROKE+'/>';
+    else if(key==='tri') inner = '<polygon points="70,15 20,95 120,95" '+GEO_STROKE+'/>';
+    else if(key==='circle') inner = '<circle cx="70" cy="55" r="42" '+GEO_STROKE+'/>';
+    else if(key==='pentagon') inner = '<polygon points="'+polyPoints(70,55,42,5,-90)+'" '+GEO_STROKE+'/>';
+    else if(key==='hexagon') inner = '<polygon points="'+polyPoints(70,55,42,6,-90)+'" '+GEO_STROKE+'/>';
+    else if(key==='trapezoid') inner = '<polygon points="45,15 95,15 125,95 15,95" '+GEO_STROKE+'/>';
+    else if(key==='rhombus') inner = '<polygon points="70,10 115,55 70,100 25,55" '+GEO_STROKE+'/>';
+    else if(key==='oval') inner = '<ellipse cx="70" cy="55" rx="58" ry="35" '+GEO_STROKE+'/>';
+    else if(key==='star') inner = '<polygon points="'+starPoints(70,55,45,20,5,-90)+'" '+GEO_STROKE+'/>';
+    return svgBox(inner);
+  }
+  function svgSquare(s){
+    return svgBox('<rect x="30" y="15" width="80" height="80" '+GEO_STROKE+'/>' + '<text x="70" y="10" '+GEO_LABEL+'>'+s+'</text>');
+  }
+  function svgRect(w,h){
+    return svgBox('<rect x="15" y="25" width="110" height="60" '+GEO_STROKE+'/>' +
+      '<text x="70" y="18" '+GEO_LABEL+'>'+w+'</text>' +
+      '<text x="140" y="58" '+GEO_LABEL+' transform="rotate(90 140 58)">'+h+'</text>', '0 0 150 110');
+  }
+  function svgTriPerim(a,b,c){
+    return svgBox('<polygon points="70,15 15,95 125,95" '+GEO_STROKE+'/>' +
+      '<text x="35" y="52" '+GEO_LABEL+'>'+a+'</text>' +
+      '<text x="105" y="52" '+GEO_LABEL+'>'+b+'</text>' +
+      '<text x="70" y="108" '+GEO_LABEL+'>'+c+'</text>');
+  }
+  function svgTriArea(b,h){
+    return svgBox('<polygon points="35,95 125,95 60,15" '+GEO_STROKE+'/>' +
+      '<line x1="60" y1="15" x2="60" y2="95" stroke="var(--chalk-pink)" stroke-width="2" stroke-dasharray="4,3"/>' +
+      '<text x="80" y="108" '+GEO_LABEL+'>'+b+'</text>' +
+      '<text x="40" y="55" '+GEO_LABEL_PINK+'>'+h+'</text>');
+  }
+  function svgCircleRadius(r){
+    return svgBox('<circle cx="70" cy="55" r="42" '+GEO_STROKE+'/>' +
+      '<line x1="70" y1="55" x2="112" y2="55" stroke="var(--chalk-pink)" stroke-width="3"/>' +
+      '<text x="91" y="46" '+GEO_LABEL_PINK+'>'+r+'</text>');
+  }
+  function svgCircleDiam(d){
+    return svgBox('<circle cx="70" cy="55" r="42" '+GEO_STROKE+'/>' +
+      '<line x1="28" y1="55" x2="112" y2="55" stroke="var(--chalk-pink)" stroke-width="3"/>' +
+      '<text x="70" y="46" '+GEO_LABEL_PINK+'>'+d+'</text>');
+  }
+  function svgAngleTri(a,b){
+    return svgBox('<polygon points="20,95 120,95 70,20" '+GEO_STROKE+'/>' +
+      '<text x="37" y="86" '+GEO_LABEL_PINK+'>'+a+'°</text>' +
+      '<text x="103" y="86" '+GEO_LABEL_PINK+'>'+b+'°</text>' +
+      '<text x="70" y="38" fill="var(--chalk-blue)" font-size="16" font-weight="700" text-anchor="middle" font-family=\'Fredoka,sans-serif\'>?</text>');
+  }
+  const GEO_SHAPES = [
+    {key:'square', sides:4}, {key:'rect', sides:4}, {key:'tri', sides:3}, {key:'pentagon', sides:5},
+    {key:'hexagon', sides:6}, {key:'trapezoid', sides:4}, {key:'rhombus', sides:4},
+    {key:'circle', sides:0}, {key:'oval', sides:0}, {key:'star', sides:10}
+  ];
+  // ---- Geometria: nível 1 — Formas e Regras ----
   function geoGen1(){
     const tt = T[lang];
-    const t = fnRnd(4);
-    if(t === 0){ const s=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskSquarePerim(s), correct: s*4, rule: tt.geoRuleSquarePerim }; }
-    if(t === 1){ const w=2+fnRnd(10), h=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskRectPerim(w,h), correct: 2*(w+h), rule: tt.geoRuleRectPerim }; }
-    if(t === 2){ const a=2+fnRnd(10), b=2+fnRnd(10), c=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskTriPerim(a,b,c), correct: a+b+c, rule: tt.geoRuleTriPerim }; }
-    const r=1+fnRnd(10), correct=Math.round(2*3.14*r*100)/100;
-    return { kind:'keypad', decimal:true, question: tt.geoAskCirclePerim(r), correct, rule: tt.geoRuleCircleCirc };
+    const shape = GEO_SHAPES[fnRnd(GEO_SHAPES.length)];
+    const rule = tt.geoShapeRule(shape.key);
+    if(Math.random() < 0.5){
+      const pool = GEO_SHAPES.filter(s => s.key !== shape.key);
+      const distractors = [];
+      while(distractors.length < 3 && pool.length) distractors.push(pool.splice(fnRnd(pool.length),1)[0]);
+      const choices = [{label: tt.geoShapeName(shape.key), value: shape.key}]
+        .concat(distractors.map(s => ({label: tt.geoShapeName(s.key), value: s.key})))
+        .sort(() => Math.random()-0.5);
+      return { kind:'choice', question: tt.geoAskShapeName, choices, correct: shape.key, svg: shapeIconSVG(shape.key), rule };
+    }
+    const sidedShapes = GEO_SHAPES.filter(s => s.sides > 0 && s.sides <= 6);
+    const pick = sidedShapes[fnRnd(sidedShapes.length)];
+    return { kind:'keypad', question: tt.geoAskSides(tt.geoShapeName(pick.key)), correct: pick.sides, svg: shapeIconSVG(pick.key), rule: tt.geoShapeRule(pick.key) };
   }
+  // ---- Geometria: nível 2 — Perímetro e Área ----
   function geoGen2(){
     const tt = T[lang];
+    const mode = Math.random() < 0.5 ? 'perim' : 'area';
     const t = fnRnd(4);
-    if(t === 0){ const s=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskSquareArea(s), correct: s*s, rule: tt.geoRuleSquareArea }; }
-    if(t === 1){ const w=2+fnRnd(10), h=2+fnRnd(10); return { kind:'keypad', question: tt.geoAskRectArea(w,h), correct: w*h, rule: tt.geoRuleRectArea }; }
-    if(t === 2){ const b=2+2*fnRnd(6), h=2+2*fnRnd(6); return { kind:'keypad', question: tt.geoAskTriArea(b,h), correct: (b*h)/2, rule: tt.geoRuleTriArea }; }
+    if(t === 0){
+      const s=2+fnRnd(10);
+      return mode==='perim'
+        ? { kind:'keypad', question: tt.geoAskSquarePerim(s), correct: s*4, rule: tt.geoRuleSquarePerim, svg: svgSquare(s) }
+        : { kind:'keypad', question: tt.geoAskSquareArea(s), correct: s*s, rule: tt.geoRuleSquareArea, svg: svgSquare(s) };
+    }
+    if(t === 1){
+      const w=2+fnRnd(10), h=2+fnRnd(10);
+      return mode==='perim'
+        ? { kind:'keypad', question: tt.geoAskRectPerim(w,h), correct: 2*(w+h), rule: tt.geoRuleRectPerim, svg: svgRect(w,h) }
+        : { kind:'keypad', question: tt.geoAskRectArea(w,h), correct: w*h, rule: tt.geoRuleRectArea, svg: svgRect(w,h) };
+    }
+    if(t === 2){
+      if(mode==='perim'){
+        const a=2+fnRnd(10), b=2+fnRnd(10), c=2+fnRnd(10);
+        return { kind:'keypad', question: tt.geoAskTriPerim(a,b,c), correct: a+b+c, rule: tt.geoRuleTriPerim, svg: svgTriPerim(a,b,c) };
+      }
+      const b=2+2*fnRnd(6), h=2+2*fnRnd(6);
+      return { kind:'keypad', question: tt.geoAskTriArea(b,h), correct: (b*h)/2, rule: tt.geoRuleTriArea, svg: svgTriArea(b,h) };
+    }
+    if(mode==='perim'){
+      const r=1+fnRnd(10), correct=Math.round(2*3.14*r*100)/100;
+      return { kind:'keypad', decimal:true, question: tt.geoAskCirclePerim(r), correct, rule: tt.geoRuleCircleCirc, svg: svgCircleRadius(r) };
+    }
     const r=1+fnRnd(8), correct=Math.round(3.14*r*r*100)/100;
-    return { kind:'keypad', decimal:true, question: tt.geoAskCircleArea(r), correct, rule: tt.geoRuleCircleArea };
+    return { kind:'keypad', decimal:true, question: tt.geoAskCircleArea(r), correct, rule: tt.geoRuleCircleArea, svg: svgCircleRadius(r) };
+  }
+  // ---- Geometria: nível 3 — Ângulos e Círculo ----
+  function geoGen3(){
+    const tt = T[lang];
+    const t = fnRnd(4);
+    if(t === 0){
+      let a,b;
+      do{ a=15+fnRnd(130); b=15+fnRnd(130); } while(a+b >= 170 || a+b <= 30);
+      const correct = 180-a-b;
+      return { kind:'keypad', question: tt.geoAskTriMissingAngle(a,b), correct, rule: tt.geoRuleTriAngleSum, svg: svgAngleTri(a,b) };
+    }
+    if(t === 1){
+      const side = 2+fnRnd(11), other = 2+fnRnd(11), area = side*other;
+      return { kind:'keypad', question: tt.geoAskRectMissingSide(area, side), correct: other, rule: tt.geoRuleRectMissingSide, svg: svgRect(side,'?') };
+    }
+    if(t === 2){
+      const side = 2+fnRnd(11), area = side*side;
+      return { kind:'keypad', question: tt.geoAskSquareMissingSide(area), correct: side, rule: tt.geoRuleSquareMissingSide, svg: svgSquare('?') };
+    }
+    const r = 1+fnRnd(20);
+    if(Math.random() < 0.5){
+      return { kind:'keypad', question: tt.geoAskCircleDiameterFromRadius(r), correct: r*2, rule: tt.geoRuleCircleDiameter, svg: svgCircleRadius(r) };
+    }
+    const d = r*2;
+    return { kind:'keypad', question: tt.geoAskCircleRadiusFromDiameter(d), correct: r, rule: tt.geoRuleCircleDiameter, svg: svgCircleDiam(d) };
+  }
+  function multvGen1(){
+    const a = 10+fnRnd(90), b = 2+fnRnd(8);
+    return { kind:'keypad', vertical:{a,b,op:'×'}, question: '', correct: a*b };
+  }
+  function multvGen2(){
+    const a = 100+fnRnd(800), b = 10+fnRnd(80);
+    return { kind:'keypad', vertical:{a,b,op:'×'}, question: '', correct: a*b };
+  }
+  function divlongGen1(){
+    const tt = T[lang];
+    let d, q, dividend;
+    do{ d = 10+fnRnd(23); q = 4+fnRnd(40); dividend = d*q; } while(dividend < 100 || dividend > 999);
+    return { kind:'keypad', question: tt.divlongAsk(dividend,d), correct: q };
+  }
+  function divlongGen2(){
+    const tt = T[lang];
+    let d, q, r, dividend;
+    do{ d = 10+fnRnd(23); q = 4+fnRnd(30); r = 1+fnRnd(d-1); dividend = d*q+r; } while(dividend < 100 || dividend > 999);
+    const correctKey = q+'r'+r;
+    const distractors = new Set();
+    const wrongPairs = [[q+1,r], [q-1>0?q-1:q+2,r], [q, r>1?r-1:r+1], [q, (r+2)%d || 1]];
+    for(const [wq,wr] of wrongPairs){
+      const key = wq+'r'+wr;
+      if(wq > 0 && wr >= 0 && wr < d && key !== correctKey) distractors.add(key);
+    }
+    let fillCount = 1;
+    while(distractors.size < 3 && fillCount < 50){
+      const key = (q+fillCount)+'r'+((r+fillCount)%d);
+      fillCount++;
+      if(key !== correctKey) distractors.add(key);
+    }
+    const optionKeys = [...distractors].slice(0,3).concat(correctKey);
+    const choices = optionKeys.sort(() => Math.random()-0.5).map(key => {
+      const [wq,wr] = key.split('r').map(Number);
+      return { label: tt.divlongResultLabel(wq,wr), value: key };
+    });
+    return { kind:'choice', question: tt.divlongAsk(dividend,d), choices, correct: correctKey };
   }
   function miniNewQuestion(level){
     if(miniActive === 'addsub') return level === 1 ? addsubGen1() : addsubGen2();
     if(miniActive === 'decfr') return level === 1 ? decfrGen1() : decfrGen2();
-    return level === 1 ? geoGen1() : geoGen2();
+    if(miniActive === 'multv') return level === 1 ? multvGen1() : multvGen2();
+    if(miniActive === 'divlong') return level === 1 ? divlongGen1() : divlongGen2();
+    if(miniActive === 'geo') return level === 1 ? geoGen1() : level === 2 ? geoGen2() : geoGen3();
+    return geoGen1();
   }
 
   function startMiniLevel(level){
@@ -3382,11 +3664,16 @@
 
     const c = miniState.current;
     $('mini-story').style.display = 'none';
+    const visual = $('mini-visual');
+    if(c.svg){ visual.innerHTML = c.svg; visual.style.display = 'flex'; }
+    else { visual.innerHTML = ''; visual.style.display = 'none'; }
     const qText = $('mini-question-text');
     if(c.vertical){
       qText.innerHTML = buildVerticalCalc(c.vertical.a, c.vertical.b, c.vertical.op);
+      qText.style.direction = 'ltr';
     } else {
       qText.textContent = c.question;
+      autoDirection(qText, c.question);
     }
 
     const keypadWrap = $('mini-keypad-wrap');
@@ -3506,6 +3793,14 @@
       if(c.explainKind === 'toFraction') return '<b>' + tt.decfrExplainToFraction(c.decStr, c.n, c.d) + '</b>';
       const rule = miniState.level === 1 ? tt.decfrRule1 : tt.decfrRule2;
       return '<b>' + (rule||'') + ' ' + resultText + '</b>';
+    }
+    if(miniActive === 'multv'){
+      const rule = miniState.level === 1 ? tt.multvRule1 : tt.multvRule2;
+      return '<b>' + rule + ' ' + resultText + '</b>';
+    }
+    if(miniActive === 'divlong'){
+      const rule = miniState.level === 1 ? tt.divlongRule1 : tt.divlongRule2;
+      return '<b>' + rule + ' ' + resultText + '</b>';
     }
     return '<b>' + resultText + '</b>';
   }
